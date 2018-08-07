@@ -1,0 +1,31 @@
+{
+  "name": "step-by-step",
+  "version": "1.0.0",
+  "description": "build vuejs project scratch step by step",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config build/webpack.config.dev.js",
+    "dev": "webpack-dev-server --config build/webpack.config.dev.js"
+  },
+  "author": "Allen",
+  "license": "MIT",
+  "dependencies": {
+    "vue": "^2.5.17",
+    "vue-router": "^3.0.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "css-loader": "^1.0.0",
+    "html-webpack-plugin": "^3.2.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
+    "vue-loader": "^15.2.6",
+    "vue-style-loader": "^4.1.1",
+    "vue-template-compiler": "^2.5.17",
+    "webpack": "^4.16.5",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5"
+  }
+}
