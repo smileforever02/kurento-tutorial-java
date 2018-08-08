@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/Behappy?useSSL=false
+    username: Behappy
+    password: behappy
+    tomcat.max-active: 100
+    tomcat.max-idle: 100
+    tomcat.initialSize: 20
+  jpa:
+    database: MYSQL
+    hibernate.ddl-auto: update
+    generate-ddl: true
+    show-sql: true
+    
