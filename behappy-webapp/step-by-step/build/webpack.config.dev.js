@@ -7,6 +7,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
     mode: 'development',
     entry: ['./src/app.js'],
+    resolve: {
+        alias: {vue: 'vue/dist/vue.js'}
+    },
     devServer: {
         hot: true,
         watchOptions: {
