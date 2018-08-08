@@ -16,3 +16,5 @@ target/
 # Java Spring
 .springBeans
 .sts4-cache/
+
+node_modules/
