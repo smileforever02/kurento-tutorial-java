@@ -1,7 +1,8 @@
 import Vue from 'vue'///dist/vue.js'
 import VueRouter from 'vue-router'
-import App from './App.vue'
-import Home from './Home.vue'
+// import App from './App.vue'
+import SignUp from './pages/SignUp.vue'
+import Home from './pages/Home.vue'
 import '../assets/app.styl'
 
 // new Vue({
@@ -11,10 +12,12 @@ import '../assets/app.styl'
 
 Vue.use(VueRouter);
 const routes = [
-    { path: '/home', component: Home },
-    { path: '/app', component: App }
+    { path: '/', component: Home },
+    { path: '/signup', component: SignUp }
 ];
 const router = new VueRouter({
+    mode: 'history',
+    base: __dirname,
     routes // (缩写) 相当于 routes: routes
 })
 

@@ -3,6 +3,8 @@
 const {HotModuleReplacementPlugin} = require('webpack')
 const {VueLoaderPlugin} = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const {resolve} = require('./utils')
 
 module.exports = {
     mode: 'development',
@@ -43,6 +45,23 @@ module.exports = {
             filename: 'index.html',
             template: 'index.html',
             inject: true
-        })
+        }),
+        new CopyWebpackPlugin([
+            {
+                from: resolve('static/img'),
+                to: resolve('dist/static/img'),
+                toType: 'dir'
+            },
+            {
+                from: resolve('static/3rd-js'),
+                to: resolve('dist/static/3rd-js'),
+                toType: 'dir'
+            },
+            {
+                from: resolve('static/3rd-css'),
+                to: resolve('dist/static/3rd-css'),
+                toType: 'dir'
+            }
+        ])
     ]
 }
