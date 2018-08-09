@@ -17,19 +17,19 @@ public class FriendsListService {
 	@Autowired
 	private UserService userService;
 	
-	public void addFriend(String requesterUserId, String accepterUserId) {
+	public FriendsList addFriend(String requesterUserId, String accepterUserId) {
 		log.info("requesterUserId:" + requesterUserId + " request to add friend " + accepterUserId);
 		
 		User requester = userService.getUser(requesterUserId);
 		if(requester == null) {
 			log.error(requesterUserId + " doesn't exist.");
-			return;
+			return null;
 		}
 		
 		User accepter = userService.getUser(accepterUserId);
 		if(accepter == null) {
 			log.error(accepterUserId + " doesn't exist.");
-			return;
+			return null;
 		}
 		
 		FriendsList friendsList = new FriendsList();
@@ -40,7 +40,7 @@ public class FriendsListService {
 		friendsList.setRequestDate(new Date());
 		friendsList.setAcceptStatus(1);
 		
-		friendsListRepository.save(friendsList);
+		return friendsListRepository.save(friendsList);
 	}
 	
 

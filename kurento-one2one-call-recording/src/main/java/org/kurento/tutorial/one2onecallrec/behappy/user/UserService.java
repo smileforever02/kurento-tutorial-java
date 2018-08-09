@@ -12,17 +12,17 @@ public class UserService {
 	@Autowired
 	UserRepository userRepository;
 	
-	public void registerUser(User user) {
+	public User registerUser(User user) {
 		if (userRepository.findOne(user.getUserId()) == null) {
 			user.setCreatedDate(new Date());
-			userRepository.save(user);	
+			return userRepository.save(user);	
 		} else {
-			
+			return null;
 		}
 	}
 	
-	public void updateUser(User user) {
-		userRepository.save(user);
+	public User updateUser(User user) {
+		return userRepository.save(user);
 	}
 	
 	public User getUser(String userId) {

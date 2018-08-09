@@ -16,8 +16,8 @@ public class FriendsListController {
 	private FriendsListService friendsListService;
 	
 	@RequestMapping(value="/addfriend", method = RequestMethod.POST)
-	public void addFriend(@RequestParam("requesterUserId") String requesterUserId, @RequestParam("accepterUserId") String accepterUserId) {
-		friendsListService.addFriend(requesterUserId, accepterUserId);
+	public FriendsList addFriend(@RequestParam("requesterUserId") String requesterUserId, @RequestParam("accepterUserId") String accepterUserId) {
+		return friendsListService.addFriend(requesterUserId, accepterUserId);
 	}
 	
 	@RequestMapping(value="/allfriends/{userId}", method = RequestMethod.GET)
