@@ -25,10 +25,10 @@ public class FriendsList {
 	private Long id;
 	
 	@ManyToOne
-	@JoinColumn(name = "requesterUserId", referencedColumnName = "userId", nullable = true)
+	@JoinColumn(name = "requesterUserId", referencedColumnName = "userId", nullable = false)
 	private User requester;
 	@ManyToOne
-	@JoinColumn(name = "accepterUserId", referencedColumnName = "userId", nullable = true)
+	@JoinColumn(name = "accepterUserId", referencedColumnName = "userId", nullable = false)
 	private User accepter;
 	private String requesterDisplayname;
 	private String accepterDisplayname;
