@@ -1,6 +1,8 @@
 package org.kurento.tutorial.one2onecallrec.behappy.user;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,5 +41,26 @@ public class FriendsListService {
 		friendsList.setAcceptStatus(1);
 		
 		friendsListRepository.save(friendsList);
+	}
+	
+
+	public List<User> findAllFriends(String userId) {
+		List<User> friends = new ArrayList<>();
+		
+		List<FriendsList> accepterList = friendsListRepository.findByRequesterUserId(userId);
+		if(accepterList != null) {
+			for(FriendsList friendsList : accepterList) {
+				friends.add(friendsList.getAccepter());
+			}
+		}
+		
+		List<FriendsList> requesterList = friendsListRepository.findByAccepterUserId(userId);
+		if(requesterList != null) {
+			for(FriendsList friendsList : requesterList) {
+				friends.add(friendsList.getRequester());
+			}
+		}
+		
+		return friends;
 	}
 }
