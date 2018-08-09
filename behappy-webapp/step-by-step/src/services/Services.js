@@ -10,10 +10,13 @@ export default {
     send(url, method, data){
         let options = {
             url: url,
-            type: method
+            type: method,
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
         };
         if(method === 'POST' || method === 'PUT'){
-            options.data = data;
+            options.data = JSON.stringify(data);
         }
         return $.ajax(options);
     }
