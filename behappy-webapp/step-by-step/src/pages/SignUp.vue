@@ -45,14 +45,15 @@ export default {
     },
     methods: {
         submit(){
-            console.log(this.$router)
-            console.log(this.userId)
-            console.log(this.userNickName)
-            console.log(this.password)
-            console.log(this.passwordConfirm)
-            Services.createUser({userId: this.userId, userNickName: this.userNickName, password: this.password})
-                .done(() => console.log('create user done'));
-            // setTimeout(() => this.$router.push('/'), 1000)
+            // console.log(this.$router)
+            // console.log(this.userId)
+            // console.log(this.userNickName)
+            // console.log(this.password)
+            // console.log(this.passwordConfirm)
+            Services.createUser({userId: this.userId, nickName: this.userNickName, password: this.password})
+                .done(() => this.$router.push('/user/' + this.userId)).fail(() => console.log(arguments))
+            //     .done(() => console.log('create user done'));
+            // setTimeout(() => this.$router.push('/user/Allen'), 1000)
         }
     }
 }
