@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 import SignUp from './pages/SignUp.vue'
 import Home from './pages/Home.vue'
 import User from './pages/User.vue'
+import Friends from './pages/Friend.vue'
 import '../assets/app.styl'
 
 // new Vue({
@@ -15,7 +16,8 @@ Vue.use(VueRouter);
 const routes = [
     { path: '/', component: Home },
     { path: '/signup', component: SignUp },
-    { path: '/user/:userId', component: User}
+    { path: '/user/:userId', component: User},
+    { path: '/friends', component: Friends}
 ];
 const router = new VueRouter({
     // mode: 'history',

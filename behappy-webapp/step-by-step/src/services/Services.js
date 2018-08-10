@@ -4,8 +4,14 @@ export default {
     createUser(user){
         return this.post('/adduser', user);
     },
+    getFriends(){
+        return this.get('/getfriends');
+    },
     post(url, data){
         return this.send(url, 'POST', data);
+    },
+    get(url){
+        return this.send(url, 'GET');
     },
     send(url, method, data){
         let options = {

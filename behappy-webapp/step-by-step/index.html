@@ -11,12 +11,24 @@
   </head>
   <body>
     <div class="container" id="app">
-      <p class="navigator">
-        <router-link to="/">Welcome</router-link>
-        <router-link to="/login"><span>Sign In</span></router-link>
-        <router-link to="/signup"><span>Sign Up</span></router-link>
-        <router-link to="/addfriend"><span>Add Friends</span></router-link>
-      </p>
+      <header class="navigator navbar navbar-expand navbar-dark flex-column flex-md-row">
+        <div class="navbar-nav-scroll">
+          <ul class="navbar-nav bd-navbar-nav flex-row">
+            <li class="nav-item">
+              <router-link to="/"><span>Welcome</span></router-link>
+            </li>
+            <li class="nav-item">
+                <router-link to="/login"><span>Sign In</span></router-link>
+            </li>
+            <li class="nav-item">
+                <router-link to="/signup"><span>Sign Up</span></router-link>
+            </li>
+            <li class="nav-item">
+                <router-link to="/addfriend"><span>Add Friends</span></router-link>
+            </li>
+          </ul>
+        </div>
+      </header>
       <!-- 路由出口 -->
       <!-- 路由匹配到的组件将渲染在这里 -->
       <transition name="fade" mode="out-in">
