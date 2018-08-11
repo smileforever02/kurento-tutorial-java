@@ -6,6 +6,7 @@
                 <span class="glyphicon glyphicon-plus-sign add-friend" v-on:click="addFriend"></span>
             </div>
         </div>
+
     </div>
 </template>
 
