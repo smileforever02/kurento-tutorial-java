@@ -3,7 +3,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0, shrink-to-fit=no">
     <title>My Vue app with webpack 4</title>
-    <link rel="stylesheet" href="static/3rd-css/bootstrap.4.1.3.min.css">
+    <link rel="stylesheet" href="static/3rd-css/bootstrap.3.3.7.css">
     <script src="static/3rd-js/jquery-3.3.1.min.js"></script>
     <script src="static/3rd-js/popper.1.14.3.min.js"></script>
     <script src="static/3rd-js/bootstrap.4.1.3.min.js"></script>
@@ -11,12 +11,24 @@
   </head>
   <body>
     <div class="container" id="app">
-      <p class="navigator">
-        <router-link to="/">Welcome</router-link>
-        <router-link to="/login"><span>Sign In</span></router-link>
-        <router-link to="/signup"><span>Sign Up</span></router-link>
-        <router-link to="/addfriend"><span>Add Friends</span></router-link>
-      </p>
+      <header class="navigator navbar navbar-expand navbar-dark flex-column flex-md-row">
+        <div class="navbar-nav-scroll">
+          <ul class="navbar-nav bd-navbar-nav flex-row">
+            <li class="nav-item">
+              <router-link to="/"><span>Welcome</span></router-link>
+            </li>
+            <li class="nav-item">
+                <router-link to="/login"><span>Sign In</span></router-link>
+            </li>
+            <li class="nav-item">
+                <router-link to="/signup"><span>Sign Up</span></router-link>
+            </li>
+            <li class="nav-item">
+                <router-link to="/user-list"><span>Add Friends</span></router-link>
+            </li>
+          </ul>
+        </div>
+      </header>
       <!-- 路由出口 -->
       <!-- 路由匹配到的组件将渲染在这里 -->
       <transition name="fade" mode="out-in">

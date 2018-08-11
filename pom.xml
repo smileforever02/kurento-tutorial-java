@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.kurento</groupId>
 		<artifactId>kurento-parent-pom</artifactId>
-		<version>6.7.2-SNAPSHOT</version>
+		<version>6.7.1</version>
 	</parent>
 	<groupId>org.kurento.tutorial</groupId>
 	<artifactId>kurento-tutorial</artifactId>
@@ -87,46 +87,5 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
-
-	<build>
-		<pluginManagement>
-			<plugins>
-				<!--
-				Goal: spring-boot:run
-				Allows running the project from Maven.
-				Use this command: `mvn clean spring-boot:run`.
-
-				Goal: spring-boot:repackage
-				Runs automatically during the Maven's 'package' goal.
-				The parameter 'executable=true' generates an executable JAR during
-				the 'package' phase. The original package is still generated as
-				"<Name>.jar", and the executable one is generated as "<Name>-exec.jar".
-				It also supports the service actions start/stop/status, so it
-				can be linked into "/etc/init.d/" to be used as system service.
-
-				Ref:
-				- https://docs.spring.io/spring-boot/docs/current/maven-plugin/index.html
-				- https://docs.spring.io/spring-boot/docs/1.4.1.RELEASE/reference/htmlsingle/#deployment-service
-				-->
-				<plugin>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-maven-plugin</artifactId>
-					<configuration>
-						<classifier>exec</classifier>
-						<executable>true</executable>
-						<layout>ZIP</layout>
-						<mainClass>${start-class}</mainClass>
-					</configuration>
-					<executions>
-						<execution>
-							<goals>
-								<goal>repackage</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
 
 </project>

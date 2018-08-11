@@ -1,3 +1,6 @@
+liMargin = 0.2em
+lineHeight = 2em
+
 .full-width
   width 100%
   
@@ -6,6 +9,27 @@
   justify-content center
   align-items center
   height 100%
+
+.page-content
+  width 100%
+  list-style none
+  padding 0
+
+.item-list li
+  height lineHeight
+  line-height lineHeight
+  background #cecece
+  margin-top liMargin
+  padding 0 liMargin 0 liMargin
+  cursor pointer
+  span
+    display inline-block
+    line-height lineHeight
+  .glyphicon
+    color green 
+
+.right
+  float right 
 
 .container
   height 100%
