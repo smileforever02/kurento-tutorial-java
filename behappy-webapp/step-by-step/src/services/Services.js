@@ -11,7 +11,7 @@ export default {
         return this.get('/users')
     },
     addFriend(userId){
-        this.post('/addfriend?friendUserId=' + userId)
+        return this.post('/addfriend?friendUserId=' + userId)
     },
     post(url, data){
         return this.send(url, 'POST', data);

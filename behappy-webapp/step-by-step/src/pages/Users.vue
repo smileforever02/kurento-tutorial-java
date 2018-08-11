@@ -25,7 +25,10 @@ export default {
             this.$router.push('/user/' + userName)
         },
         addFriend(userId, userName){
-            Services.addFriend().done((data) => console.log(data)).fail(err => console.log(err));
+            Services.addFriend(userId).done((data) => {
+                console.log(data);
+                this.$router.push('/friends')
+            }).fail(err => console.log(err));
         }
     }
 }

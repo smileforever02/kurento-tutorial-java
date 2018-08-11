@@ -4,7 +4,7 @@ import VueRouter from 'vue-router'
 import SignUp from '../pages/SignUp.vue'
 import Home from '../pages/Home.vue'
 import UserProfile from '../pages/UserProfile.vue'
-import Friends from '../pages/Friend.vue'
+import Friends from '../pages/Friends.vue'
 import Users from '../pages/Users.vue'
 
 Vue.use(VueRouter);
