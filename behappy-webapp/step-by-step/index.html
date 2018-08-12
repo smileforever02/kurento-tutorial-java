@@ -17,7 +17,7 @@
             <li class="nav-item">
               <router-link to="/"><span>Welcome</span></router-link>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="logonUser === null">
                 <router-link to="/login"><span>Sign In</span></router-link>
             </li>
             <li class="nav-item">
@@ -27,6 +27,7 @@
                 <router-link to="/friends"><span>Friends</span></router-link>
             </li>
           </ul>
+          <span v-if="logonUser !== null" class="logon" v-on:click="showme">{{logonUser}}</span>
         </div>
       </header>
       <!-- 路由出口 -->

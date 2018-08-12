@@ -6,11 +6,13 @@ import Home from '../pages/Home.vue'
 import UserProfile from '../pages/UserProfile.vue'
 import Friends from '../pages/Friends.vue'
 import Users from '../pages/Users.vue'
+import Login from '../pages/Login.vue'
 
 Vue.use(VueRouter);
 const routes = [
     { path: '/', component: Home },
     { path: '/signup', component: SignUp },
+    { path: '/login', component: Login },
     { path: '/user/:userId', component: UserProfile},
     { path: '/friends', component: Friends},
     { path: '/user-list', component: Users}

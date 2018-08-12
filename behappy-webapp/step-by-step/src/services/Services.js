@@ -1,6 +1,9 @@
 import $ from '../utils'
 
 export default {
+    login(user){
+        return this.post('/login', user)
+    },
     createUser(user){
         return this.post('/adduser', user);
     },
