@@ -17,23 +17,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class LoginController {
-	@Autowired
-	private UserService userService;
-	@Autowired
-	private UserFriendService friendsListService;
-	@Autowired
-	private HttpSession httpSession;
+  @Autowired
+  private UserService userService;
+  @Autowired
+  private UserFriendService userFriendService;
+  @Autowired
+  private HttpSession httpSession;
 
-	@PostMapping(value = "/login")
-	public ResponseEntity<?> login(@RequestParam("userId") String userId, @RequestParam("password") String password) {
-		if (userService.verifyPassword(userId, password)) {
-			httpSession.setAttribute("userId", userId);
 
-			List<User> friends = friendsListService.getAllFriends(userId);
-			return ResponseEntity.ok(friends);
-		} else {
-			return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST)
-					.body(new Message(1, "userId or password is not correct"));
-		}
-	}
+  @PostMapping(value = "/login")
+  public ResponseEntity<?> login(@RequestParam("userId") String userId,
+      @RequestParam("password") String password) {
+    if (userService.verifyPassword(userId, password)) {
+      httpSession.setAttribute("userId", userId);
+
+      List<User> friends = userFriendService.getAllFriends(userId);
+      return ResponseEntity.ok(friends);
+    } else {
+      return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST)
+          .body(new Message(1, "userId or password is not correct"));
+    }
+  }
 }

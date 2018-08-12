@@ -30,6 +30,7 @@ import org.kurento.jsonrpc.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -58,6 +59,9 @@ public class CallHandler extends TextWebSocketHandler {
 
   @Autowired
   private UserRegistry registry;
+  
+  @Autowired
+  private ApplicationContext context;
 
   @Override
   public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
@@ -159,7 +163,8 @@ public class CallHandler extends TextWebSocketHandler {
     if ("accept".equals(callResponse)) {
       log.debug("Accepted call from '{}' to '{}'", from, to);
 
-      CallMediaPipeline callMediaPipeline = new CallMediaPipeline(kurento, from, to);
+      final CallMediaPipeline callMediaPipeline = context.getBean(CallMediaPipeline.class);
+      callMediaPipeline.init(from, to);
       pipelines.put(calleer.getSessionId(), callMediaPipeline.getPipeline());
       pipelines.put(callee.getSessionId(), callMediaPipeline.getPipeline());
 
@@ -284,8 +289,8 @@ public class CallHandler extends TextWebSocketHandler {
     response.addProperty("id", "playResponse");
 
     if (registry.getByName(user) != null && registry.getBySession(session.getSession()) != null) {
-      final PlayMediaPipeline playMediaPipeline =
-          new PlayMediaPipeline(kurento, user, session.getSession());
+      final PlayMediaPipeline playMediaPipeline = context.getBean(PlayMediaPipeline.class);
+      playMediaPipeline.init(user, session.getSession());
 
       session.setPlayingWebRtcEndpoint(playMediaPipeline.getWebRtc());
 

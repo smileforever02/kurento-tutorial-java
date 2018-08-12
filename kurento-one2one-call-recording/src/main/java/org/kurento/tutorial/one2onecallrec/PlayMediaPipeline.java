@@ -17,10 +17,8 @@
 
 package org.kurento.tutorial.one2onecallrec;
 
-import static org.kurento.tutorial.one2onecallrec.CallMediaPipeline.RECORDING_EXT;
-import static org.kurento.tutorial.one2onecallrec.CallMediaPipeline.RECORDING_PATH;
-
 import java.io.IOException;
+import java.util.List;
 
 import org.kurento.client.ErrorEvent;
 import org.kurento.client.EventListener;
@@ -28,8 +26,13 @@ import org.kurento.client.KurentoClient;
 import org.kurento.client.MediaPipeline;
 import org.kurento.client.PlayerEndpoint;
 import org.kurento.client.WebRtcEndpoint;
+import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecord;
+import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -42,21 +45,29 @@ import com.google.gson.JsonObject;
  * @author Boni Garcia (bgarcia@gsyc.es)
  * @since 6.1.1
  */
+
+@Component
+@Scope(value="prototype")
 public class PlayMediaPipeline {
 
   private static final Logger log = LoggerFactory.getLogger(PlayMediaPipeline.class);
 
-  private final MediaPipeline pipeline;
+  private MediaPipeline pipeline;
   private WebRtcEndpoint webRtc;
-  private final PlayerEndpoint player;
-
-  public PlayMediaPipeline(KurentoClient kurento, String user, final WebSocketSession session) {
+  private PlayerEndpoint player;
+  
+  @Autowired
+  private KurentoClient kurento;
+  @Autowired
+  private VideoRecordService videoRecordService;
+  
+  public void init(String userId, final WebSocketSession session) {
     // Media pipeline
     pipeline = kurento.createMediaPipeline();
 
     // Media Elements (WebRtcEndpoint, PlayerEndpoint)
     webRtc = new WebRtcEndpoint.Builder(pipeline).build();
-    player = new PlayerEndpoint.Builder(pipeline, RECORDING_PATH + user + RECORDING_EXT).build();
+    player = new PlayerEndpoint.Builder(pipeline, getUserVideoFileWholePath(userId)).build();
 
     // Connection
     player.connect(webRtc);
@@ -105,4 +116,16 @@ public class PlayMediaPipeline {
     return player;
   }
 
+  private String getUserVideoFileWholePath(String userId) {
+    String videoFileWholePath = null;
+    List<VideoRecord> videoRecords = videoRecordService.getVideoRecords(userId);
+    if (videoRecords != null && !videoRecords.isEmpty()) {
+      VideoRecord videoRecord = videoRecords.get(0);
+      if(videoRecord != null) {
+        videoFileWholePath = videoRecord.getVideoFileWholePath();  
+      }
+    }
+    log.info("=======videoFileWholePath=" + videoFileWholePath);
+    return videoFileWholePath;
+  }
 }
