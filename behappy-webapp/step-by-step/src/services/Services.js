@@ -8,7 +8,7 @@ export default {
         return this.post('/adduser', user);
     },
     getFriends(){
-        return this.get('/getfriends');
+        return this.get('/allfriends');
     },
     getUsers(){
         return this.get('/users')
