@@ -1,8 +1,8 @@
 <template>
     <div class="full-width center-content">
         <ul class="page-content item-list">
-            <li v-for="item in items" v-bind:key="item.id" v-bind:data-userid="item.id">
-                <span v-on:click="checkUser(item.id, item.name)">{{item.name}}</span><span v-on:click="addFriend(item.id, item.name)" class="glyphicon glyphicon-plus-sign right" aria-hidden="true"></span>
+            <li v-for="item in items" v-bind:key="item.userId" v-bind:data-userid="item.userId">
+                <span v-on:click="checkUser(item.userId, item.nickName)">{{item.nickName}}</span><span v-on:click="addFriend(item.userId, item.nickName)" class="glyphicon glyphicon-plus-sign right" aria-hidden="true"></span>
             </li>
         </ul>
     </div>
