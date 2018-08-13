@@ -262,8 +262,8 @@ function register() {
 	setRegisterState(REGISTERING);
 
 	var message = {
-		id : 'register',
-		name : name
+		id : 'registerUserSession',
+		userId : name
 	};
 	sendMessage(message);
 }
