@@ -1,17 +1,17 @@
 [{
-	"id": "1001",
-	"name": "Tom"
+	"friendUserfriendUserId": "1001",
+	"friendDisplayName": "Tom"
  },{
-	"id": "1002",
-	"name": "Kobe"
+	"friendUserId": "1002",
+	"friendDisplayName": "Kobe"
  },{
-	"id": "1003",
-	"name": "Kerry"
+	"friendUserId": "1003",
+	"friendDisplayName": "Kerry"
  },{
-	"id": "1004",
-	"name": "Jams"
+	"friendUserId": "1004",
+	"friendDisplayName": "Jams"
  },{
-	"id": "1005",
-	"name": "Larry"
+	"friendUserId": "1005",
+	"friendDisplayName": "Larry"
  }
 ]
