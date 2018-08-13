@@ -2,7 +2,7 @@
     <div class="full-width center-content">
         <ul class="page-content item-list">
             <li v-for="item in items" v-bind:key="item.friendUserId" v-bind:data-userid="item.friendUserId">
-                <span v-on:click="checkUser(item.friendUserId, item.friendDisplayName)">{{item.friendDisplayName}}</span><span v-on:click="callFriend(item.friendUserId, item.friendDisplayName)" class="glyphicon glyphicon-facetime-video right" aria-hidden="true"></span>
+                <span v-on:click="checkUser(item.friend.userId, item.friend.nickName)">{{item.friend.nickName}}</span><span v-on:click="callFriend(item.friend.userId, item.friend.nickName)" class="glyphicon glyphicon-facetime-video right" aria-hidden="true"></span>
             </li>
         </ul>
     </div>
