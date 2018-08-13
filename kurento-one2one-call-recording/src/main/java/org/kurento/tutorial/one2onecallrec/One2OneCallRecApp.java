@@ -42,8 +42,8 @@ public class One2OneCallRecApp implements WebSocketConfigurer {
   }
 
   @Bean
-  public UserRegistry registry() {
-    return new UserRegistry();
+  public UserSessionRegistry userSessionRegistry() {
+    return new UserSessionRegistry();
   }
 
   @Bean
@@ -59,5 +59,4 @@ public class One2OneCallRecApp implements WebSocketConfigurer {
   public static void main(String[] args) throws Exception {
     SpringApplication.run(One2OneCallRecApp.class, args);
   }
-
 }

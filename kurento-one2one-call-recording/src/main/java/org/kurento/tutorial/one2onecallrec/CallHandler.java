@@ -24,7 +24,6 @@ import org.kurento.client.EndOfStreamEvent;
 import org.kurento.client.EventListener;
 import org.kurento.client.IceCandidate;
 import org.kurento.client.IceCandidateFoundEvent;
-import org.kurento.client.KurentoClient;
 import org.kurento.client.MediaPipeline;
 import org.kurento.jsonrpc.JsonUtils;
 import org.slf4j.Logger;
@@ -55,10 +54,7 @@ public class CallHandler extends TextWebSocketHandler {
   private final ConcurrentHashMap<String, MediaPipeline> pipelines = new ConcurrentHashMap<>();
 
   @Autowired
-  private KurentoClient kurento;
-
-  @Autowired
-  private UserRegistry registry;
+  private UserSessionRegistry userSessionRegistry;
   
   @Autowired
   private ApplicationContext context;
@@ -66,17 +62,17 @@ public class CallHandler extends TextWebSocketHandler {
   @Override
   public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
     JsonObject jsonMessage = gson.fromJson(message.getPayload(), JsonObject.class);
-    UserSession user = registry.getBySession(session);
+    UserSession user = userSessionRegistry.getBySession(session);
 
     if (user != null) {
-      log.debug("Incoming message from user '{}': {}", user.getName(), jsonMessage);
+      log.debug("Incoming message from user '{}': {}", user.getByUserId(), jsonMessage);
     } else {
       log.debug("Incoming message from new user: {}", jsonMessage);
     }
 
     switch (jsonMessage.get("id").getAsString()) {
-      case "register":
-        register(session, jsonMessage);
+      case "registerUserSession":
+        registerUserSession(session, jsonMessage);
         break;
       case "call":
         call(user, jsonMessage);
@@ -110,17 +106,17 @@ public class CallHandler extends TextWebSocketHandler {
     }
   }
 
-  private void register(WebSocketSession session, JsonObject jsonMessage) throws IOException {
-    String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
+  private void registerUserSession(WebSocketSession session, JsonObject jsonMessage) throws IOException {
+    String userId = jsonMessage.getAsJsonPrimitive("userId").getAsString();
 
-    UserSession caller = new UserSession(session, name);
+    UserSession caller = new UserSession(session, userId);
     String responseMsg = "accepted";
-    if (name.isEmpty()) {
-      responseMsg = "rejected: empty user name";
-    } else if (registry.exists(name)) {
-      responseMsg = "rejected: user '" + name + "' already registered";
+    if (userId.isEmpty()) {
+      responseMsg = "rejected: empty userId";
+    } else if (userSessionRegistry.exists(userId)) {
+      responseMsg = "rejected: user '" + userId + "' already has a websocket connection";
     } else {
-      registry.register(caller);
+      userSessionRegistry.registerUserSession(caller);
     }
 
     JsonObject response = new JsonObject();
@@ -134,14 +130,14 @@ public class CallHandler extends TextWebSocketHandler {
     String from = jsonMessage.get("from").getAsString();
     JsonObject response = new JsonObject();
 
-    if (registry.exists(to)) {
+    if (userSessionRegistry.exists(to)) {
       caller.setSdpOffer(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
       caller.setCallingTo(to);
 
       response.addProperty("id", "incomingCall");
       response.addProperty("from", from);
 
-      UserSession callee = registry.getByName(to);
+      UserSession callee = userSessionRegistry.getByUserId(to);
       callee.sendMessage(response);
       callee.setCallingFrom(from);
     } else {
@@ -157,7 +153,7 @@ public class CallHandler extends TextWebSocketHandler {
       throws IOException {
     String callResponse = jsonMessage.get("callResponse").getAsString();
     String from = jsonMessage.get("from").getAsString();
-    final UserSession calleer = registry.getByName(from);
+    final UserSession calleer = userSessionRegistry.getByUserId(from);
     String to = calleer.getCallingTo();
 
     if ("accept".equals(callResponse)) {
@@ -199,7 +195,7 @@ public class CallHandler extends TextWebSocketHandler {
 
       callMediaPipeline.getCalleeWebRtcEp().gatherCandidates();
 
-      String callerSdpOffer = registry.getByName(from).getSdpOffer();
+      String callerSdpOffer = userSessionRegistry.getByUserId(from).getSdpOffer();
 
       calleer.setWebRtcEndpoint(callMediaPipeline.getCallerWebRtcEp());
       callMediaPipeline.getCallerWebRtcEp().addIceCandidateFoundListener(
@@ -246,11 +242,11 @@ public class CallHandler extends TextWebSocketHandler {
   public void stop(WebSocketSession session) throws IOException {
     // Both users can stop the communication. A 'stopCommunication'
     // message will be sent to the other peer.
-    UserSession stopperUser = registry.getBySession(session);
+    UserSession stopperUser = userSessionRegistry.getBySession(session);
     if (stopperUser != null) {
       UserSession stoppedUser =
-          (stopperUser.getCallingFrom() != null) ? registry.getByName(stopperUser.getCallingFrom())
-              : stopperUser.getCallingTo() != null ? registry.getByName(stopperUser.getCallingTo())
+          (stopperUser.getCallingFrom() != null) ? userSessionRegistry.getByUserId(stopperUser.getCallingFrom())
+              : stopperUser.getCallingTo() != null ? userSessionRegistry.getByUserId(stopperUser.getCallingTo())
                   : null;
 
               if (stoppedUser != null) {
@@ -275,8 +271,8 @@ public class CallHandler extends TextWebSocketHandler {
 
     // set to null the endpoint of the other user
     UserSession stoppedUser =
-        (session.getCallingFrom() != null) ? registry.getByName(session.getCallingFrom())
-            : registry.getByName(session.getCallingTo());
+        (session.getCallingFrom() != null) ? userSessionRegistry.getByUserId(session.getCallingFrom())
+            : userSessionRegistry.getByUserId(session.getCallingTo());
         stoppedUser.setWebRtcEndpoint(null);
         stoppedUser.setPlayingWebRtcEndpoint(null);
   }
@@ -288,7 +284,7 @@ public class CallHandler extends TextWebSocketHandler {
     JsonObject response = new JsonObject();
     response.addProperty("id", "playResponse");
 
-    if (registry.getByName(user) != null && registry.getBySession(session.getSession()) != null) {
+    if (userSessionRegistry.getByUserId(user) != null && userSessionRegistry.getBySession(session.getSession()) != null) {
       final PlayMediaPipeline playMediaPipeline = context.getBean(PlayMediaPipeline.class);
       playMediaPipeline.init(user, session.getSession());
 
@@ -297,7 +293,7 @@ public class CallHandler extends TextWebSocketHandler {
       playMediaPipeline.getPlayer().addEndOfStreamListener(new EventListener<EndOfStreamEvent>() {
         @Override
         public void onEvent(EndOfStreamEvent event) {
-          UserSession user = registry.getBySession(session.getSession());
+          UserSession user = userSessionRegistry.getBySession(session.getSession());
           releasePipeline(user);
           playMediaPipeline.sendPlayEnd(session.getSession());
         }
@@ -347,7 +343,7 @@ public class CallHandler extends TextWebSocketHandler {
   @Override
   public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
     stop(session);
-    registry.removeBySession(session);
+    userSessionRegistry.removeBySession(session);
   }
 
 }

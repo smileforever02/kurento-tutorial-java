@@ -29,32 +29,32 @@ import org.springframework.web.socket.WebSocketSession;
  * @author Micael Gallego (micael.gallego@gmail.com)
  * @since 6.1.1
  */
-public class UserRegistry {
+public class UserSessionRegistry {
 
-  private static ConcurrentHashMap<String, UserSession> usersByName = new ConcurrentHashMap<>();
+  private static ConcurrentHashMap<String, UserSession> usersByUserId = new ConcurrentHashMap<>();
   private static ConcurrentHashMap<String, UserSession> usersBySessionId = new ConcurrentHashMap<>();
 
-  public void register(UserSession user) {
-    usersByName.put(user.getName(), user);
+  public void registerUserSession(UserSession user) {
+    usersByUserId.put(user.getByUserId(), user);
     usersBySessionId.put(user.getSession().getId(), user);
   }
 
-  public UserSession getByName(String name) {
-    return usersByName.get(name);
+  public UserSession getByUserId(String userId) {
+    return usersByUserId.get(userId);
   }
 
   public UserSession getBySession(WebSocketSession session) {
     return usersBySessionId.get(session.getId());
   }
 
-  public boolean exists(String name) {
-    return usersByName.keySet().contains(name);
+  public boolean exists(String userId) {
+    return usersByUserId.keySet().contains(userId);
   }
 
   public UserSession removeBySession(WebSocketSession session) {
     final UserSession user = getBySession(session);
     if (user != null) {
-      usersByName.remove(user.getName());
+      usersByUserId.remove(user.getByUserId());
       usersBySessionId.remove(session.getId());
     }
     return user;

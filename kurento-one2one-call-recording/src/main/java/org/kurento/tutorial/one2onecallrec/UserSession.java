@@ -41,7 +41,7 @@ public class UserSession {
 
   private static final Logger log = LoggerFactory.getLogger(UserSession.class);
 
-  private final String name;
+  private final String userId;
   private final WebSocketSession session;
 
   private String sdpOffer;
@@ -51,17 +51,17 @@ public class UserSession {
   private WebRtcEndpoint playingWebRtcEndpoint;
   private final List<IceCandidate> candidateList = new ArrayList<>();
 
-  public UserSession(WebSocketSession session, String name) {
+  public UserSession(WebSocketSession session, String userId) {
     this.session = session;
-    this.name = name;
+    this.userId = userId;
   }
 
   public WebSocketSession getSession() {
     return session;
   }
 
-  public String getName() {
-    return name;
+  public String getByUserId() {
+    return userId;
   }
 
   public String getSdpOffer() {
@@ -89,7 +89,7 @@ public class UserSession {
   }
 
   public void sendMessage(JsonObject message) throws IOException {
-    log.debug("Sending message from user '{}': {}", name, message);
+    log.debug("Sending message from user '{}': {}", userId, message);
     session.sendMessage(new TextMessage(message.toString()));
   }
 
