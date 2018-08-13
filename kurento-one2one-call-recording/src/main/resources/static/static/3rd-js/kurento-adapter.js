@@ -1,9 +1,9 @@
-if(typeof onOfferIncomingCall === 'function'){
-    let _onOfferIncomingCall = onOfferIncomingCall;
-    onOfferIncomingCall = function(error, offerSdp){
+if(typeof incomingCall === 'function'){
+    let _incomingCall = incomingCall;
+    incomingCall = function(message){
         $('#app').fadeOut(250, () => {
             $('#video').fadeIn(250, () => {
-                _onOfferIncomingCall(error, offerSdp)
+            	_incomingCall(message)
             })
         })
     }
