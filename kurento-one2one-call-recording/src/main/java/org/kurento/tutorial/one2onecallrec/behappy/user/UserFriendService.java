@@ -1,6 +1,5 @@
 package org.kurento.tutorial.one2onecallrec.behappy.user;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -45,16 +44,7 @@ public class UserFriendService {
 		return new Message(0, "add friend successfully");
 	}
 
-	public List<User> getAllFriends(String userId) {
-		List<User> friends = new ArrayList<>();
-
-		List<UserFriend> userFrinedList = userFriendRepository.findByUserUserIdAndStatus(userId, 1);
-		if (userFrinedList != null) {
-			for (UserFriend friend : userFrinedList) {
-				friends.add(friend.getFriend());
-			}
-		}
-
-		return friends;
+	public List<UserFriend> getAllFriends(String userId) {
+	  return userFriendRepository.findByUserUserIdAndStatus(userId, 1);
 	}
 }
