@@ -50,6 +50,8 @@ public class UserSession {
   private WebRtcEndpoint webRtcEndpoint;
   private WebRtcEndpoint playingWebRtcEndpoint;
   private final List<IceCandidate> candidateList = new ArrayList<>();
+  
+  private String recordingFileWholePath;
 
   public UserSession(WebSocketSession session, String userId) {
     this.session = session;
@@ -126,6 +128,14 @@ public class UserSession {
 
   public void setPlayingWebRtcEndpoint(WebRtcEndpoint playingWebRtcEndpoint) {
     this.playingWebRtcEndpoint = playingWebRtcEndpoint;
+  }
+
+  public String getRecordingFileWholePath() {
+    return recordingFileWholePath;
+  }
+
+  public void setRecordingFileWholePath(String recordingFileWholePath) {
+    this.recordingFileWholePath = recordingFileWholePath;
   }
 
   public void clear() {

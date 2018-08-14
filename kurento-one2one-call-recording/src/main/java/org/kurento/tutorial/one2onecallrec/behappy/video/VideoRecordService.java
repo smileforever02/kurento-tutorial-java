@@ -15,6 +15,6 @@ public class VideoRecordService {
   }
   
   public List<VideoRecord> getVideoRecords(String userId) {
-    return videoRecordRepository.findByUserUserId(userId);
+    return videoRecordRepository.findByUserUserIdOrderByVideoDateDesc(userId);
   }
 }
