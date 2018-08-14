@@ -17,4 +17,17 @@ public class VideoRecordService {
   public List<VideoRecord> getVideoRecords(String userId) {
     return videoRecordRepository.findByUserUserIdOrderByVideoDateDesc(userId);
   }
+  
+  public VideoRecord getVideoRecordByVideoId(Long videoId) {
+    return videoRecordRepository.findOne(videoId);
+  }
+  
+  public Long getVideoIdByVideoFileWholePath(String videoFileWholePath) {
+    VideoRecord videoRecord =  videoRecordRepository.findByVideoFileWholePath(videoFileWholePath);
+    if(videoRecord != null) {
+      return videoRecord.getVideoId();
+    } else {
+      return null;
+    }
+  }
 }

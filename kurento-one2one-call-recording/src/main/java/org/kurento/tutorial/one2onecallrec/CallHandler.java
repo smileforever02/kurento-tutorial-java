@@ -60,6 +60,9 @@ public class CallHandler extends TextWebSocketHandler {
   @Autowired
   private ApplicationContext context;
 
+  @Autowired
+  private RecordingProcessor recordingProcessor;
+
   @Override
   public void handleTextMessage(WebSocketSession session, TextMessage message)
       throws Exception {
@@ -250,7 +253,7 @@ public class CallHandler extends TextWebSocketHandler {
 
       callMediaPipeline.getCallerWebRtcEp().gatherCandidates();
 
-      callMediaPipeline.record();
+      callMediaPipeline.record(calleer, callee);
 
     } else {
       JsonObject response = new JsonObject();
@@ -277,14 +280,16 @@ public class CallHandler extends TextWebSocketHandler {
         stoppedUser.sendMessage(message);
         stoppedUser.clear();
 
-        RecordingProcessor.processRecording(
+        recordingProcessor.processRecording(stoppedUser.getVideoId(),
             stoppedUser.getRecordingFileWholePath().replaceAll("file://", ""));
+        stoppedUser.setVideoId(null);
         stoppedUser.setRecordingFileWholePath(null);
       }
       stopperUser.clear();
 
-      RecordingProcessor.processRecording(
+      recordingProcessor.processRecording(stopperUser.getVideoId(),
           stopperUser.getRecordingFileWholePath().replaceAll("file://", ""));
+      stopperUser.setVideoId(null);
       stopperUser.setRecordingFileWholePath(null);
     }
   }

@@ -125,11 +125,11 @@ public class CallMediaPipeline {
     webRtcCallee.connect(recorderCallee);
   }
 
-  public void record() {
+  public void record(UserSession caller, UserSession callee) {
     recorderCaller.record();
     recorderCallee.record();
 
-    createVideoRecord();
+    createVideoRecord(caller, callee);
   }
 
   public String generateSdpAnswerForCaller(String sdpOffer) {
@@ -175,17 +175,19 @@ public class CallMediaPipeline {
     }
   }
 
-  private void createVideoRecord() {
+  private void createVideoRecord(UserSession caller, UserSession callee) {
     User fromUser = userService.getUser(fromUserId);
     User toUser = userService.getUser(toUserId);
 
     if (fromUser != null && toUser != null) {
       Date date = new Date();
       String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-      videoRecordService.createVideoRecord(
+      VideoRecord record = videoRecordService.createVideoRecord(
           new VideoRecord(uuid, fromUser, fromRecordingFileWholePath, date));
-      videoRecordService.createVideoRecord(
+      caller.setVideoId(record.getVideoId());
+      record = videoRecordService.createVideoRecord(
           new VideoRecord(uuid, toUser, toRecordingFileWholePath, date));
+      callee.setVideoId(record.getVideoId());
     }
   }
 }

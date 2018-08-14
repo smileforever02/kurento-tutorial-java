@@ -20,14 +20,14 @@ public class ImageMagick {
 
   private static String CONCATENATE_TILE = "8x8";
   private static String CONCATENATED_IMAGE_POST_FIX = "_con%02d";
-  private static String CONCATENATED_IMAGE_EXT = FFmpeg.IMAGE_EXT;
+  public static String CONCATENATED_IMAGE_EXT = FFmpeg.IMAGE_EXT;
 
-  public ImageMagick(String videoFileNameWithWholePath) {
+  public ImageMagick(String videoFileWholePath) {
     super();
-    this.videoFolderPath = videoFileNameWithWholePath.substring(0,
-        videoFileNameWithWholePath.lastIndexOf("/"));
-    String videoName = videoFileNameWithWholePath
-        .substring(videoFileNameWithWholePath.lastIndexOf("/") + 1);
+    this.videoFolderPath = videoFileWholePath.substring(0,
+        videoFileWholePath.lastIndexOf("/"));
+    String videoName = videoFileWholePath
+        .substring(videoFileWholePath.lastIndexOf("/") + 1);
     this.videoNameWOExt = videoName.substring(0, videoName.lastIndexOf("."));
   }
 

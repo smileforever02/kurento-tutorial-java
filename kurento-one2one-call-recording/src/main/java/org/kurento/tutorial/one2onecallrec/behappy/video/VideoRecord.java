@@ -18,8 +18,8 @@ import org.kurento.tutorial.one2onecallrec.behappy.user.User;
 public class VideoRecord {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "id", insertable = false, nullable = false, updatable = false)
-  private Long id;
+  @Column(name = "videoId", insertable = false, nullable = false, updatable = false)
+  private Long videoId;
 
   // a couple have the same group session id at one recording time
   private String groupSessionId;
@@ -35,12 +35,17 @@ public class VideoRecord {
     super();
   }
 
-  public VideoRecord(String groupSessionId, User user, String videoFileWholePath, Date videoDate) {
+  public VideoRecord(String groupSessionId, User user,
+      String videoFileWholePath, Date videoDate) {
     super();
     this.groupSessionId = groupSessionId;
     this.user = user;
     this.videoFileWholePath = videoFileWholePath;
     this.videoDate = videoDate;
+  }
+
+  public Long getVideoId() {
+    return videoId;
   }
 
   public String getGroupSessionId() {

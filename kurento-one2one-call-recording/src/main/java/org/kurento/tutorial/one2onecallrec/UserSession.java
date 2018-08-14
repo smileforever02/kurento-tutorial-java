@@ -50,7 +50,8 @@ public class UserSession {
   private WebRtcEndpoint webRtcEndpoint;
   private WebRtcEndpoint playingWebRtcEndpoint;
   private final List<IceCandidate> candidateList = new ArrayList<>();
-  
+
+  private Long videoId;
   private String recordingFileWholePath;
 
   public UserSession(WebSocketSession session, String userId) {
@@ -128,6 +129,14 @@ public class UserSession {
 
   public void setPlayingWebRtcEndpoint(WebRtcEndpoint playingWebRtcEndpoint) {
     this.playingWebRtcEndpoint = playingWebRtcEndpoint;
+  }
+
+  public Long getVideoId() {
+    return videoId;
+  }
+
+  public void setVideoId(Long videoId) {
+    this.videoId = videoId;
   }
 
   public String getRecordingFileWholePath() {
