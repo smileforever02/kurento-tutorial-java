@@ -4,6 +4,56 @@ lineHeight = 2em
 html, body
   height 100%
   width 100%
+  font-size 1.1em
+
+.navbar-header
+  background-color #6f5499
+  position absolute
+  width 100%
+  height 2em
+  padding 0 1em 0 1em
+
+#bs-navbar
+  position fixed
+  top 2em
+  left 1em
+  width 8em
+  padding-left 1em
+  background-color #44296d
+  color white
+  z-index 100
+
+.navbar-nav
+  margin 0
+
+@media (min-width: 768px)
+  #bs-navbar
+    top 0
+    left 0
+    width auto
+    padding-left 0
+    background-color transparent
+  .navbar-nav
+    height 2em
+    line-height 2em
+  .navbar-nav > li > a
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height 2em
+    color white
+
+.navbar-nav li
+  padding 0
+
+.navbar-toggle .icon-bar
+    background-color white
+
+.nav > li > a:hover, .nav > li > a:focus
+    text-decoration none
+    background-color #eca7a7
+
+.navbar-toggle
+  float left 
 
 li
   list-style: none;
@@ -16,12 +66,15 @@ li
   justify-content center
   align-items center
   height 100%
+  padding 0 1em 0 1em
 
 .logon
-  display block-inline
+  display inline-block
   float right 
-  color white
+  color black
   cursor pointer
+  line-height 2em
+  margin-right 1em
 
 .add-friend
   display block
@@ -54,6 +107,12 @@ li
 
 .container
   height 100%
+  width 100%
+  padding 0
+
+.container > .navbar-header, .container > .navbar-collapse
+  padding 0
+  margin 0
 
 .navigator
   position fixed

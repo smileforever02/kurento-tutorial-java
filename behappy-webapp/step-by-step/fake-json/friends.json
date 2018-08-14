@@ -1,17 +1,12 @@
 [{
-	"friendUserId": "1001",
-	"friendDisplayName": "Tom"
+	"friend": {
+		"userId": "1001",
+		"nickName": "Tom"
+	}
  },{
-	"friendUserId": "1002",
-	"friendDisplayName": "Kobe"
- },{
-	"friendUserId": "1003",
-	"friendDisplayName": "Kerry"
- },{
-	"friendUserId": "1004",
-	"friendDisplayName": "Jams"
- },{
-	"friendUserId": "1005",
-	"friendDisplayName": "Larry"
+	"friend": {
+		"userId": "1002",
+		"nickName": "Kobe"
+	}
  }
 ]
