@@ -1,12 +1,11 @@
 package org.kurento.tutorial.one2onecallrec.behappy.tools;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -16,9 +15,11 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.kurento.tutorial.one2onecallrec.behappy.image.AzureFaceEmotion;
-import org.kurento.tutorial.one2onecallrec.behappy.image.FaceEmotion;
-import org.kurento.tutorial.one2onecallrec.behappy.image.FaceEmotionService;
+import org.kurento.tutorial.one2onecallrec.behappy.emotion.face.AzureFaceEmotion;
+import org.kurento.tutorial.one2onecallrec.behappy.emotion.face.FaceEmotion;
+import org.kurento.tutorial.one2onecallrec.behappy.emotion.face.FaceEmotionService;
+import org.kurento.tutorial.one2onecallrec.behappy.image.ConcatenatedImage;
+import org.kurento.tutorial.one2onecallrec.behappy.image.ConcatenatedImageService;
 import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecord;
 import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecordService;
 import org.slf4j.Logger;
@@ -42,15 +43,16 @@ public class AzureFaceClient {
   private static final Gson gson = new GsonBuilder().create();
 
   @Autowired
-  VideoRecordService videoRecordService;
-  
+  ConcatenatedImageService imageService;
+
   @Autowired
   FaceEmotionService faceEmotionService;
+  
+  @Autowired
+  VideoRecordService videoRecordService;
 
-  private VideoRecord videoRecord;
+  private Long videoId;
   private String videoFileWholePath;
-  private String videoFolderPath;
-  private String videoNameWOExt;
 
   // Replace <Subscription Key> with your valid subscription key.
   private static final String subscriptionKey = "352131b2e67748e798d0ee958dc56e5e";
@@ -72,17 +74,11 @@ public class AzureFaceClient {
   private static final String faceAttributes = "emotion";
 
   public void init(Long videoId, String videoFileWholePath) {
+    this.videoId = videoId;
     this.videoFileWholePath = videoFileWholePath;
-    this.videoFolderPath = videoFileWholePath.substring(0,
-        videoFileWholePath.lastIndexOf("/"));
-    String videoName = videoFileWholePath
-        .substring(videoFileWholePath.lastIndexOf("/") + 1);
-    this.videoNameWOExt = videoName.substring(0, videoName.lastIndexOf("."));
-    
-    this.videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
   }
 
-  public JsonArray extractEmotion() {
+  public void extractEmotion() {
     HttpClient httpclient = new DefaultHttpClient();
     JsonArray jsonArray = null;
     try {
@@ -103,44 +99,60 @@ public class AzureFaceClient {
 
       request.setHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
 
-      int i = 0;
-      String imagePath = "";
-      while (i >= 0) {
-        imagePath = videoFolderPath + "/" + videoNameWOExt + "_con"
-            + String.format("%02d", i) + ImageMagick.CONCATENATED_IMAGE_EXT;
+      VideoRecord videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
+      List<ConcatenatedImage> images = imageService
+          .getImagesByVideoId(this.videoId);
+
+      for (ConcatenatedImage image : images) {
+        String imagePath = image.getImageFileWholePath();
         File f = new File(imagePath);
         if (f.exists()) {
+          Integer smallImageWidth = image.getSmallImageWidth();
+          Integer smallImageHeight = image.getSmallImageHeight();
+
           jsonArray = extractEmotion(httpclient, request, imagePath);
 
           for (JsonElement json : jsonArray) {
             AzureFaceEmotion azureFaceEmotion = gson.fromJson(json,
                 AzureFaceEmotion.class);
             FaceEmotion faceEmotion = new FaceEmotion();
-            faceEmotion.setVideoRecord(this.videoRecord);
+            faceEmotion.setVideoRecord(videoRecord);
+            faceEmotion.setConcatenatedImage(image);
+            faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
+
+            int top = azureFaceEmotion.getFaceRectangle().getTop();
+            int left = azureFaceEmotion.getFaceRectangle().getLeft();
+
+            int topOrder = top / smallImageHeight + 1;
+            int leftOrder = left / smallImageWidth + 1;
+
+            // first order is 1
+            int orderOfSmallImage = image.getCountOfHor() * (topOrder - 1)
+                + leftOrder;
+            faceEmotion.setOrderOfSmallImage(orderOfSmallImage);
+            int orderOfFaceInVideo = (image.getOrderOfImages() - 1) * 64
+                + orderOfSmallImage;
+            faceEmotion.setOrderOfFaceInVideo(orderOfFaceInVideo);
+
             faceEmotion.setVideoFileWholePath(videoFileWholePath);
-            faceEmotion.setBigImageOffset(i);
+            faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
+
             copyFaceEmotion(azureFaceEmotion, faceEmotion);
 
             faceEmotionService.saveFaceEmotion(faceEmotion);
           }
-
-          i++;
-        } else {
-          i = -1;
         }
       }
-
     } catch (Exception e) {
       log.error(e.getMessage());
     }
-
-    return jsonArray;
   }
 
   private JsonArray extractEmotion(HttpClient httpclient, HttpPost request,
       String imagePath) throws IOException, ClientProtocolException {
     JsonArray jsonArray = null;
-    ByteArrayEntity byteEntity = new ByteArrayEntity(getBytes(imagePath));
+    ByteArrayEntity byteEntity = new ByteArrayEntity(
+        FileUtils.readFileToByteArray(new File(imagePath)));
     request.setEntity(byteEntity);
 
     // Execute the REST API call and get the response entity.
@@ -165,30 +177,6 @@ public class AzureFaceClient {
     } else {
     }
     return jsonArray;
-  }
-
-  public static byte[] getBytes(String filePath) {
-    File file = new File(filePath);
-    ByteArrayOutputStream out = null;
-    try {
-      FileInputStream in = new FileInputStream(file);
-      out = new ByteArrayOutputStream();
-      byte[] b = new byte[1024];
-      int i = 0;
-      while ((i = in.read(b)) != -1) {
-        out.write(b, 0, b.length);
-      }
-      out.close();
-      in.close();
-    } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    byte[] s = out.toByteArray();
-    return s;
   }
 
   private void copyFaceEmotion(AzureFaceEmotion azureFaceEmotion,

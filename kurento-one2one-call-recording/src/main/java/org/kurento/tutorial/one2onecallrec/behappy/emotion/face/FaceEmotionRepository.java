@@ -1,4 +1,4 @@
-package org.kurento.tutorial.one2onecallrec.behappy.image;
+package org.kurento.tutorial.one2onecallrec.behappy.emotion.face;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

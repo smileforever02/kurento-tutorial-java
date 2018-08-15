@@ -1,4 +1,4 @@
-package org.kurento.tutorial.one2onecallrec.behappy.image;
+package org.kurento.tutorial.one2onecallrec.behappy.emotion.face;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.kurento.tutorial.one2onecallrec.behappy.image.ConcatenatedImage;
 import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecord;
 
 @Entity
@@ -16,23 +17,38 @@ import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecord;
 public class FaceEmotion {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "id", insertable = false, nullable = false, updatable = false)
-  private Long id;
+  @Column(name = "faceEmotionId", insertable = false, nullable = false, updatable = false)
+  private Long faceEmotionId;
 
   @ManyToOne
   @JoinColumn(name = "videoId", referencedColumnName = "videoId", nullable = false)
   private VideoRecord videoRecord;
 
-  private String videoFileWholePath;
-  // one big image contains 64 small images, bigImageOffset is the offset of big
-  // images, first big image offset is 0
-  private Integer bigImageOffset;
-  // the small image offset in one big images, first is 1
-  private Integer smallImageOffset;
+  @ManyToOne
+  @JoinColumn(name = "imageId", referencedColumnName = "imageId", nullable = false)
+  private ConcatenatedImage concatenatedImage;
 
-  // if one small image per second, the timeOffsetInSeconds = bigImageOffset*64
-  // + smallImageOffset
-  private Integer timeOffsetInSeconds;
+  private String videoFileWholePath;
+
+  /**
+   * A video is composed by many concatenated images. One concatenated image
+   * contains 64 small images. This is the order of the concatenated image in
+   * all concatenated images. first order is 1
+   */
+  private Integer orderOfConcatenatedImage;
+
+  /**
+   * this is the order of small image in the concatenated big image, first order
+   * is 1
+   */
+  private Integer orderOfSmallImage;
+
+  /**
+   * One small image stands for one second. so one concatenated image stands for
+   * 64 seconds. The time in seconds of small image should be:
+   * (orderOfConcatenatedImage - 1) * 64 + orderOfSmallImage
+   */
+  private Integer orderOfFaceInVideo;
 
   private Integer rectangleTop;
   private Integer rectangleLeft;
@@ -56,6 +72,14 @@ public class FaceEmotion {
     this.videoRecord = videoRecord;
   }
 
+  public ConcatenatedImage getConcatenatedImage() {
+    return concatenatedImage;
+  }
+
+  public void setConcatenatedImage(ConcatenatedImage concatenatedImage) {
+    this.concatenatedImage = concatenatedImage;
+  }
+
   public String getVideoFileWholePath() {
     return videoFileWholePath;
   }
@@ -64,28 +88,28 @@ public class FaceEmotion {
     this.videoFileWholePath = videoFileWholePath;
   }
 
-  public Integer getBigImageOffset() {
-    return bigImageOffset;
+  public Integer getOrderOfConcatenatedImage() {
+    return orderOfConcatenatedImage;
   }
 
-  public void setBigImageOffset(Integer bigImageOffset) {
-    this.bigImageOffset = bigImageOffset;
+  public void setOrderOfConcatenatedImage(Integer orderOfConcatenatedImage) {
+    this.orderOfConcatenatedImage = orderOfConcatenatedImage;
   }
 
-  public Integer getSmallImageOffset() {
-    return smallImageOffset;
+  public Integer getOrderOfSmallImage() {
+    return orderOfSmallImage;
   }
 
-  public void setSmallImageOffset(Integer smallImageOffset) {
-    this.smallImageOffset = smallImageOffset;
+  public void setOrderOfSmallImage(Integer orderOfSmallImage) {
+    this.orderOfSmallImage = orderOfSmallImage;
   }
 
-  public Integer getTimeOffsetInSeconds() {
-    return timeOffsetInSeconds;
+  public Integer getOrderOfFaceInVideo() {
+    return orderOfFaceInVideo;
   }
 
-  public void setTimeOffsetInSeconds(Integer timeOffsetInSeconds) {
-    this.timeOffsetInSeconds = timeOffsetInSeconds;
+  public void setOrderOfFaceInVideo(Integer orderOfFaceInVideo) {
+    this.orderOfFaceInVideo = orderOfFaceInVideo;
   }
 
   public Integer getRectangleTop() {

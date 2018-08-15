@@ -73,7 +73,8 @@ public class FFmpeg {
         + videoNameWOExt + IMAGE_POSTFIX + IMAGE_EXT;
     log.info("extractImagesFromVideo() cmd=" + cmd);
     try {
-      CommandExecutor.execCommand("/bin/sh", "-c", cmd);
+      String cmdResult = CommandExecutor.execCommand("/bin/sh", "-c", cmd);
+      log.info(cmdResult);
     } catch (IOException | InterruptedException e) {
       e.printStackTrace();
     }

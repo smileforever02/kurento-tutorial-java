@@ -1,4 +1,4 @@
-package org.kurento.tutorial.one2onecallrec.behappy.image;
+package org.kurento.tutorial.one2onecallrec.behappy.emotion.face;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

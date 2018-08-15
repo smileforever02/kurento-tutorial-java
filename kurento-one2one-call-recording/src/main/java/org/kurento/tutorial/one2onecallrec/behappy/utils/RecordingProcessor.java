@@ -25,7 +25,8 @@ public class RecordingProcessor {
     ffmpeg.extractAudioFromVideo();
     
     // concatenate 64 images to one big image
-    ImageMagick imageMagick = new ImageMagick(videoFileWholePath);
+    ImageMagick imageMagick = context.getBean(ImageMagick.class);
+    imageMagick.init(videoId, videoFileWholePath);
     imageMagick.concatenateImages();
     
     AzureFaceClient faceClient = context.getBean(AzureFaceClient.class);
