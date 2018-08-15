@@ -21,7 +21,7 @@ export default {
     mounted(){
         console.log('get friends');
         Services.getFriends().done((data) => {
-            console.log(data);
+            // console.log(data);
             this.items = data;
         }).always(() => console.log('get friends done'));
     },

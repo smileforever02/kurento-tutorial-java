@@ -20,4 +20,8 @@ if(typeof incomingCall === 'function'){
             togger.trigger('click');
         }
     }, false);
+
+    // $( function() {
+    //     $("#videoSmall").draggable();
+    // });
 }())

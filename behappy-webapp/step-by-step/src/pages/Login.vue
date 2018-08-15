@@ -1,6 +1,6 @@
 <template>
     <div class="full-width center-content">
-        <form class="full-width" v-on:submit.prevent="submit">
+        <form class="full-width page-content" v-on:submit.prevent="submit">
             <div class="form-group row">
                 <label for="userId" class="col-sm-2 col-form-label">User ID</label>
                 <input class="form-control col-sm-10" id="userId" placeholder="User ID" required v-model.lazy.trim="userId">
