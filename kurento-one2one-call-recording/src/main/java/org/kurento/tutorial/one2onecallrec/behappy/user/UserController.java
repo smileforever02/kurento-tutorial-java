@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -38,11 +39,9 @@ public class UserController {
     return ResponseEntity.ok(userService.getUser(userId));
   }
 
-  @GetMapping(value = "/finduser/{userIdOrNickName}")
-  public ResponseEntity<?> getUsersByUserIdOrNickName(
-      @PathVariable("userIdOrNickName") String userIdOrNickName) {
-    return ResponseEntity
-        .ok(userService.getUsersByUserIdOrNickName(userIdOrNickName));
+  @GetMapping(value = "/finduser")
+  public ResponseEntity<?> findUser(@RequestParam("key") String key) {
+    return ResponseEntity.ok(userService.getUsersByUserIdOrNickName(key));
   }
 
   @GetMapping(value = "/users")
