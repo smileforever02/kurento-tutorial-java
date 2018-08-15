@@ -123,8 +123,16 @@ public class CallHandler extends TextWebSocketHandler {
     if (userId.isEmpty()) {
       responseMsg = "rejected: empty userId";
     } else if (userSessionRegistry.exists(userId)) {
-      responseMsg = "rejected: user '" + userId
-          + "' already has a websocket connection";
+      UserSession userSession = userSessionRegistry.getByUserId(userId);
+      WebSocketSession wsSession = userSession.getSession();
+      releasePipeline(userSession);
+      stop(wsSession);
+      userSessionRegistry.removeBySession(wsSession);
+      log.warn(userId + " already has a connection. unresigter old one and register a new one");
+      userSessionRegistry.registerUserSession(caller);
+
+      // responseMsg = "rejected: user '" + userId
+      // + "' already has a websocket connection";
     } else {
       userSessionRegistry.registerUserSession(caller);
     }
@@ -280,17 +288,24 @@ public class CallHandler extends TextWebSocketHandler {
         stoppedUser.sendMessage(message);
         stoppedUser.clear();
 
-        recordingProcessor.processRecording(stoppedUser.getVideoId(),
-            stoppedUser.getRecordingFileWholePath().replaceAll("file://", ""));
-        stoppedUser.setVideoId(null);
-        stoppedUser.setRecordingFileWholePath(null);
+        if (stoppedUser.getVideoId() != null
+            && stoppedUser.getRecordingFileWholePath() != null) {
+          recordingProcessor.processRecording(stoppedUser.getVideoId(),
+              stoppedUser.getRecordingFileWholePath().replaceAll("file://",
+                  ""));
+          stoppedUser.setVideoId(null);
+          stoppedUser.setRecordingFileWholePath(null);
+        }
       }
       stopperUser.clear();
 
-      recordingProcessor.processRecording(stopperUser.getVideoId(),
-          stopperUser.getRecordingFileWholePath().replaceAll("file://", ""));
-      stopperUser.setVideoId(null);
-      stopperUser.setRecordingFileWholePath(null);
+      if (stopperUser.getVideoId() != null
+          && stopperUser.getRecordingFileWholePath() != null) {
+        recordingProcessor.processRecording(stopperUser.getVideoId(),
+            stopperUser.getRecordingFileWholePath().replaceAll("file://", ""));
+        stopperUser.setVideoId(null);
+        stopperUser.setRecordingFileWholePath(null);
+      }
     }
   }
 
@@ -307,14 +322,18 @@ public class CallHandler extends TextWebSocketHandler {
     // set to null the endpoint of the other user
     UserSession stoppedUser = (session.getCallingFrom() != null)
         ? userSessionRegistry.getByUserId(session.getCallingFrom())
-        : userSessionRegistry.getByUserId(session.getCallingTo());
-    String stoppedUserSessionId = stoppedUser.getSessionId();
-    if (pipelines.containsKey(stoppedUserSessionId)) {
-      pipelines.get(stoppedUserSessionId).release();
-      pipelines.remove(stoppedUserSessionId);
+        : (session.getCallingTo() != null
+            ? userSessionRegistry.getByUserId(session.getCallingTo()) : null);
+
+    if (stoppedUser != null) {
+      String stoppedUserSessionId = stoppedUser.getSessionId();
+      if (pipelines.containsKey(stoppedUserSessionId)) {
+        pipelines.get(stoppedUserSessionId).release();
+        pipelines.remove(stoppedUserSessionId);
+      }
+      stoppedUser.setWebRtcEndpoint(null);
+      stoppedUser.setPlayingWebRtcEndpoint(null);
     }
-    stoppedUser.setWebRtcEndpoint(null);
-    stoppedUser.setPlayingWebRtcEndpoint(null);
   }
 
   private void play(final UserSession session, JsonObject jsonMessage)

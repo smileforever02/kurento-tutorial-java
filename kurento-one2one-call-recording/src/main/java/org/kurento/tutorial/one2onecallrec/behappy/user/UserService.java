@@ -8,32 +8,36 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-	@Autowired
-	UserRepository userRepository;
+  @Autowired
+  UserRepository userRepository;
 
-	public User registerUser(User user) {
-		if (getUser(user.getUserId()) == null) {
-			user.setCreatedDate(new Date());
-			return userRepository.save(user);
-		} else {
-			return null;
-		}
-	}
+  public User registerUser(User user) {
+    if (getUser(user.getUserId()) == null) {
+      user.setCreatedDate(new Date());
+      return userRepository.save(user);
+    } else {
+      return null;
+    }
+  }
 
-	public User updateUser(User user) {
-		return userRepository.save(user);
-	}
+  public User updateUser(User user) {
+    return userRepository.save(user);
+  }
 
-	public User getUser(String userId) {
-		return userRepository.findOne(userId);
+  public User getUser(String userId) {
+    return userRepository.findOne(userId);
+  }
 
-	}
+  public List<User> getUsersByUserIdOrNickName(String userIdOrNickName) {
+    return userRepository.findByUserIdOrNickName(userIdOrNickName,
+        userIdOrNickName);
+  }
 
-	public boolean verifyPassword(String userId, String password) {
-		return userRepository.findByUserIdAndPassword(userId, password) != null;
-	}
+  public boolean verifyPassword(String userId, String password) {
+    return userRepository.findByUserIdAndPassword(userId, password) != null;
+  }
 
-	public List<User> getAllUsers() {
-		return userRepository.findAll();
-	}
+  public List<User> getAllUsers() {
+    return userRepository.findAll();
+  }
 }
