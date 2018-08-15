@@ -7,6 +7,9 @@ export default {
     createUser(user){
         return this.post('/adduser', user);
     },
+    searchUser(key){
+        return this.get('/finduser?key=' + key);
+    },
     getFriends(){
         return this.get('/allfriends');
     },
@@ -26,12 +29,11 @@ export default {
         let options = {
             url: url,
             type: method,
-            dataType: 'json',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            dataType: 'json'
         };
         if(method === 'POST' || method === 'PUT'){
             options.data = JSON.stringify(data);
+            options.contentType = "application/json; charset=utf-8";
         }
         return $.ajax(options);
     }

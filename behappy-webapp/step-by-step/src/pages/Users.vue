@@ -2,7 +2,7 @@
     <div class="full-width center-content">
         <div class="page-content">
             <div class="input-group">
-                <input @keydown.enter="search" v-bind="keywords" type="text" class="form-control" placeholder="Search for...">
+                <input @keydown.enter="search" v-model="keywords" type="text" class="form-control" placeholder="Search for...">
                 <span class="input-group-btn">
                     <button @click="search" class="btn btn-default glyphicon glyphicon-search" type="button"></button>
                 </span>
@@ -31,16 +31,19 @@ export default {
         return {items: [], keywords: null}
     },
     mounted(){
-        Services.getUsers().done(data => this.items = data).fail((error) => {
-            console.log(error)
-        })
+        // Services.getUsers().done(data => this.items = data).fail((error) => {
+        //     console.log(error)
+        // })
     },
     methods: {
         checkUser(userId, userName){
             this.$router.push('/user/' + userName)
         },
         search(){
-            console.log('search for: ' + this.key)
+            console.log('search for: ' + this.keywords)
+            Services.searchUser(this.keywords).done(data => this.items = data).fail((error) => {
+                console.log(error)
+            }) 
         },
         addFriend(userId, userName){
             Services.addFriend(userId).done((data) => {
