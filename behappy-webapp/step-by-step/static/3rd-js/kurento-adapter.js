@@ -22,7 +22,7 @@ if(typeof incomingCall === 'function'){
         /blackberry/.test(deviceAgent) || 
         /bada/.test(deviceAgent);
     
-    alert(isTouchDevice)
+    // alert(isTouchDevice)
     // alert('isTouchDevice: ' + isTouchDevice)
     let eventName = isTouchDevice?'touchstart' : 'click';
     window.addEventListener(eventName, e =>{
