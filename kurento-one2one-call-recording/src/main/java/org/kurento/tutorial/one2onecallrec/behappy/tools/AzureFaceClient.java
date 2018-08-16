@@ -3,6 +3,7 @@ package org.kurento.tutorial.one2onecallrec.behappy.tools;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -13,7 +14,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.kurento.tutorial.one2onecallrec.behappy.emotion.face.AzureFaceEmotion;
 import org.kurento.tutorial.one2onecallrec.behappy.emotion.face.FaceEmotion;
@@ -25,6 +26,7 @@ import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -42,34 +44,23 @@ public class AzureFaceClient {
       .getLogger(AzureFaceClient.class);
   private static final Gson gson = new GsonBuilder().create();
 
+  @Value("${azure.faceapi.subscriptionKey}")
+  private String azureSubscriptionKey;
+
+  @Value("${azure.faceapi.uriBase}")
+  private String azureUriBase;
+
   @Autowired
   ConcatenatedImageService imageService;
 
   @Autowired
   FaceEmotionService faceEmotionService;
-  
+
   @Autowired
   VideoRecordService videoRecordService;
 
   private Long videoId;
   private String videoFileWholePath;
-
-  // Replace <Subscription Key> with your valid subscription key.
-  private static final String subscriptionKey = "352131b2e67748e798d0ee958dc56e5e";
-
-  // NOTE: You must use the same region in your REST call as you used to
-  // obtain your subscription keys. For example, if you obtained your
-  // subscription keys from westus, replace "westcentralus" in the URL
-  // below with "westus".
-  //
-  // Free trial subscription keys are generated in the westcentralus region. If
-  // you
-  // use a free trial subscription key, you shouldn't need to change this
-  // region.
-  // private static final String uriBase =
-  // "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect";
-
-  private static final String uriBase = "https://eastasia.api.cognitive.microsoft.com/face/v1.0/detect";
 
   private static final String faceAttributes = "emotion";
 
@@ -79,77 +70,84 @@ public class AzureFaceClient {
   }
 
   public void extractEmotion() {
-    HttpClient httpclient = new DefaultHttpClient();
     JsonArray jsonArray = null;
-    try {
-      URIBuilder builder = new URIBuilder(uriBase);
 
-      // Request parameters. All of them are optional.
-      builder.setParameter("returnFaceId", "true");
-      builder.setParameter("returnFaceLandmarks", "false");
-      builder.setParameter("returnFaceAttributes", faceAttributes);
+    VideoRecord videoRecord = videoRecordService
+        .getVideoRecordByVideoId(videoId);
+    List<ConcatenatedImage> images = imageService
+        .getUnprocessedImagesByVideoId(this.videoId);
 
-      // Prepare the URI for the REST API call.
-      URI uri = builder.build();
-      HttpPost request = new HttpPost(uri);
+    for (ConcatenatedImage image : images) {
+      String imagePath = image.getImageFileWholePath();
+      File f = new File(imagePath);
+      if (f.exists()) {
+        Integer smallImageWidth = image.getSmallImageWidth();
+        Integer smallImageHeight = image.getSmallImageHeight();
 
-      // Request headers.
-      // request.setHeader("Content-Type", "application/json");
-      request.setHeader("Content-Type", "application/octet-stream");
-
-      request.setHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
-
-      VideoRecord videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
-      List<ConcatenatedImage> images = imageService
-          .getImagesByVideoId(this.videoId);
-
-      for (ConcatenatedImage image : images) {
-        String imagePath = image.getImageFileWholePath();
-        File f = new File(imagePath);
-        if (f.exists()) {
-          Integer smallImageWidth = image.getSmallImageWidth();
-          Integer smallImageHeight = image.getSmallImageHeight();
-
-          jsonArray = extractEmotion(httpclient, request, imagePath);
-
-          for (JsonElement json : jsonArray) {
-            AzureFaceEmotion azureFaceEmotion = gson.fromJson(json,
-                AzureFaceEmotion.class);
-            FaceEmotion faceEmotion = new FaceEmotion();
-            faceEmotion.setVideoRecord(videoRecord);
-            faceEmotion.setConcatenatedImage(image);
-            faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
-
-            int top = azureFaceEmotion.getFaceRectangle().getTop();
-            int left = azureFaceEmotion.getFaceRectangle().getLeft();
-
-            int topOrder = top / smallImageHeight + 1;
-            int leftOrder = left / smallImageWidth + 1;
-
-            // first order is 1
-            int orderOfSmallImage = image.getCountOfHor() * (topOrder - 1)
-                + leftOrder;
-            faceEmotion.setOrderOfSmallImage(orderOfSmallImage);
-            int orderOfFaceInVideo = (image.getOrderOfImages() - 1) * 64
-                + orderOfSmallImage;
-            faceEmotion.setOrderOfFaceInVideo(orderOfFaceInVideo);
-
-            faceEmotion.setVideoFileWholePath(videoFileWholePath);
-            faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
-
-            copyFaceEmotion(azureFaceEmotion, faceEmotion);
-
-            faceEmotionService.saveFaceEmotion(faceEmotion);
-          }
+        try {
+          jsonArray = extractEmotion(azureUriBase, azureSubscriptionKey,
+              imagePath);
+        } catch (IOException | URISyntaxException e) {
+          log.error(e.getMessage());
         }
+
+        for (JsonElement json : jsonArray) {
+          AzureFaceEmotion azureFaceEmotion = gson.fromJson(json,
+              AzureFaceEmotion.class);
+          FaceEmotion faceEmotion = new FaceEmotion();
+          faceEmotion.setVideoRecord(videoRecord);
+          faceEmotion.setConcatenatedImage(image);
+          faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
+
+          int top = azureFaceEmotion.getFaceRectangle().getTop();
+          int left = azureFaceEmotion.getFaceRectangle().getLeft();
+
+          int topOrder = top / smallImageHeight + 1;
+          int leftOrder = left / smallImageWidth + 1;
+
+          // first order is 1
+          int orderOfSmallImage = image.getCountOfHor() * (topOrder - 1)
+              + leftOrder;
+          faceEmotion.setOrderOfSmallImage(orderOfSmallImage);
+          int orderOfFaceInVideo = (image.getOrderOfImages() - 1) * 64
+              + orderOfSmallImage;
+          faceEmotion.setOrderOfFaceInVideo(orderOfFaceInVideo);
+
+          faceEmotion.setVideoFileWholePath(videoFileWholePath);
+          faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
+
+          copyFaceEmotion(azureFaceEmotion, faceEmotion);
+
+          faceEmotionService.saveFaceEmotion(faceEmotion);
+        }
+        image.setStatus(ConcatenatedImage.STATUS_PROCESSED);
+        imageService.saveImage(image);
+      } else {
+        image.setStatus(ConcatenatedImage.STATUS_IMAGE_NOT_EXIST);
+        imageService.saveImage(image);
       }
-    } catch (Exception e) {
-      log.error(e.getMessage());
     }
   }
 
-  private JsonArray extractEmotion(HttpClient httpclient, HttpPost request,
-      String imagePath) throws IOException, ClientProtocolException {
+  private JsonArray extractEmotion(String azureUri, String azureSubscriptionKey,
+      String imagePath)
+      throws IOException, ClientProtocolException, URISyntaxException {
+    HttpClient httpclient = HttpClients.createDefault();
+    URIBuilder builder = new URIBuilder(azureUri);
+    // Request parameters. All of them are optional.
+    builder.setParameter("returnFaceId", "true");
+    builder.setParameter("returnFaceLandmarks", "false");
+    builder.setParameter("returnFaceAttributes", faceAttributes);
+
+    // Prepare the URI for the REST API call.
+    URI uri = builder.build();
+    HttpPost request = new HttpPost(uri);
+
+    // Request headers.
+    // request.setHeader("Content-Type", "application/json");
+    request.setHeader("Content-Type", "application/octet-stream");
+    request.setHeader("Ocp-Apim-Subscription-Key", azureSubscriptionKey);
+
     JsonArray jsonArray = null;
     ByteArrayEntity byteEntity = new ByteArrayEntity(
         FileUtils.readFileToByteArray(new File(imagePath)));
@@ -161,7 +159,7 @@ public class AzureFaceClient {
 
     if (entity != null) {
       // Format and display the JSON response.
-      System.out.println("REST Response:\n");
+      log.info("REST Response:\n");
 
       String jsonString = EntityUtils.toString(entity).trim();
       log.info(jsonString);

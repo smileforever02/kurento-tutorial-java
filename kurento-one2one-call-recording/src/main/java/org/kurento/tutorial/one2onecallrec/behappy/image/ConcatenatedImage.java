@@ -41,13 +41,19 @@ public class ConcatenatedImage {
   // height/smallImageHeight
   private Integer countOfVer;
 
+  private int status;
+
+  public static final int STATUS_NOT_PROCESSED = 0;
+  public static final int STATUS_PROCESSED = 1;
+  public static final int STATUS_IMAGE_NOT_EXIST = 2;
+  
   public ConcatenatedImage() {
   }
 
   public ConcatenatedImage(VideoRecord videoRecord, String imageFileWholePath,
       Integer orderOfImages, Integer width, Integer height,
       Integer smallImageWidth, Integer smallImageHeight, Integer countOfHor,
-      Integer countOfVer) {
+      Integer countOfVer, int status) {
     super();
     this.videoRecord = videoRecord;
     this.imageFileWholePath = imageFileWholePath;
@@ -58,6 +64,7 @@ public class ConcatenatedImage {
     this.smallImageHeight = smallImageHeight;
     this.countOfHor = countOfHor;
     this.countOfVer = countOfVer;
+    this.status = status;
   }
 
   public Long getImageId() {
@@ -134,5 +141,13 @@ public class ConcatenatedImage {
 
   public void setCountOfVer(Integer countOfVer) {
     this.countOfVer = countOfVer;
+  }
+
+  public int getStatus() {
+    return status;
+  }
+
+  public void setStatus(int status) {
+    this.status = status;
   }
 }

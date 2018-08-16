@@ -84,7 +84,7 @@ public class ImageMagick {
         Integer imageHeight = wh[1];
         ConcatenatedImage image = new ConcatenatedImage(videoRecord, imagePath,
             i + 1, imageWidth, imageHeight, smallImageWidth, smallImageHeight,
-            imageWidth / smallImageWidth, imageHeight / smallImageHeight);
+            imageWidth / smallImageWidth, imageHeight / smallImageHeight, ConcatenatedImage.STATUS_NOT_PROCESSED);
 
         imageService.saveImage(image);
         i++;

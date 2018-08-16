@@ -15,7 +15,11 @@ public class ConcatenatedImageService {
     repository.save(image);
   }
   
-  public List<ConcatenatedImage> getImagesByVideoId(Long videoId) {
-    return repository.findByVideoRecordVideoIdOrderByImageId(videoId);
+  public List<ConcatenatedImage> getUnprocessedImagesByVideoId(Long videoId) {
+    return getImagesByVideoIdAndStatus(videoId, ConcatenatedImage.STATUS_NOT_PROCESSED);
+  }
+  
+  public List<ConcatenatedImage> getImagesByVideoIdAndStatus(Long videoId, int status) {
+    return repository.findByVideoRecordVideoIdAndStatusOrderByImageId(videoId, status);
   }
 }
