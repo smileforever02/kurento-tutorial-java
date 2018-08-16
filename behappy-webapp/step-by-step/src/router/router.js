@@ -1,5 +1,6 @@
 import Vue from 'vue'///dist/vue.js'
 import VueRouter from 'vue-router'
+import Vuex from 'vuex'
 // import App from './App.vue'
 import SignUp from '../pages/SignUp.vue'
 import Home from '../pages/Home.vue'
@@ -9,6 +10,7 @@ import Users from '../pages/Users.vue'
 import Login from '../pages/Login.vue'
 
 Vue.use(VueRouter);
+Vue.use(Vuex)
 const routes = [
     { path: '/', component: Home },
     { path: '/signup', component: SignUp },

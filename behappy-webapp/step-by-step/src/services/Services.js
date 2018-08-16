@@ -4,6 +4,9 @@ export default {
     login(user){
         return this.post('/login', user)
     },
+    logout(){
+        return this.get('/logout')
+    },
     createUser(user){
         return this.post('/adduser', user);
     },

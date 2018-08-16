@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="static/3rd-css/bootstrap.3.3.7.css">
   <link rel="stylesheet" href="webjars/ekko-lightbox/dist/ekko-lightbox.min.css">
   <link rel="stylesheet" href="webjars/demo-console/index.css">
-  <link rel="stylesheet" href="css/kurento.css">
+  <!-- <link rel="stylesheet" href="css/kurento.css"> -->
 
   <script src="static/3rd-js/jquery-3.3.1.min.js"></script>
   <script src="static/3rd-js/popper.1.14.3.min.js"></script>
@@ -39,6 +39,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
+      <span v-if="logonUser !== null" @click="logout" class="glyphicon glyphicon-record logon" aria-hidden="true" style="color: red;" title="log out"></span>
       <span v-if="logonUser !== null" class="logon" v-on:click="showme">{{logonUser}}</span>
     </div>
     <nav class="navbar-collapse collapse" id="bs-navbar" aria-expanded="false" style="height: 1px;">
@@ -50,11 +51,23 @@
             </li>
       </ul>
     </nav>
+    <div style="position: fixed;top: 150px;left: 200px;display: none;">
+      <button @click="changeStore">click me</button>
+    </div>
     <!-- 路由出口 -->
     <!-- 路由匹配到的组件将渲染在这里 -->
     <transition name="fade" mode="out-in">
-        <router-view></router-view>
-      </transition>
+      <router-view></router-view>
+    </transition>
+  </div>
+  <div class="message-box">
+    <div class="alert alert-danger">
+      <span>your message will be here</span>
+    </div>
+  </div>
+  <div id="myTemp" style="position: fixed;top: 200px;left: 200px; display: none;">
+    <span>check here:</span>
+    <span @click.prevent="changeStore">{{storex}}</span>
   </div>
   <div id="video" style="display: none;">
     <div class="container">
