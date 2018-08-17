@@ -11,6 +11,14 @@ import '../assets/app.styl'
 // })
 Vue.use(Vuex)
 
+let app
+router.beforeResolve((to, from, next) => {
+  console.log(to)
+  console.log(from)
+  console.log(app)
+  next()
+})
+
 const globalData = {
   count: 0
 }
@@ -37,7 +45,7 @@ const store = new Vuex.Store({
 })
 let idx = 0;
 const level = ['success', 'info', 'warn', 'error']
-const app = new Vue({
+app = new Vue({
     el: '#app',
     router,
     store,
