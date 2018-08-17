@@ -9,6 +9,24 @@ if(typeof incomingCall === 'function'){
     }
 }
 
+if(typeof stop === 'function'){
+    let _stop = stop;
+    stop = function(message){
+        try{
+            _stop(message);
+        }catch(e){
+            console.error(e)
+        }
+        $('#video').stop().fadeOut(250, () => $('#app').stop().fadeIn(250));
+    }
+}
+
+if(typeof Console !== 'function'){
+    Console = function(){
+        return console;
+    }
+}
+
 //
 (function(){
     let togger = $('.navbar-toggle[data-target="#bs-navbar"]');

@@ -28,10 +28,10 @@ export default {
     },
     methods:{
         callFriend(userId, userName){
-            $('#app').fadeOut(250, () => {
+            $('#app').stop().fadeOut(250, () => {
                 $('#name').val(this.$root.logonUser);
                 $('#peer').val(userId);
-                $('#video').fadeIn(250, (typeof call === 'function'? call : function(){console.log('no cal function')}));
+                $('#video').stop().fadeIn(250, (typeof call === 'function'? function(){try{call()}catch(e){console.error(e)}} : function(){console.log('no cal function')}));
             });
         }
     }
