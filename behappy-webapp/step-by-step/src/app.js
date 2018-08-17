@@ -53,8 +53,13 @@ const app = new Vue({
       console.log('app => created')
     },
     mounted(el){
-      console.log('app => mounted:')
-      console.log(this.$el)
+      Services.getLogonUserContext().done(user => {
+        Services.register(user.userId);
+        this.logonUser = user.userId;
+      }).fail(() => {
+        console.log(arguments);
+        this.logonUser = null;
+      })
     },
     methods: {
       changeStore(){

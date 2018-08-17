@@ -3,7 +3,7 @@
         <ul class="page-content item-list">
             <li v-for="item in items" v-bind:key="item.userId" v-bind:data-userid="item.userId">
                 <span v-on:click="checkUser(item.userId, item.displayName)">{{item.displayName}}</span>
-                <span v-if="item.status === 0" v-on:click="callFriend(item.userId, item.displayName)" class="glyphicon glyphicon-facetime-video right" aria-hidden="true"></span>
+                <span v-on:click="callFriend(item.userId, item.displayName)" class="glyphicon glyphicon-facetime-video right" aria-hidden="true"></span>
             </li>
         </ul>
     </div>
@@ -12,6 +12,7 @@
 <script>
 import $ from '../utils'
 import Services from '../services/Services'
+import MessageBox from '../services/MessageBox'
 
 export default {
     data(){
@@ -28,11 +29,17 @@ export default {
     },
     methods:{
         callFriend(userId, userName){
-            $('#app').stop().fadeOut(250, () => {
-                $('#name').val(this.$root.logonUser);
-                $('#peer').val(userId);
-                $('#video').stop().fadeIn(250, (typeof call === 'function'? function(){try{call()}catch(e){console.error(e)}} : function(){console.log('no cal function')}));
-            });
+            Services.getUserStatus(userId).done(msg => {
+                if(msg.code === 0){
+                    $('#app').stop().fadeOut(250, () => {
+                        $('#name').val(this.$root.logonUser);
+                        $('#peer').val(userId);
+                        $('#video').stop().fadeIn(250, (typeof call === 'function'? function(){try{call()}catch(e){console.error(e)}} : function(){console.log('no cal function')}));
+                    });
+                }else{
+                    MessageBox.error('Soory, your friend is not online.')
+                }
+            })
         }
     }
 }

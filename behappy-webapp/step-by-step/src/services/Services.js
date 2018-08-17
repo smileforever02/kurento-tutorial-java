@@ -1,6 +1,16 @@
 import $ from '../utils'
 
 export default {
+    register(userId){
+        $('#name').val(userId);
+        setTimeout((typeof register === 'function'? register : function(){console.log('no register function')}), 0);
+    },
+    getUserStatus(userId){
+        return this.get('/user/status?userId=' + userId)
+    },
+    getLogonUserContext(){
+        return this.get('/currentuser')
+    },
     login(user){
         return this.post('/login', user)
     },
