@@ -92,14 +92,16 @@
 			<version>2.6</version>
 		</dependency>
 
+		<!-- this is ifly audio api -->
+		<!-- need run below command to install jar to maven local repository. lfasr-sdk-client-2.0.0.1005-jar-with-dependencies.jar 
+			is downloaded from ifly. The command is: mvn install:install-file -Dfile=lfasr-sdk-client-2.0.0.1005-jar-with-dependencies.jar 
+			-DgroupId=lfasr -DartifactId=lfasr-sdk-client -Dversion=2.0.0.1005 -Dpackaging=jar 
+			-DgeneratePom=true -->
 		<dependency>
 			<groupId>lfasr</groupId>
-			<artifactId>sdk-client</artifactId>
+			<artifactId>lfasr-sdk-client</artifactId>
 			<version>2.0.0.1005</version>
-			<scope>system</scope>
-			<systemPath>/root/github/smileforever02/kurento-tutorial-java/kurento-one2one-call-recording/lib/lfasr-sdk-client-2.0.0.1005-jar-with-dependencies.jar</systemPath>
 		</dependency>
-
 	</dependencies>
 
 	<build>
