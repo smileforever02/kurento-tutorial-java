@@ -26,7 +26,7 @@ import org.kurento.client.IceCandidate;
 import org.kurento.client.IceCandidateFoundEvent;
 import org.kurento.client.MediaPipeline;
 import org.kurento.jsonrpc.JsonUtils;
-import org.kurento.tutorial.one2onecallrec.behappy.utils.RecordingProcessor;
+import org.kurento.tutorial.one2onecallrec.behappy.RecordingProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

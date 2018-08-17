@@ -1,7 +1,8 @@
-package org.kurento.tutorial.one2onecallrec.behappy.utils;
+package org.kurento.tutorial.one2onecallrec.behappy;
 
 import org.kurento.tutorial.one2onecallrec.behappy.tools.AzureFaceClient;
 import org.kurento.tutorial.one2onecallrec.behappy.tools.FFmpeg;
+import org.kurento.tutorial.one2onecallrec.behappy.tools.IFlyAudioClient;
 import org.kurento.tutorial.one2onecallrec.behappy.tools.ImageMagick;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,9 @@ public class RecordingProcessor {
   
   @Value("${azure.faceapi.autoprocess}")
   private boolean processFaceEmotion;
+  
+  @Value("${ifly.audioapi.autoprocess}")
+  private boolean processAudio2Text;
   
   @Autowired
   private ApplicationContext context;
@@ -38,6 +42,12 @@ public class RecordingProcessor {
       AzureFaceClient faceClient = context.getBean(AzureFaceClient.class);
       faceClient.init(videoId, videoFileWholePath);
       faceClient.extractEmotion();
+    }
+    
+    if(processAudio2Text) {
+      IFlyAudioClient iflyClient = context.getBean(IFlyAudioClient.class);
+      iflyClient.init(videoId);
+      iflyClient.audio2Text();
     }
   }
 }

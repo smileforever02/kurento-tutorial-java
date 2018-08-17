@@ -47,12 +47,12 @@ public class ImageMagick {
   public static String CONCATENATED_IMAGE_EXT = FFmpeg.IMAGE_EXT;
 
   public void init(Long videoId, String videoFileWholePath) {
+    this.videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
     this.videoFolderPath = videoFileWholePath.substring(0,
         videoFileWholePath.lastIndexOf("/"));
     String videoName = videoFileWholePath
         .substring(videoFileWholePath.lastIndexOf("/") + 1);
     this.videoNameWOExt = videoName.substring(0, videoName.lastIndexOf("."));
-    this.videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
   }
 
   public void concatenateImages() {

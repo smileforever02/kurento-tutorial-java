@@ -63,6 +63,7 @@ public class AzureFaceClient {
   VideoRecordService videoRecordService;
 
   private Long videoId;
+
   private String videoFileWholePath;
 
   private static final String faceAttributes = "emotion";
@@ -73,73 +74,78 @@ public class AzureFaceClient {
   }
 
   public void extractEmotion() {
-    JsonArray jsonArray = null;
+    if (videoId != null) {
+      VideoRecord videoRecord = videoRecordService
+          .getVideoRecordByVideoId(this.videoId);
+      List<ConcatenatedImage> imageList = imageService
+          .getUnprocessedImagesByVideoId(this.videoId);
+      if (videoRecord != null && imageList != null) {
+        JsonArray jsonArray = null;
+        if (imageList != null && !imageList.isEmpty()) {
+          List<FaceEmotion> emotionList = new ArrayList<>();
+          for (ConcatenatedImage image : imageList) {
+            String imagePath = image.getImageFileWholePath();
+            File f = new File(imagePath);
+            if (f.exists()) {
+              Integer smallImageWidth = image.getSmallImageWidth();
+              Integer smallImageHeight = image.getSmallImageHeight();
 
-    VideoRecord videoRecord = videoRecordService
-        .getVideoRecordByVideoId(videoId);
-    List<ConcatenatedImage> imageList = imageService
-        .getUnprocessedImagesByVideoId(this.videoId);
+              try {
+                jsonArray = extractEmotion(azureUriBase, azureSubscriptionKey,
+                    imagePath);
+              } catch (IOException | URISyntaxException e) {
+                log.error(e.getMessage());
+              }
 
-    if(imageList != null && !imageList.isEmpty()) {
-      List<FaceEmotion> emotionList = new ArrayList<>();
-      for (ConcatenatedImage image : imageList) {
-        String imagePath = image.getImageFileWholePath();
-        File f = new File(imagePath);
-        if (f.exists()) {
-          Integer smallImageWidth = image.getSmallImageWidth();
-          Integer smallImageHeight = image.getSmallImageHeight();
+              for (JsonElement json : jsonArray) {
+                AzureFaceEmotion azureFaceEmotion = gson.fromJson(json,
+                    AzureFaceEmotion.class);
+                FaceEmotion faceEmotion = new FaceEmotion();
+                faceEmotion.setVideoRecord(videoRecord);
+                faceEmotion.setConcatenatedImage(image);
+                faceEmotion
+                    .setOrderOfConcatenatedImage(image.getOrderOfImages());
 
-          try {
-            jsonArray = extractEmotion(azureUriBase, azureSubscriptionKey,
-                imagePath);
-          } catch (IOException | URISyntaxException e) {
-            log.error(e.getMessage());
+                int top = azureFaceEmotion.getFaceRectangle().getTop();
+                int left = azureFaceEmotion.getFaceRectangle().getLeft();
+
+                int topOrder = top / smallImageHeight + 1;
+                int leftOrder = left / smallImageWidth + 1;
+
+                // first order is 1
+                int orderOfSmallImage = image.getCountOfHor() * (topOrder - 1)
+                    + leftOrder;
+                faceEmotion.setOrderOfSmallImage(orderOfSmallImage);
+                int orderOfFaceInVideo = (image.getOrderOfImages() - 1) * 64
+                    + orderOfSmallImage;
+                faceEmotion.setOrderOfFaceInVideo(orderOfFaceInVideo);
+                // first emotion time should be 0 second
+                faceEmotion.setEmotionTimeInSec(
+                    Double.valueOf(orderOfFaceInVideo - 1));
+
+                faceEmotion.setVideoFileWholePath(videoFileWholePath);
+                faceEmotion
+                    .setOrderOfConcatenatedImage(image.getOrderOfImages());
+                faceEmotion.setCreatedDate(new Date());
+
+                copyFaceEmotion(azureFaceEmotion, faceEmotion);
+
+                emotionList.add(faceEmotion);
+              }
+              image.setStatus(BeHappyConstants.STATUS_PROCESSED);
+            } else {
+              image.setStatus(BeHappyConstants.STATUS_FILE_NOT_EXIST);
+            }
+            image.setProcessDate(new Date());
           }
 
-          for (JsonElement json : jsonArray) {
-            AzureFaceEmotion azureFaceEmotion = gson.fromJson(json,
-                AzureFaceEmotion.class);
-            FaceEmotion faceEmotion = new FaceEmotion();
-            faceEmotion.setVideoRecord(videoRecord);
-            faceEmotion.setConcatenatedImage(image);
-            faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
-
-            int top = azureFaceEmotion.getFaceRectangle().getTop();
-            int left = azureFaceEmotion.getFaceRectangle().getLeft();
-
-            int topOrder = top / smallImageHeight + 1;
-            int leftOrder = left / smallImageWidth + 1;
-
-            // first order is 1
-            int orderOfSmallImage = image.getCountOfHor() * (topOrder - 1)
-                + leftOrder;
-            faceEmotion.setOrderOfSmallImage(orderOfSmallImage);
-            int orderOfFaceInVideo = (image.getOrderOfImages() - 1) * 64
-                + orderOfSmallImage;
-            faceEmotion.setOrderOfFaceInVideo(orderOfFaceInVideo);
-            // first emotion time should be 0 second
-            faceEmotion.setEmotionTimeInSec(Double.valueOf(orderOfFaceInVideo - 1));
-
-            faceEmotion.setVideoFileWholePath(videoFileWholePath);
-            faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
-            faceEmotion.setCreatedDate(new Date());
-
-            copyFaceEmotion(azureFaceEmotion, faceEmotion);
-            
-            emotionList.add(faceEmotion);
+          if (!emotionList.isEmpty()) {
+            faceEmotionService.saveFaceEmotions(emotionList);
           }
-          image.setStatus(BeHappyConstants.STATUS_PROCESSED);
-        } else {
-          image.setStatus(BeHappyConstants.STATUS_FILE_NOT_EXIST);
+
+          imageService.saveImages(imageList);
         }
-        image.setProcessDate(new Date());
       }
-      
-      if(!emotionList.isEmpty()) {
-        faceEmotionService.saveFaceEmotions(emotionList);
-      }
-      
-      imageService.saveImages(imageList);
     }
   }
 

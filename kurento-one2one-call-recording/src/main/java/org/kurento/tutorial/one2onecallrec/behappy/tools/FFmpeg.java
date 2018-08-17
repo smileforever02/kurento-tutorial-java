@@ -24,10 +24,7 @@ import org.springframework.stereotype.Component;
 @Scope(value = "prototype")
 public class FFmpeg {
   private static final Logger log = LoggerFactory.getLogger(FFmpeg.class);
-  
-  private Long videoId;
-  private VideoRecord videoRecord;
-  
+
   private static int SECONDS_PER_IMAGE = 1;
   // private static String IMAGE_RESOLUTION = "480X640";
   private static String IMAGE_RESOLUTION = "";
@@ -39,79 +36,79 @@ public class FFmpeg {
 
   private static String AUDIO_EXT = ".mp3";
 
+  private VideoRecord videoRecord;
   private String videoFileWholePath;
   private String videoFolderPath;
   private String videoName;
   private String videoNameWOExt;
   private String audioFileWholePath;
-  
+
   @Autowired
   VideoRecordService videoRecordService;
-  
+
   @Autowired
   AudioRecordService audioRecordService;
 
   public void init(Long videoId, String videoFileWholePath) {
-    this.videoFileWholePath = videoFileWholePath;
-    this.videoFolderPath = videoFileWholePath.substring(0,
-        videoFileWholePath.lastIndexOf("/"));
-    this.videoName = videoFileWholePath
-        .substring(videoFileWholePath.lastIndexOf("/") + 1);
-    this.videoNameWOExt = videoName.substring(0, videoName.lastIndexOf("."));
-    this.audioFileWholePath = videoFolderPath + "/" + videoNameWOExt
-        + AUDIO_EXT;
-    this.videoId = videoId;
     this.videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
+    if (this.videoRecord != null) {
+      this.videoFileWholePath = videoFileWholePath;
+      this.videoFolderPath = videoFileWholePath.substring(0,
+          videoFileWholePath.lastIndexOf("/"));
+      this.videoName = videoFileWholePath
+          .substring(videoFileWholePath.lastIndexOf("/") + 1);
+      this.videoNameWOExt = videoName.substring(0, videoName.lastIndexOf("."));
+      this.audioFileWholePath = videoFolderPath + "/" + videoNameWOExt
+          + AUDIO_EXT;
+    }
   }
 
   public void extractImagesFromVideo() {
-    extractImagesFromVideo(SECONDS_PER_IMAGE, IMAGE_RESOLUTION,
-        NUMBER_OF_IMAGES);
+    if (this.videoRecord != null) {
+      extractImagesFromVideo(SECONDS_PER_IMAGE, IMAGE_RESOLUTION,
+          NUMBER_OF_IMAGES);
+    }
   }
 
   public void extractAudioFromVideo() {
-    if (videoFileWholePath == null) {
-      return;
-    }
+    if (videoFileWholePath != null) {
+      String cmd = "[ -e " + videoFileWholePath + " ] && ffmpeg -i "
+          + videoFileWholePath + " -ar 22050 " + audioFileWholePath;
+      log.info("extractAudioFromVideo() cmd=" + cmd);
+      try {
+        CommandExecutor.execCommand("/bin/sh", "-c", cmd);
+      } catch (IOException | InterruptedException e) {
+        log.error(e.getMessage());
+      }
 
-    String cmd = "[ -e " + videoFileWholePath + " ] && ffmpeg -i "
-        + videoFileWholePath + " -ar 22050 " + audioFileWholePath;
-    log.info("extractAudioFromVideo() cmd=" + cmd);
-    try {
-      CommandExecutor.execCommand("/bin/sh", "-c", cmd);
-    } catch (IOException | InterruptedException e) {
-      log.error(e.getMessage());
-    }
-    
-    File file = new File(this.audioFileWholePath);
-    if(file.exists()) {
-      AudioRecord audioRecord = new AudioRecord();
-      audioRecord.setVideoId(this.videoId);
-      audioRecord.setAudioFileWholePath(this.audioFileWholePath);
-      audioRecord.setStatus(BeHappyConstants.STATUS_NOT_PROCESSED);
-      audioRecord.setCreatedDate(new Date());
-      audioRecordService.saveAudioRecord(audioRecord);
+      File file = new File(this.audioFileWholePath);
+      if (file.exists()) {
+        AudioRecord audioRecord = new AudioRecord();
+        audioRecord.setVideoId(this.videoRecord.getVideoId());
+        audioRecord.setAudioFileWholePath(this.audioFileWholePath);
+        audioRecord.setStatus(BeHappyConstants.STATUS_NOT_PROCESSED);
+        audioRecord.setCreatedDate(new Date());
+        audioRecordService.saveAudioRecord(audioRecord);
+      }
     }
   }
 
   private void extractImagesFromVideo(int secondsPerImage, String resolution,
       int numberOfImages) {
-    if (videoFileWholePath == null) {
-      return;
-    }
-
-    String cmd = "[ -e " + videoFileWholePath + " ] && ffmpeg -i "
-        + videoFileWholePath + " -r " + secondsPerImage
-        + ((resolution != null && resolution.length() > 0)
-            ? (" -s " + resolution) : "")
-        + " -t " + numberOfImages + " -f image2 " + videoFolderPath + "/"
-        + videoNameWOExt + IMAGE_POSTFIX + IMAGE_EXT;
-    log.info("extractImagesFromVideo() cmd=" + cmd);
-    try {
-      String cmdResult = CommandExecutor.execCommand("/bin/sh", "-c", cmd);
-      log.info(cmdResult);
-    } catch (IOException | InterruptedException e) {
-      log.error(e.getMessage());
+    if (videoFileWholePath != null) {
+      String cmd = "[ -e " + videoFileWholePath + " ] && ffmpeg -i "
+          + videoFileWholePath + " -r " + secondsPerImage
+          + ((resolution != null && resolution.length() > 0)
+              ? (" -s " + resolution) : "")
+          + " -t " + numberOfImages + " -f image2 " + videoFolderPath + "/"
+          + videoNameWOExt + IMAGE_POSTFIX + IMAGE_EXT;
+      log.info("extractImagesFromVideo() cmd=" + cmd);
+      try {
+        String cmdResult = CommandExecutor.execCommand("/bin/sh", "-c", cmd);
+        log.info(cmdResult);
+      } catch (IOException | InterruptedException e) {
+        log.error(e.getMessage());
+      }
     }
   }
 }
