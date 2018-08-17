@@ -8,6 +8,7 @@ import org.kurento.tutorial.one2onecallrec.behappy.user.User;
 import org.kurento.tutorial.one2onecallrec.behappy.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,5 +36,11 @@ public class LoginController {
       return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST)
           .body(new Message(1, "userId or password is empty"));
     }
+  }
+
+  @GetMapping(value = "/logout")
+  public ResponseEntity<?> logout() {
+    httpSession.invalidate();
+    return ResponseEntity.ok(new Message(0, "http session is invalidated"));
   }
 }
