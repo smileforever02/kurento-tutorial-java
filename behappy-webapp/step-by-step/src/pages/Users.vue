@@ -25,6 +25,7 @@
 
 <script>
 import Services from '../services/Services'
+import MessageBox from '../services/MessageBox'
 
 export default {
     data(){
@@ -47,7 +48,7 @@ export default {
         },
         addFriend(userId, userName){
             Services.addFriend(userId).done((data) => {
-                console.log(data);
+                MessageBox.success('Congratulations! you have a new friend: ' + userName)
                 this.$router.push('/friends')
             }).fail(err => console.log(err));
         }

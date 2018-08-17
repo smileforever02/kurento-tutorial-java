@@ -70,6 +70,7 @@ const app = new Vue({
       logout(){
         Services.logout().done(() => {
           this.logonUser = null
+          MessageBox.info('You log out')
           this.$router.push('/login')
         })
       }

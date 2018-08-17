@@ -47,8 +47,8 @@
           <li class="nav-item"><router-link to="/"><span>Welcome</span></router-link></li>
           <li class="nav-item" v-if="logonUser === null"><router-link to="/login"><span>Sign In</span></router-link></li>
           <li class="nav-item"><router-link to="/signup"><span>Sign Up</span></router-link></li>
-          <li class="nav-item"><router-link to="/friends"><span>Friends</span></router-link>
-            </li>
+          <li class="nav-item"><router-link to="/friends"><span>Friends</span></router-link></li>
+          <li class="nav-item"><router-link to="/user-list"><span>Add Friend</span></router-link></li>
       </ul>
     </nav>
     <div style="position: fixed;top: 150px;left: 200px;display: none;">
@@ -109,9 +109,9 @@
         <video id="videoInput" autoplay playsinline width="240px" height="180px" poster="./img/webrtc.png"></video>
       </div>
       <div id="videoBtn" class="">
-        <a id="terminate" href="#" class="btn btn-danger" title="stop">
+        <a id="terminate" class="btn btn-danger" title="stop">
           <span class="glyphicon glyphicon-stop"></span></a>
-        <a id="play" href="#" class="btn btn-warning" title="replay">
+        <a id="play" class="btn btn-warning" title="replay">
           <span class="glyphicon glyphicon-play-circle"></span></a>
       </div>
     </div>
