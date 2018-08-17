@@ -1,5 +1,7 @@
 package org.kurento.tutorial.one2onecallrec.behappy.emotion.face;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,8 +11,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.kurento.tutorial.one2onecallrec.behappy.image.ConcatenatedImage;
 import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecord;
+import org.kurento.tutorial.one2onecallrec.behappy.video.image.ConcatenatedImage;
+import org.springframework.data.annotation.CreatedDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "FACE_EMOTION")
@@ -29,6 +34,9 @@ public class FaceEmotion {
   private ConcatenatedImage concatenatedImage;
 
   private String videoFileWholePath;
+
+  // the time offset of this emotion. in seconds. first emotion time should be 0
+  private Double emotionTimeInSec;
 
   /**
    * A video is composed by many concatenated images. One concatenated image
@@ -49,6 +57,10 @@ public class FaceEmotion {
    * (orderOfConcatenatedImage - 1) * 64 + orderOfSmallImage
    */
   private Integer orderOfFaceInVideo;
+
+  @CreatedDate
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
+  private Date createdDate;
 
   private Integer rectangleTop;
   private Integer rectangleLeft;
@@ -88,6 +100,14 @@ public class FaceEmotion {
     this.videoFileWholePath = videoFileWholePath;
   }
 
+  public Double getEmotionTimeInSec() {
+    return emotionTimeInSec;
+  }
+
+  public void setEmotionTimeInSec(Double emotionTimeInSec) {
+    this.emotionTimeInSec = emotionTimeInSec;
+  }
+
   public Integer getOrderOfConcatenatedImage() {
     return orderOfConcatenatedImage;
   }
@@ -110,6 +130,14 @@ public class FaceEmotion {
 
   public void setOrderOfFaceInVideo(Integer orderOfFaceInVideo) {
     this.orderOfFaceInVideo = orderOfFaceInVideo;
+  }
+
+  public Date getCreatedDate() {
+    return createdDate;
+  }
+
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
   }
 
   public Integer getRectangleTop() {

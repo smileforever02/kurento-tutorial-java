@@ -1,4 +1,6 @@
-package org.kurento.tutorial.one2onecallrec.behappy.image;
+package org.kurento.tutorial.one2onecallrec.behappy.video.image;
+
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +12,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecord;
+import org.springframework.data.annotation.CreatedDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "CONCATENATED_IMAGES")
@@ -42,11 +47,14 @@ public class ConcatenatedImage {
   private Integer countOfVer;
 
   private int status;
-
-  public static final int STATUS_NOT_PROCESSED = 0;
-  public static final int STATUS_PROCESSED = 1;
-  public static final int STATUS_IMAGE_NOT_EXIST = 2;
   
+  @CreatedDate
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
+  private Date createdDate;
+  
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
+  private Date processDate;
+
   public ConcatenatedImage() {
   }
 
@@ -149,5 +157,21 @@ public class ConcatenatedImage {
 
   public void setStatus(int status) {
     this.status = status;
+  }
+
+  public Date getCreatedDate() {
+    return createdDate;
+  }
+
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
+  }
+
+  public Date getProcessDate() {
+    return processDate;
+  }
+
+  public void setProcessDate(Date processDate) {
+    this.processDate = processDate;
   }
 }

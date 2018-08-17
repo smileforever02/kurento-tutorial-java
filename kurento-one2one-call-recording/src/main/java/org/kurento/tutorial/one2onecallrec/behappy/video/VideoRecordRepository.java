@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VideoRecordRepository
     extends JpaRepository<VideoRecord, Long> {
-  public List<VideoRecord> findByUserUserIdOrderByVideoDateDesc(String userId);
+  public List<VideoRecord> findByUserUserIdOrderByCreatedDateDesc(String userId);
 
   public VideoRecord findByVideoFileWholePath(String videoFileWholePath);
 }

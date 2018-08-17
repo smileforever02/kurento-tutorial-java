@@ -23,7 +23,8 @@ public class RecordingProcessor {
     }
     
     // extract images from video
-    FFmpeg ffmpeg = new FFmpeg(videoFileWholePath);
+    FFmpeg ffmpeg = context.getBean(FFmpeg.class);
+    ffmpeg.init(videoId, videoFileWholePath);
     ffmpeg.extractImagesFromVideo();
     // extract audio from video
     ffmpeg.extractAudioFromVideo();
