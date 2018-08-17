@@ -91,6 +91,15 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
 		</dependency>
+
+		<dependency>
+			<groupId>lfasr</groupId>
+			<artifactId>sdk-client</artifactId>
+			<version>2.0.0.1005</version>
+			<scope>system</scope>
+			<systemPath>/root/github/smileforever02/kurento-tutorial-java/kurento-one2one-call-recording/lib/lfasr-sdk-client-2.0.0.1005-jar-with-dependencies.jar</systemPath>
+		</dependency>
+
 	</dependencies>
 
 	<build>
