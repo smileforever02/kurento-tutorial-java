@@ -2,12 +2,16 @@ package org.kurento.tutorial.one2onecallrec.behappy.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.kurento.tutorial.one2onecallrec.behappy.image.ConcatenatedImage;
-import org.kurento.tutorial.one2onecallrec.behappy.image.ConcatenatedImageService;
+import org.kurento.tutorial.one2onecallrec.behappy.BeHappyConstants;
 import org.kurento.tutorial.one2onecallrec.behappy.utils.CommandExecutor;
 import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecord;
 import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecordService;
+import org.kurento.tutorial.one2onecallrec.behappy.video.image.ConcatenatedImage;
+import org.kurento.tutorial.one2onecallrec.behappy.video.image.ConcatenatedImageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +38,7 @@ public class ImageMagick {
 
   @Autowired
   VideoRecordService videoRecordService;
-  
+
   @Autowired
   ConcatenatedImageService imageService;
 
@@ -73,6 +77,7 @@ public class ImageMagick {
 
     int i = 0;
     String imagePath = "";
+    List<ConcatenatedImage> imageList = new ArrayList<>();
     while (i >= 0) {
       // the concatenated image starts with xxx_con00.jpeg
       imagePath = videoFolderPath + "/" + videoNameWOExt + "_con"
@@ -84,12 +89,16 @@ public class ImageMagick {
         Integer imageHeight = wh[1];
         ConcatenatedImage image = new ConcatenatedImage(videoRecord, imagePath,
             i + 1, imageWidth, imageHeight, smallImageWidth, smallImageHeight,
-            imageWidth / smallImageWidth, imageHeight / smallImageHeight, ConcatenatedImage.STATUS_NOT_PROCESSED);
-
-        imageService.saveImage(image);
+            imageWidth / smallImageWidth, imageHeight / smallImageHeight,
+            BeHappyConstants.STATUS_NOT_PROCESSED);
+        image.setCreatedDate(new Date());
+        imageList.add(image);
         i++;
       } else {
         i = -1;
+      }
+      if (!imageList.isEmpty()) {
+        imageService.saveImages(imageList);
       }
     }
   }
@@ -97,8 +106,6 @@ public class ImageMagick {
   public Integer[] getImageResolutionWxH(String imagePath) {
     Integer[] wh = new Integer[2];
     String wxh = null;
-    // String cmd = "identify -format '%wx%h' " + videoFolderPath + "/" +
-    // videoNameWOExt + "_001" + FFmpeg.IMAGE_EXT;
     String cmd = "identify -format '%wx%h' " + imagePath;
     log.info("getImageResolution() cmd=" + cmd);
     try {

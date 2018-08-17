@@ -11,7 +11,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.kurento.tutorial.one2onecallrec.behappy.BeHappyConstants;
 import org.kurento.tutorial.one2onecallrec.behappy.user.User;
+import org.springframework.data.annotation.CreatedDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "VIDEO_RECORDS")
@@ -29,19 +33,24 @@ public class VideoRecord {
   private User user;
 
   private String videoFileWholePath;
-  private Date videoDate;
+
+  private int status;
+
+  @CreatedDate
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
+  private Date createdDate;
 
   public VideoRecord() {
     super();
   }
 
   public VideoRecord(String groupSessionId, User user,
-      String videoFileWholePath, Date videoDate) {
+      String videoFileWholePath) {
     super();
     this.groupSessionId = groupSessionId;
     this.user = user;
     this.videoFileWholePath = videoFileWholePath;
-    this.videoDate = videoDate;
+    this.status = BeHappyConstants.STATUS_NOT_PROCESSED;
   }
 
   public Long getVideoId() {
@@ -72,11 +81,19 @@ public class VideoRecord {
     this.videoFileWholePath = videoFileWholePath;
   }
 
-  public Date getVideoDate() {
-    return videoDate;
+  public int getStatus() {
+    return status;
   }
 
-  public void setVideoDate(Date videoDate) {
-    this.videoDate = videoDate;
+  public void setStatus(int status) {
+    this.status = status;
+  }
+
+  public Date getCreatedDate() {
+    return createdDate;
+  }
+
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
   }
 }

@@ -182,12 +182,18 @@ public class CallMediaPipeline {
     if (fromUser != null && toUser != null) {
       Date date = new Date();
       String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-      VideoRecord record = videoRecordService.createVideoRecord(
-          new VideoRecord(uuid, fromUser, fromRecordingFileWholePath, date));
-      caller.setVideoId(record.getVideoId());
-      record = videoRecordService.createVideoRecord(
-          new VideoRecord(uuid, toUser, toRecordingFileWholePath, date));
-      callee.setVideoId(record.getVideoId());
+
+      VideoRecord callerVideo = new VideoRecord(uuid, fromUser,
+          fromRecordingFileWholePath);
+      callerVideo.setCreatedDate(date);
+      callerVideo = videoRecordService.createVideoRecord(callerVideo);
+      caller.setVideoId(callerVideo.getVideoId());
+
+      VideoRecord calleeVideo = new VideoRecord(uuid, toUser,
+          toRecordingFileWholePath);
+      calleeVideo.setCreatedDate(date);
+      calleeVideo = videoRecordService.createVideoRecord(calleeVideo);
+      callee.setVideoId(calleeVideo.getVideoId());
     }
   }
 }

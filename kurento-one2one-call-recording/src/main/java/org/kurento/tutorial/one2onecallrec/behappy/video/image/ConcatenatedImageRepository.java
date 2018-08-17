@@ -1,4 +1,4 @@
-package org.kurento.tutorial.one2onecallrec.behappy.image;
+package org.kurento.tutorial.one2onecallrec.behappy.video.image;
 
 import java.util.List;
 
