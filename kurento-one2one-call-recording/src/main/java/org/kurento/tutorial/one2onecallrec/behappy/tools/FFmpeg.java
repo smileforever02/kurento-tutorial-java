@@ -13,7 +13,10 @@ import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,6 +27,9 @@ import org.springframework.stereotype.Component;
 @Scope(value = "prototype")
 public class FFmpeg {
   private static final Logger log = LoggerFactory.getLogger(FFmpeg.class);
+
+  @Value("${ifly.audioapi.autoprocess}")
+  private boolean processAudio2Text;
 
   private static int SECONDS_PER_IMAGE = 1;
   // private static String IMAGE_RESOLUTION = "480X640";
@@ -49,6 +55,9 @@ public class FFmpeg {
   @Autowired
   AudioRecordService audioRecordService;
 
+  @Autowired
+  private ApplicationContext context;
+
   public void init(Long videoId, String videoFileWholePath) {
     this.videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
     if (this.videoRecord != null) {
@@ -63,15 +72,26 @@ public class FFmpeg {
     }
   }
 
+  @Async
   public void extractImagesFromVideo() {
     if (this.videoRecord != null) {
       extractImagesFromVideo(SECONDS_PER_IMAGE, IMAGE_RESOLUTION,
           NUMBER_OF_IMAGES);
+
+      concatenateImage();
     }
   }
 
+  private void concatenateImage() {
+    // concatenate 64 images to one big image
+    ImageMagick imageMagick = context.getBean(ImageMagick.class);
+    imageMagick.init(videoRecord, videoFileWholePath);
+    imageMagick.concatenateImages();
+  }
+
+  @Async
   public void extractAudioFromVideo() {
-    if (videoFileWholePath != null) {
+    if (this.videoRecord != null && videoFileWholePath != null) {
       String cmd = "[ -e " + videoFileWholePath + " ] && ffmpeg -i "
           + videoFileWholePath + " -ar 22050 " + audioFileWholePath;
       log.info("extractAudioFromVideo() cmd=" + cmd);
@@ -89,7 +109,17 @@ public class FFmpeg {
         audioRecord.setStatus(BeHappyConstants.STATUS_NOT_PROCESSED);
         audioRecord.setCreatedDate(new Date());
         audioRecordService.saveAudioRecord(audioRecord);
+
+        audio2Text();
       }
+    }
+  }
+
+  private void audio2Text() {
+    if (processAudio2Text) {
+      IFlyAudioClient iflyClient = context.getBean(IFlyAudioClient.class);
+      iflyClient.init(this.videoRecord.getVideoId());
+      iflyClient.audio2Text();
     }
   }
 

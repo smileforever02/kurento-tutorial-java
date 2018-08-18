@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
@@ -62,24 +63,23 @@ public class AzureFaceClient {
   @Autowired
   VideoRecordService videoRecordService;
 
-  private Long videoId;
+  private VideoRecord videoRecord;
 
   private String videoFileWholePath;
 
   private static final String faceAttributes = "emotion";
 
-  public void init(Long videoId, String videoFileWholePath) {
-    this.videoId = videoId;
+  public void init(VideoRecord videoRecord, String videoFileWholePath) {
+    this.videoRecord = videoRecord;
     this.videoFileWholePath = videoFileWholePath;
   }
 
+  @Async
   public void extractEmotion() {
-    if (videoId != null) {
-      VideoRecord videoRecord = videoRecordService
-          .getVideoRecordByVideoId(this.videoId);
+    if (videoRecord != null) {
       List<ConcatenatedImage> imageList = imageService
-          .getUnprocessedImagesByVideoId(this.videoId);
-      if (videoRecord != null && imageList != null) {
+          .getUnprocessedImagesByVideoId(videoRecord.getVideoId());
+      if (imageList != null) {
         JsonArray jsonArray = null;
         if (imageList != null && !imageList.isEmpty()) {
           List<FaceEmotion> emotionList = new ArrayList<>();

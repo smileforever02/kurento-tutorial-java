@@ -8,23 +8,26 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ConcatenatedImageService {
-  
+
   @Autowired
   ConcatenatedImageRepository repository;
 
-  public void saveImage(ConcatenatedImage image) {
-    repository.save(image);
+  public ConcatenatedImage saveImage(ConcatenatedImage image) {
+    return repository.save(image);
   }
-  
-  public void saveImages(List<ConcatenatedImage> entities) {
-    repository.save(entities);
+
+  public List<ConcatenatedImage> saveImages(List<ConcatenatedImage> entities) {
+    return repository.save(entities);
   }
-  
+
   public List<ConcatenatedImage> getUnprocessedImagesByVideoId(Long videoId) {
-    return getImagesByVideoIdAndStatus(videoId, BeHappyConstants.STATUS_NOT_PROCESSED);
+    return getImagesByVideoIdAndStatus(videoId,
+        BeHappyConstants.STATUS_NOT_PROCESSED);
   }
-  
-  public List<ConcatenatedImage> getImagesByVideoIdAndStatus(Long videoId, int status) {
-    return repository.findByVideoRecordVideoIdAndStatusOrderByImageId(videoId, status);
+
+  public List<ConcatenatedImage> getImagesByVideoIdAndStatus(Long videoId,
+      int status) {
+    return repository.findByVideoRecordVideoIdAndStatusOrderByImageId(videoId,
+        status);
   }
 }

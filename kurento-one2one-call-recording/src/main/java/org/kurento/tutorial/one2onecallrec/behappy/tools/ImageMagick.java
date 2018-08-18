@@ -15,7 +15,10 @@ import org.kurento.tutorial.one2onecallrec.behappy.video.image.ConcatenatedImage
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,7 +31,11 @@ import org.springframework.stereotype.Component;
 public class ImageMagick {
   private static final Logger log = LoggerFactory.getLogger(ImageMagick.class);
 
+  @Value("${azure.faceapi.autoprocess}")
+  private boolean processFaceEmotion;
+
   private VideoRecord videoRecord;
+  private String videoFileWholePath;
   private String videoFolderPath;
   private String videoNameWOExt;
 
@@ -42,12 +49,16 @@ public class ImageMagick {
   @Autowired
   ConcatenatedImageService imageService;
 
+  @Autowired
+  private ApplicationContext context;
+
   private static String CONCATENATE_TILE = "8x8";
   private static String CONCATENATED_IMAGE_POST_FIX = "_con%02d";
   public static String CONCATENATED_IMAGE_EXT = FFmpeg.IMAGE_EXT;
 
-  public void init(Long videoId, String videoFileWholePath) {
-    this.videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
+  public void init(VideoRecord videoRecord, String videoFileWholePath) {
+    this.videoRecord = videoRecord;
+    this.videoFileWholePath = videoFileWholePath;
     this.videoFolderPath = videoFileWholePath.substring(0,
         videoFileWholePath.lastIndexOf("/"));
     String videoName = videoFileWholePath
@@ -55,6 +66,7 @@ public class ImageMagick {
     this.videoNameWOExt = videoName.substring(0, videoName.lastIndexOf("."));
   }
 
+  @Async
   public void concatenateImages() {
     String firstImagePath = videoFolderPath + "/" + videoNameWOExt + "_001"
         + FFmpeg.IMAGE_EXT;
@@ -73,12 +85,13 @@ public class ImageMagick {
       log.info(cmdResult);
     } catch (IOException | InterruptedException e) {
       log.error(e.toString());
+      return;
     }
 
     int i = 0;
     String imagePath = "";
     List<ConcatenatedImage> imageList = new ArrayList<>();
-    while (i >= 0) {
+    while (true) {
       // the concatenated image starts with xxx_con00.jpeg
       imagePath = videoFolderPath + "/" + videoNameWOExt + "_con"
           + String.format("%02d", i) + ImageMagick.CONCATENATED_IMAGE_EXT;
@@ -95,11 +108,23 @@ public class ImageMagick {
         imageList.add(image);
         i++;
       } else {
-        i = -1;
+        break;
       }
-      if (!imageList.isEmpty()) {
-        imageService.saveImages(imageList);
+    }
+
+    if (!imageList.isEmpty()) {
+      List<ConcatenatedImage> images = imageService.saveImages(imageList);
+      if (images != null && !images.isEmpty()) {
+        extraceFaceEmotion();
       }
+    }
+  }
+
+  private void extraceFaceEmotion() {
+    if (processFaceEmotion) {
+      AzureFaceClient faceClient = context.getBean(AzureFaceClient.class);
+      faceClient.init(this.videoRecord, this.videoFileWholePath);
+      faceClient.extractEmotion();
     }
   }
 
