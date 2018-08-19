@@ -10,11 +10,11 @@ public class FaceEmotionService {
   @Autowired
   FaceEmotionRepository repository;
 
-  public void saveFaceEmotion(FaceEmotion faceEmotion) {
-    repository.save(faceEmotion);
+  public FaceEmotion saveFaceEmotion(FaceEmotion faceEmotion) {
+    return repository.save(faceEmotion);
   }
-  
-  public void saveFaceEmotions(List<FaceEmotion> entities) {
-    repository.save(entities);
+
+  public List<FaceEmotion> saveFaceEmotions(List<FaceEmotion> entities) {
+    return repository.save(entities);
   }
 }
