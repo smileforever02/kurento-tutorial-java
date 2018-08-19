@@ -13,9 +13,9 @@ Vue.use(Vuex)
 
 let app
 router.beforeResolve((to, from, next) => {
-  console.log(to)
-  console.log(from)
-  console.log(app)
+  console.log(to.path)
+  console.log(from.path)
+  console.log(typeof app)
   next()
 })
 
