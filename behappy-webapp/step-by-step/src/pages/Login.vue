@@ -36,8 +36,10 @@ export default {
             Services.login({userId: this.userId, password: this.password})
                 .done(() => {
                     this.$root.logonUser = this.userId;
-                    Services.register(this.userId);
-                    this.$router.push('/friends');
+                    Services.newWebSocket(() => {
+                        Services.register(this.userId);
+                        this.$router.push('/friends');
+                    });
                 }).fail(() => console.log(arguments))
         }
     }

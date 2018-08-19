@@ -1,6 +1,20 @@
 import $ from '../utils'
 
 export default {
+    newWebSocket(callback){
+        if(typeof newWebSocket === 'function'){
+            newWebSocket(callback);
+        }else{
+            console.log('there is no newWebSocket function')
+        }
+    },
+    closeWebSocket(){
+        if(typeof closeWebSocket === 'function'){
+            closeWebSocket();
+        }else{
+            console.log('there is no closeWebSocket function')
+        }
+    },
     register(userId){
         $('#name').val(userId);
         setTimeout((typeof register === 'function'? register : function(){console.log('no register function')}), 0);

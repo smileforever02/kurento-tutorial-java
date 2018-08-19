@@ -62,8 +62,10 @@ app = new Vue({
     },
     mounted(el){
       Services.getLogonUserContext().done(user => {
-        Services.register(user.userId);
         this.logonUser = user.userId;
+        Services.newWebSocket(() => {
+          Services.register(user.userId);
+        });
       }).fail(() => {
         console.log(arguments);
         this.logonUser = null;
@@ -84,6 +86,7 @@ app = new Vue({
         Services.logout().done(() => {
           this.logonUser = null
           MessageBox.info('You log out')
+          Services.closeWebSocket();
           this.$router.push('/login')
         })
       }

@@ -15,7 +15,7 @@
  *
  */
 
-var ws = new WebSocket('wss://' + location.host + '/call');
+var ws;
 var videoInput;
 var videoOutput;
 var webRtcPeer;
@@ -26,6 +26,58 @@ var registerState = null;
 const NOT_REGISTERED = 0;
 const REGISTERING = 1;
 const REGISTERED = 2;
+
+function newWebSocket(callback){
+	if(ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)){
+		console.log('close existed websocket')
+		try{ws.close(1000);}catch(e){console.error(e)}
+	}
+	ws = new WebSocket('wss://' + location.host + '/call');
+	ws.onopen = function(){
+		console.log('wecsocket is ready');
+		callback && callback();
+	};
+	ws.onclose = function(){
+		console.log('websocket is closed');
+	};
+	ws.onmessage = function(message) {
+		var parsedMessage = JSON.parse(message.data);
+		console.info('Received message: ' + message.data);
+	
+		switch (parsedMessage.id) {
+		case 'registerResponse':
+			registerResponse(parsedMessage);
+			break;
+		case 'callResponse':
+			callResponse(parsedMessage);
+			break;
+		case 'incomingCall':
+			incomingCall(parsedMessage);
+			break;
+		case 'startCommunication':
+			startCommunication(parsedMessage);
+			break;
+		case 'stopCommunication':
+			console.info('Communication ended by remote peer');
+			stop(true);
+			break;
+		case 'playResponse':
+			playResponse(parsedMessage);
+			break;
+		case 'playEnd':
+			playEnd();
+			break;
+		case 'iceCandidate':
+			webRtcPeer.addIceCandidate(parsedMessage.candidate, function(error) {
+				if (error)
+					return console.error('Error adding candidate: ' + error);
+			});
+			break;
+		default:
+			console.error('Unrecognized message', parsedMessage);
+		}
+	}
+}
 
 function setRegisterState(nextState) {
 	switch (nextState) {
@@ -103,44 +155,6 @@ window.onload = function() {
 
 window.onbeforeunload = function() {
 	ws.close();
-}
-
-ws.onmessage = function(message) {
-	var parsedMessage = JSON.parse(message.data);
-	console.info('Received message: ' + message.data);
-
-	switch (parsedMessage.id) {
-	case 'registerResponse':
-		registerResponse(parsedMessage);
-		break;
-	case 'callResponse':
-		callResponse(parsedMessage);
-		break;
-	case 'incomingCall':
-		incomingCall(parsedMessage);
-		break;
-	case 'startCommunication':
-		startCommunication(parsedMessage);
-		break;
-	case 'stopCommunication':
-		console.info('Communication ended by remote peer');
-		stop(true);
-		break;
-	case 'playResponse':
-		playResponse(parsedMessage);
-		break;
-	case 'playEnd':
-		playEnd();
-		break;
-	case 'iceCandidate':
-		webRtcPeer.addIceCandidate(parsedMessage.candidate, function(error) {
-			if (error)
-				return console.error('Error adding candidate: ' + error);
-		});
-		break;
-	default:
-		console.error('Unrecognized message', parsedMessage);
-	}
 }
 
 function registerResponse(message) {
