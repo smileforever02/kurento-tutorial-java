@@ -9,12 +9,9 @@ import org.kurento.tutorial.one2onecallrec.behappy.audio.AudioRecord;
 import org.kurento.tutorial.one2onecallrec.behappy.audio.AudioRecordService;
 import org.kurento.tutorial.one2onecallrec.behappy.utils.CommandExecutor;
 import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecord;
-import org.kurento.tutorial.one2onecallrec.behappy.video.VideoRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -25,11 +22,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(value = "prototype")
-public class FFmpeg {
+public class FFmpeg extends Callback {
   private static final Logger log = LoggerFactory.getLogger(FFmpeg.class);
-
-  @Value("${ifly.audioapi.autoprocess}")
-  private boolean processAudio2Text;
 
   private static int SECONDS_PER_IMAGE = 1;
   // private static String IMAGE_RESOLUTION = "480X640";
@@ -49,19 +43,19 @@ public class FFmpeg {
   private String videoNameWOExt;
   private String audioFileWholePath;
 
-  @Autowired
-  VideoRecordService videoRecordService;
+  Callback imageCallback;
+  Callback audioCallback;
 
   @Autowired
   AudioRecordService audioRecordService;
 
-  @Autowired
-  private ApplicationContext context;
-
-  public void init(Long videoId, String videoFileWholePath) {
-    this.videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
+  public void init(VideoRecord videoRecord, Callback imageCallback,
+      Callback audioCallback) {
+    this.videoRecord = videoRecord;
+    this.imageCallback = imageCallback;
+    this.audioCallback = audioCallback;
     if (this.videoRecord != null) {
-      this.videoFileWholePath = videoFileWholePath;
+      this.videoFileWholePath = videoRecord.getVideoFileWholePath();
       this.videoFolderPath = videoFileWholePath.substring(0,
           videoFileWholePath.lastIndexOf("/"));
       this.videoName = videoFileWholePath
@@ -73,57 +67,15 @@ public class FFmpeg {
   }
 
   @Async
-  public void extractImagesFromVideo() {
+  private boolean extractImagesFromVideo() {
     if (this.videoRecord != null) {
-      extractImagesFromVideo(SECONDS_PER_IMAGE, IMAGE_RESOLUTION,
+      return extractImagesFromVideo(SECONDS_PER_IMAGE, IMAGE_RESOLUTION,
           NUMBER_OF_IMAGES);
-
-      concatenateImage();
     }
+    return false;
   }
 
-  private void concatenateImage() {
-    // concatenate 64 images to one big image
-    ImageMagick imageMagick = context.getBean(ImageMagick.class);
-    imageMagick.init(videoRecord, videoFileWholePath);
-    imageMagick.concatenateImages();
-  }
-
-  @Async
-  public void extractAudioFromVideo() {
-    if (this.videoRecord != null && videoFileWholePath != null) {
-      String cmd = "[ -e " + videoFileWholePath + " ] && ffmpeg -i "
-          + videoFileWholePath + " -ar 22050 " + audioFileWholePath;
-      log.info("extractAudioFromVideo() cmd=" + cmd);
-      try {
-        CommandExecutor.execCommand("/bin/sh", "-c", cmd);
-      } catch (IOException | InterruptedException e) {
-        log.error(e.getMessage());
-      }
-
-      File file = new File(this.audioFileWholePath);
-      if (file.exists()) {
-        AudioRecord audioRecord = new AudioRecord();
-        audioRecord.setVideoId(this.videoRecord.getVideoId());
-        audioRecord.setAudioFileWholePath(this.audioFileWholePath);
-        audioRecord.setStatus(BeHappyConstants.STATUS_NOT_PROCESSED);
-        audioRecord.setCreatedDate(new Date());
-        audioRecordService.saveAudioRecord(audioRecord);
-
-        audio2Text();
-      }
-    }
-  }
-
-  private void audio2Text() {
-    if (processAudio2Text) {
-      IFlyAudioClient iflyClient = context.getBean(IFlyAudioClient.class);
-      iflyClient.init(this.videoRecord.getVideoId());
-      iflyClient.audio2Text();
-    }
-  }
-
-  private void extractImagesFromVideo(int secondsPerImage, String resolution,
+  private boolean extractImagesFromVideo(int secondsPerImage, String resolution,
       int numberOfImages) {
     if (videoFileWholePath != null) {
       String cmd = "[ -e " + videoFileWholePath + " ] && ffmpeg -i "
@@ -138,7 +90,49 @@ public class FFmpeg {
         log.info(cmdResult);
       } catch (IOException | InterruptedException e) {
         log.error(e.getMessage());
+        return false;
       }
+      return true;
+    }
+    return false;
+  }
+
+  @Async
+  private boolean extractAudioFromVideo() {
+    if (this.videoRecord != null && videoFileWholePath != null) {
+      String cmd = "[ -e " + videoFileWholePath + " ] && ffmpeg -i "
+          + videoFileWholePath + " -ar 22050 " + audioFileWholePath;
+      log.info("extractAudioFromVideo() cmd=" + cmd);
+      try {
+        CommandExecutor.execCommand("/bin/sh", "-c", cmd);
+      } catch (IOException | InterruptedException e) {
+        log.error(e.getMessage());
+        return false;
+      }
+
+      File file = new File(this.audioFileWholePath);
+      if (file.exists()) {
+        AudioRecord audioRecord = new AudioRecord();
+        audioRecord.setVideoId(this.videoRecord.getVideoId());
+        audioRecord.setAudioFileWholePath(this.audioFileWholePath);
+        audioRecord.setStatus(BeHappyConstants.STATUS_NOT_PROCESSED);
+        audioRecord.setCreatedDate(new Date());
+        audioRecordService.saveAudioRecord(audioRecord);
+
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  @Async
+  public void execute() {
+    if (extractImagesFromVideo() && this.imageCallback != null) {
+      imageCallback.execute();
+    }
+    if (extractAudioFromVideo() && this.audioCallback != null) {
+      audioCallback.execute();
     }
   }
 }

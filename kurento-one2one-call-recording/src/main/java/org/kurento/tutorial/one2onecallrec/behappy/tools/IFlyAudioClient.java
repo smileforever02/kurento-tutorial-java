@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
@@ -26,7 +27,7 @@ import com.iflytek.msp.cpdb.lfasr.model.ProgressStatus;
 
 @Component
 @Scope(value = "prototype")
-public class IFlyAudioClient {
+public class IFlyAudioClient extends Callback {
   private static final Logger log = LoggerFactory
       .getLogger(IFlyAudioClient.class);
   private static final LfasrType type = LfasrType.LFASR_STANDARD_RECORDED_AUDIO;
@@ -37,16 +38,22 @@ public class IFlyAudioClient {
 
   @Autowired
   AudioWordsService audioWordsService;
+  
+  private Long videoId;
 
   private AudioRecord audioRecord;
+  
+  private Callback callback;
 
-  public void init(Long videoId) {
-    this.audioRecord = audioRecordService.getAudioRecord(videoId);
+  public void init(Long videoId, Callback callback) {
+    this.videoId = videoId;
+    this.callback = callback;
   }
 
-  public void audio2Text() {
+  private boolean audio2Text() {
+    this.audioRecord = audioRecordService.getAudioRecord(videoId);
     if (this.audioRecord == null) {
-      return;
+      return false;
     }
     String audioFilePath = audioRecord.getAudioFileWholePath();
 
@@ -128,6 +135,7 @@ public class IFlyAudioClient {
         }
 
         audioWordsService.saveAudioWordsList(wordsList);
+        return true;
       } else {
         log.error("ecode=" + resultMsg.getErr_no());
         log.error("failed=" + resultMsg.getFailed());
@@ -137,6 +145,7 @@ public class IFlyAudioClient {
       log.error("ecode=" + resultMsg.getErr_no());
       log.error("failed=" + resultMsg.getFailed());
     }
+    return false;
   }
 
   private void copyIFlyJson2AudioWords(IFlyJson json, AudioWords words) {
@@ -146,5 +155,13 @@ public class IFlyAudioClient {
     words.setBeginTime(Long.valueOf(json.getBg()) / 1000);
     words.setEndTime(Long.valueOf(json.getEd()) / 1000);
     words.setContent(json.getOnebest());
+  }
+  
+  @Override
+  @Async
+  public void execute() {
+    if (audio2Text() && this.callback != null) {
+      callback.execute();
+    }
   }
 }
