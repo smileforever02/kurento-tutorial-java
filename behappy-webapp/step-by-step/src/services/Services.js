@@ -1,5 +1,6 @@
 import $ from '../utils'
 
+const mask = $('#mask')
 export default {
     newWebSocket(callback){
         if(typeof newWebSocket === 'function'){
@@ -62,6 +63,12 @@ export default {
             options.data = JSON.stringify(data);
             options.contentType = "application/json; charset=utf-8";
         }
-        return $.ajax(options);
+        let deffer = $.Deferred()
+        mask.show()
+        $.ajax(options)
+            .done(data => deffer.resolve(data))
+            .fail((arg1, arg2, arg3) => deffer.reject(arg1, arg2, arg3))
+            .always(() => mask.hide())
+        return deffer;
     }
 }

@@ -11,30 +11,27 @@ import '../assets/app.styl'
 // })
 Vue.use(Vuex)
 
+const level = ['success', 'info', 'warn', 'error']
 let app
-router.beforeResolve((to, from, next) => {
-  console.log(to.path)
-  console.log(from.path)
-  console.log(typeof app)
-  next()
-})
-
-const globalData = {
-  count: 0
-}
-
 const store = new Vuex.Store({
     state: {
-        count: 0
+      isLogon: false,
+      logonUser: null
     },
     getters: {
-      countMul100(state){
-        return state.count * 100
-      }
+      // countMul100(state){
+      //   return state.count * 100
+      // }
     },
     mutations: {
-        increment(state){
-            state.count++
+        updateLogonUser(state, userId){
+          console.log('update logon user in store: ' + userId)
+          state.logonUser = userId
+          state.isLogon = true
+        },
+        clearLogonUser(state){
+          state.logonUser = null
+          state.isLogon = false
         }
     },
     actions: {
@@ -43,17 +40,40 @@ const store = new Vuex.Store({
         }
     }
 })
-let idx = 0;
-const level = ['success', 'info', 'warn', 'error']
-app = new Vue({
+
+router.beforeResolve((to, from, next) => {
+  console.log(to.matched)
+  console.log(to.meta)
+  if(to.meta.requireAuth && !store.state.isLogon){
+    MessageBox.warn('Please logon first')
+    next('/login' + to.path)
+  }else{
+    next()
+  }
+  // console.log(to.path)
+  // console.log(from.path)
+  // console.log('navigate from ' + from.path + ' to ' + to.path)
+  // console.log('check logon user in router guard: ' + store.state.isLogon)
+  // if(store.state.isLogon || to.path.startsWith('/login')){
+  // next()
+  // }else{
+  //   next('/login' + to.path)
+  // }
+})
+
+const initApp = function(){
+  app = new Vue({
     el: '#app',
     router,
     store,
     data: {
-      logonUser: null,
       storex: 'Hello world'
     },
-    // data: globalData,
+    computed: {
+      logonUser(){
+        return this.$store.state.logonUser
+      }
+    },
     beforeCreate(){
       console.log('app => beforcreate')
     },
@@ -61,30 +81,28 @@ app = new Vue({
       console.log('app => created')
     },
     mounted(el){
-      Services.getLogonUserContext().done(user => {
-        this.logonUser = user.userId;
-        Services.newWebSocket(() => {
-          Services.register(user.userId);
-        });
-      }).fail(() => {
-        console.log(arguments);
-        this.logonUser = null;
-      })
+      $('#app').fadeIn(250);
+      // Services.getLogonUserContext().done(user => {
+      //   this.$store.commit('updateLogonUser', user.userId)
+      //   Services.newWebSocket(() => {
+      //     Services.register(user.userId);
+      //   });
+      // }).fail(() => {
+      //   console.log(arguments);
+      //   this.$store.commit('updateLogonUser', null)
+      //   this.$router.push('/login')
+      // })
     },
     methods: {
       changeStore(){
         MessageBox[level[idx%4]]('some thing happend' + (idx++))
-        // this.$store.commit('increment')
-        // console.log(this.$store.state)
-        // this.$store.state.count++
-        // this.count++
       },
       showme(){
         this.$router.push('/user/' + this.logonUser)
       },
       logout(){
         Services.logout().done(() => {
-          this.logonUser = null
+          this.$store.commit('clearLogonUser')
           MessageBox.info('You log out')
           Services.closeWebSocket();
           this.$router.push('/login')
@@ -109,3 +127,9 @@ app = new Vue({
       }
     }
   })
+}
+
+Services.getLogonUserContext()
+  .done(user => store.commit('updateLogonUser', user.userId))
+  .fail(() => store.commit('clearLogonUser'))
+  .always(initApp)

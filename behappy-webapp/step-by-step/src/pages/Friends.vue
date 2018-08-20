@@ -13,19 +13,21 @@
 import $ from '../utils'
 import Services from '../services/Services'
 import MessageBox from '../services/MessageBox'
+import {routerGuard} from '../router/router'
 
-export default {
+console.log(routerGuard)
+
+const m = Object.assign({
     data(){
         return {
             items: []
         }
     },
     mounted(){
-        console.log('get friends');
         Services.getFriends().done((data) => {
             // console.log(data);
             this.items = data;
-        }).always(() => console.log('get friends done'));
+        }).fail(() => MessageBox.error('Sorry, can\'t find your friends'));
     },
     methods:{
         callFriend(userId, userName){
@@ -42,5 +44,9 @@ export default {
             })
         }
     }
-}
+}, routerGuard)
+
+console.log(m)
+
+export default m
 </script>
