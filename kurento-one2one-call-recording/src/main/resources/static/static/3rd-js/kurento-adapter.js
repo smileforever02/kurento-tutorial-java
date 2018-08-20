@@ -29,10 +29,6 @@ if(typeof Console !== 'function'){
 
 //
 (function(){
-    let togger = $('.navbar-toggle[data-target="#bs-navbar"]');
-    let menu = $('#bs-navbar');
-    let videoBtn = $('#videoBtn');
-
     let deviceAgent = navigator.userAgent.toLowerCase();
     let isTouchDevice = /(iphone|ipod|ipad)/.test(deviceAgent) ||
         /(android)/.test(deviceAgent)  || 
@@ -44,13 +40,15 @@ if(typeof Console !== 'function'){
     // alert('isTouchDevice: ' + isTouchDevice)
     let eventName = isTouchDevice?'touchstart' : 'click';
     window.addEventListener(eventName, e =>{
+        let togger = $('.navbar-toggle[data-target="#bs-navbar"]');
         if(e.target === togger[0]){
             // console.log('togger clicked');
-        }else if(menu.hasClass('show')){
+        }else if($('#bs-navbar').hasClass('show')){
             togger.trigger('click');
         }
     }, false);
     $('#video').on(eventName, () => {
+        let videoBtn = $('#videoBtn');
         if(videoBtn.hasClass('show')){
             videoBtn.removeClass('show')
         }else{

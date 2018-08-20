@@ -31,7 +31,7 @@
 </head>
 
 <body>
-  <div class="container" id="app">
+  <div class="container" id="app" style="display: none;">
     <div class="navbar-header">
       <button aria-controls="bs-navbar" aria-expanded="false" class="navbar-toggle collapsed" data-target="#bs-navbar" data-toggle="collapse" type="button">
         <span class="sr-only">Toggle navigation</span>
@@ -60,7 +60,7 @@
       <router-view></router-view>
     </transition>
   </div>
-  <div class="message-box">
+  <div class="message-box" style="display: none;">
     <div class="alert alert-danger">
       <span>your message will be here</span>
     </div>
@@ -116,6 +116,7 @@
       </div>
     </div>
   </div>
+  <div id="mask"></div>
 </body>
 <script src="static/3rd-js/kurento-adapter.js"></script>
 </html>
