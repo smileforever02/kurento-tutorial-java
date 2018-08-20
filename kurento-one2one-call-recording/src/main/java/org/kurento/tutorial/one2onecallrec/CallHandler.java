@@ -130,9 +130,6 @@ public class CallHandler extends TextWebSocketHandler {
       userSessionRegistry.removeBySession(wsSession);
       log.warn(userId + " already has a connection. unresigter old one and register a new one");
       userSessionRegistry.registerUserSession(caller);
-
-      // responseMsg = "rejected: user '" + userId
-      // + "' already has a websocket connection";
     } else {
       userSessionRegistry.registerUserSession(caller);
     }
@@ -291,8 +288,7 @@ public class CallHandler extends TextWebSocketHandler {
         if (stoppedUser.getVideoId() != null
             && stoppedUser.getRecordingFileWholePath() != null) {
           recordingProcessor.processRecording(stoppedUser.getVideoId(),
-              stoppedUser.getRecordingFileWholePath().replaceAll("file://",
-                  ""));
+              stoppedUser.getRecordingFileWholePath());
           stoppedUser.setVideoId(null);
           stoppedUser.setRecordingFileWholePath(null);
         }
@@ -302,7 +298,7 @@ public class CallHandler extends TextWebSocketHandler {
       if (stopperUser.getVideoId() != null
           && stopperUser.getRecordingFileWholePath() != null) {
         recordingProcessor.processRecording(stopperUser.getVideoId(),
-            stopperUser.getRecordingFileWholePath().replaceAll("file://", ""));
+            stopperUser.getRecordingFileWholePath());
         stopperUser.setVideoId(null);
         stopperUser.setRecordingFileWholePath(null);
       }

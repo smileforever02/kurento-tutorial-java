@@ -102,8 +102,7 @@ public class CallMediaPipeline {
     log.info(
         "=============toRecordingFileWholePath=" + toRecordingFileWholePath);
 
-    createRecordingFolders(fromRecordingFolderPath.replace("file://", ""),
-        toRecordingFolderPath.replace("file://", ""));
+    createRecordingFolders(fromRecordingFolderPath, toRecordingFolderPath);
 
     // Media pipeline
     pipeline = kurento.createMediaPipeline();
@@ -113,9 +112,9 @@ public class CallMediaPipeline {
     webRtcCallee = new WebRtcEndpoint.Builder(pipeline).build();
 
     recorderCaller = new RecorderEndpoint.Builder(pipeline,
-        fromRecordingFileWholePath).build();
+        "file://" + fromRecordingFileWholePath).build();
     recorderCallee = new RecorderEndpoint.Builder(pipeline,
-        toRecordingFileWholePath).build();
+        "file://" + toRecordingFileWholePath).build();
 
     // Connections
     webRtcCaller.connect(webRtcCallee);

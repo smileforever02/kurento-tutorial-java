@@ -67,7 +67,7 @@ public class PlayMediaPipeline {
 
     // Media Elements (WebRtcEndpoint, PlayerEndpoint)
     webRtc = new WebRtcEndpoint.Builder(pipeline).build();
-    player = new PlayerEndpoint.Builder(pipeline, getUserVideoFileWholePath(userId)).build();
+    player = new PlayerEndpoint.Builder(pipeline, "file://" + getUserVideoFileWholePath(userId)).build();
 
     // Connection
     player.connect(webRtc);
