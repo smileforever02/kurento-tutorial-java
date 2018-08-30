@@ -43,9 +43,9 @@ import com.google.gson.JsonParser;
 
 @Component
 @Scope(value = "prototype")
-public class AzureFaceClient extends Callback {
+public class AzureFaceApi extends Callback {
   private static final Logger log = LoggerFactory
-      .getLogger(AzureFaceClient.class);
+      .getLogger(AzureFaceApi.class);
   private static final Gson gson = new GsonBuilder().create();
 
   @Value("${azure.faceapi.subscriptionKey}")
@@ -94,7 +94,10 @@ public class AzureFaceClient extends Callback {
                   imagePath);
             } catch (IOException | URISyntaxException e) {
               log.error(e.getMessage());
-              return false;
+              image.setProcessDate(new Date());
+              image.setStatus(BeHappyConstants.STATUS_ERROR);
+              image.setErrorMsg(e.getMessage());
+              continue;
             }
 
             for (JsonElement json : jsonArray) {
@@ -133,7 +136,8 @@ public class AzureFaceClient extends Callback {
             }
             image.setStatus(BeHappyConstants.STATUS_PROCESSED);
           } else {
-            image.setStatus(BeHappyConstants.STATUS_FILE_NOT_EXIST);
+            image.setStatus(BeHappyConstants.STATUS_ERROR);
+            image.setErrorMsg("File doesn't exsit");
           }
           image.setProcessDate(new Date());
         }

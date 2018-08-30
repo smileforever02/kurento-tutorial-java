@@ -27,9 +27,9 @@ import com.iflytek.msp.cpdb.lfasr.model.ProgressStatus;
 
 @Component
 @Scope(value = "prototype")
-public class IFlyAudioClient extends Callback {
+public class IFlyAudio2TextApi extends Callback {
   private static final Logger log = LoggerFactory
-      .getLogger(IFlyAudioClient.class);
+      .getLogger(IFlyAudio2TextApi.class);
   private static final LfasrType type = LfasrType.LFASR_STANDARD_RECORDED_AUDIO;
   private static final int sleepSecond = 20;
 
@@ -154,7 +154,8 @@ public class IFlyAudioClient extends Callback {
     }
     words.setBeginTime(Long.valueOf(json.getBg()) / 1000);
     words.setEndTime(Long.valueOf(json.getEd()) / 1000);
-    words.setContent(json.getOnebest());
+    words.setOriContent(json.getOnebest());
+    words.setOriLang(AudioWords.LANG_CODE_ZH);
   }
   
   @Override

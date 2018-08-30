@@ -20,6 +20,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Table(name = "AUDIO_WORDS")
 public class AudioWords {
 
+  public static final int STATUS_NOT_PROCESSED = 0;
+  public static final int STATUS_TRANSLATED = 1;
+
+  public static final String TRANS_TOOL_BAIDU = "baidu";
+
+  public static final String LANG_CODE_ZH = "zh";
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "wordsId", insertable = false, nullable = false, updatable = false)
@@ -35,9 +42,15 @@ public class AudioWords {
   // in seconds
   private double endTime;
 
+  private String oriContent;
+  private String oriLang;
+
+  // english content
   private String content;
 
   private int status;
+  private String errorMsg;
+  private String transTool;
 
   @CreatedDate
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
@@ -46,6 +59,10 @@ public class AudioWords {
   @CreatedDate
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
   private Date processDate;
+
+  public Long getWordsId() {
+    return wordsId;
+  }
 
   public AudioRecord getAudioRecord() {
     return audioRecord;
@@ -71,6 +88,22 @@ public class AudioWords {
     this.endTime = endTime;
   }
 
+  public String getOriContent() {
+    return oriContent;
+  }
+
+  public void setOriContent(String oriContent) {
+    this.oriContent = oriContent;
+  }
+
+  public String getOriLang() {
+    return oriLang;
+  }
+
+  public void setOriLang(String oriLang) {
+    this.oriLang = oriLang;
+  }
+
   public String getContent() {
     return content;
   }
@@ -85,6 +118,22 @@ public class AudioWords {
 
   public void setStatus(int status) {
     this.status = status;
+  }
+
+  public String getTransTool() {
+    return transTool;
+  }
+
+  public void setTransTool(String transTool) {
+    this.transTool = transTool;
+  }
+
+  public String getErrorMsg() {
+    return errorMsg;
+  }
+
+  public void setErrorMsg(String errorMsg) {
+    this.errorMsg = errorMsg;
   }
 
   public Date getCreatedDate() {
