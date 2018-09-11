@@ -35,7 +35,7 @@ public class UserSessionRegistry {
   private static ConcurrentHashMap<String, UserSession> usersBySessionId = new ConcurrentHashMap<>();
 
   public void registerUserSession(UserSession user) {
-    usersByUserId.put(user.getByUserId(), user);
+    usersByUserId.put(user.getUserId(), user);
     usersBySessionId.put(user.getSession().getId(), user);
   }
 
@@ -54,7 +54,7 @@ public class UserSessionRegistry {
   public UserSession removeBySession(WebSocketSession session) {
     final UserSession user = getBySession(session);
     if (user != null) {
-      usersByUserId.remove(user.getByUserId());
+      usersByUserId.remove(user.getUserId());
       usersBySessionId.remove(session.getId());
     }
     return user;

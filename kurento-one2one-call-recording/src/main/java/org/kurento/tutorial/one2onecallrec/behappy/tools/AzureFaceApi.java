@@ -43,9 +43,9 @@ import com.google.gson.JsonParser;
 
 @Component
 @Scope(value = "prototype")
-public class AzureFaceClient {
+public class AzureFaceApi extends Callback {
   private static final Logger log = LoggerFactory
-      .getLogger(AzureFaceClient.class);
+      .getLogger(AzureFaceApi.class);
   private static final Gson gson = new GsonBuilder().create();
 
   @Value("${azure.faceapi.subscriptionKey}")
@@ -53,6 +53,8 @@ public class AzureFaceClient {
 
   @Value("${azure.faceapi.uriBase}")
   private String azureUriBase;
+
+  private Callback callback;
 
   @Autowired
   ConcatenatedImageService imageService;
@@ -65,88 +67,92 @@ public class AzureFaceClient {
 
   private VideoRecord videoRecord;
 
-  private String videoFileWholePath;
-
   private static final String faceAttributes = "emotion";
 
-  public void init(VideoRecord videoRecord, String videoFileWholePath) {
+  public void init(VideoRecord videoRecord, Callback callback) {
     this.videoRecord = videoRecord;
-    this.videoFileWholePath = videoFileWholePath;
+    this.callback = callback;
   }
 
-  @Async
-  public void extractEmotion() {
+  private boolean extractEmotion() {
     if (videoRecord != null) {
       List<ConcatenatedImage> imageList = imageService
           .getUnprocessedImagesByVideoId(videoRecord.getVideoId());
-      if (imageList != null) {
+
+      if (imageList != null && !imageList.isEmpty()) {
         JsonArray jsonArray = null;
-        if (imageList != null && !imageList.isEmpty()) {
-          List<FaceEmotion> emotionList = new ArrayList<>();
-          for (ConcatenatedImage image : imageList) {
-            String imagePath = image.getImageFileWholePath();
-            File f = new File(imagePath);
-            if (f.exists()) {
-              Integer smallImageWidth = image.getSmallImageWidth();
-              Integer smallImageHeight = image.getSmallImageHeight();
+        List<FaceEmotion> emotionList = new ArrayList<>();
+        for (ConcatenatedImage image : imageList) {
+          String imagePath = image.getImageFileWholePath();
+          File f = new File(imagePath);
+          if (f.exists()) {
+            Integer smallImageWidth = image.getSmallImageWidth();
+            Integer smallImageHeight = image.getSmallImageHeight();
 
-              try {
-                jsonArray = extractEmotion(azureUriBase, azureSubscriptionKey,
-                    imagePath);
-              } catch (IOException | URISyntaxException e) {
-                log.error(e.getMessage());
-              }
-
-              for (JsonElement json : jsonArray) {
-                AzureFaceEmotion azureFaceEmotion = gson.fromJson(json,
-                    AzureFaceEmotion.class);
-                FaceEmotion faceEmotion = new FaceEmotion();
-                faceEmotion.setVideoRecord(videoRecord);
-                faceEmotion.setConcatenatedImage(image);
-                faceEmotion
-                    .setOrderOfConcatenatedImage(image.getOrderOfImages());
-
-                int top = azureFaceEmotion.getFaceRectangle().getTop();
-                int left = azureFaceEmotion.getFaceRectangle().getLeft();
-
-                int topOrder = top / smallImageHeight + 1;
-                int leftOrder = left / smallImageWidth + 1;
-
-                // first order is 1
-                int orderOfSmallImage = image.getCountOfHor() * (topOrder - 1)
-                    + leftOrder;
-                faceEmotion.setOrderOfSmallImage(orderOfSmallImage);
-                int orderOfFaceInVideo = (image.getOrderOfImages() - 1) * 64
-                    + orderOfSmallImage;
-                faceEmotion.setOrderOfFaceInVideo(orderOfFaceInVideo);
-                // first emotion time should be 0 second
-                faceEmotion.setEmotionTimeInSec(
-                    Double.valueOf(orderOfFaceInVideo - 1));
-
-                faceEmotion.setVideoFileWholePath(videoFileWholePath);
-                faceEmotion
-                    .setOrderOfConcatenatedImage(image.getOrderOfImages());
-                faceEmotion.setCreatedDate(new Date());
-
-                copyFaceEmotion(azureFaceEmotion, faceEmotion);
-
-                emotionList.add(faceEmotion);
-              }
-              image.setStatus(BeHappyConstants.STATUS_PROCESSED);
-            } else {
-              image.setStatus(BeHappyConstants.STATUS_FILE_NOT_EXIST);
+            try {
+              jsonArray = extractEmotion(azureUriBase, azureSubscriptionKey,
+                  imagePath);
+            } catch (IOException | URISyntaxException e) {
+              log.error(e.getMessage());
+              image.setProcessDate(new Date());
+              image.setStatus(BeHappyConstants.STATUS_ERROR);
+              image.setErrorMsg(e.getMessage());
+              continue;
             }
-            image.setProcessDate(new Date());
-          }
 
-          if (!emotionList.isEmpty()) {
-            faceEmotionService.saveFaceEmotions(emotionList);
-          }
+            for (JsonElement json : jsonArray) {
+              AzureFaceEmotion azureFaceEmotion = gson.fromJson(json,
+                  AzureFaceEmotion.class);
+              FaceEmotion faceEmotion = new FaceEmotion();
+              faceEmotion.setVideoRecord(videoRecord);
+              faceEmotion.setConcatenatedImage(image);
+              faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
 
-          imageService.saveImages(imageList);
+              int top = azureFaceEmotion.getFaceRectangle().getTop();
+              int left = azureFaceEmotion.getFaceRectangle().getLeft();
+
+              int topOrder = top / smallImageHeight + 1;
+              int leftOrder = left / smallImageWidth + 1;
+
+              // first order is 1
+              int orderOfSmallImage = image.getCountOfHor() * (topOrder - 1)
+                  + leftOrder;
+              faceEmotion.setOrderOfSmallImage(orderOfSmallImage);
+              int orderOfFaceInVideo = (image.getOrderOfImages() - 1) * 64
+                  + orderOfSmallImage;
+              faceEmotion.setOrderOfFaceInVideo(orderOfFaceInVideo);
+              // first emotion time should be 0 second
+              faceEmotion
+                  .setEmotionTimeInSec(Double.valueOf(orderOfFaceInVideo - 1));
+
+              faceEmotion
+                  .setVideoFileWholePath(videoRecord.getVideoFileWholePath());
+              faceEmotion.setOrderOfConcatenatedImage(image.getOrderOfImages());
+              faceEmotion.setCreatedDate(new Date());
+
+              copyFaceEmotion(azureFaceEmotion, faceEmotion);
+
+              emotionList.add(faceEmotion);
+            }
+            image.setStatus(BeHappyConstants.STATUS_PROCESSED);
+          } else {
+            image.setStatus(BeHappyConstants.STATUS_ERROR);
+            image.setErrorMsg("File doesn't exsit");
+          }
+          image.setProcessDate(new Date());
         }
+
+        if (!emotionList.isEmpty()) {
+          faceEmotionService.saveFaceEmotions(emotionList);
+        }
+
+        imageService.saveImages(imageList);
+
+        return true;
       }
     }
+
+    return false;
   }
 
   private JsonArray extractEmotion(String azureUri, String azureSubscriptionKey,
@@ -225,5 +231,13 @@ public class AzureFaceClient {
         .setAnger(azureFaceEmotion.getFaceAttributes().getEmotion().getAnger());
     faceEmotion
         .setFear(azureFaceEmotion.getFaceAttributes().getEmotion().getFear());
+  }
+
+  @Override
+  @Async
+  public void execute() {
+    if (extractEmotion() && this.callback != null) {
+      callback.execute();
+    }
   }
 }

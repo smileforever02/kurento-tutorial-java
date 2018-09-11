@@ -22,41 +22,42 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.web.socket.WebSocketSession;
 
 /**
- * Map of users registered in the system. This class has a concurrent hash map to store users, using
- * its name as key in the map.
+ * Map of users registered in the system. This class has a concurrent hash map
+ * to store users, using its name as key in the map.
  * 
  * @author Boni Garcia (bgarcia@gsyc.es)
  * @author Micael Gallego (micael.gallego@gmail.com)
  * @authos Ivan Gracia (izanmail@gmail.com)
  * @since 4.3.1
  */
-public class UserRegistry {
+public class UserSessionRegistry {
 
-  private final ConcurrentHashMap<String, UserSession> usersByName = new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<String, UserSession> usersBySessionId = new ConcurrentHashMap<>();
+  private static final ConcurrentHashMap<String, UserSession> usersByUserId = new ConcurrentHashMap<>();
+  private static final ConcurrentHashMap<String, UserSession> usersBySessionId = new ConcurrentHashMap<>();
 
   public void register(UserSession user) {
-    usersByName.put(user.getName(), user);
+    usersByUserId.put(user.getUserId(), user);
     usersBySessionId.put(user.getSession().getId(), user);
   }
 
-  public UserSession getByName(String name) {
-    return usersByName.get(name);
+  public UserSession getByUserId(String name) {
+    return usersByUserId.get(name);
   }
 
   public UserSession getBySession(WebSocketSession session) {
     return usersBySessionId.get(session.getId());
   }
 
-  public boolean exists(String name) {
-    return usersByName.keySet().contains(name);
+  public boolean exists(String userId) {
+    return usersByUserId.keySet().contains(userId);
   }
 
   public UserSession removeBySession(WebSocketSession session) {
     final UserSession user = getBySession(session);
-    usersByName.remove(user.getName());
-    usersBySessionId.remove(session.getId());
+    if (user != null) {
+      usersByUserId.remove(user.getUserId());
+      usersBySessionId.remove(session.getId());
+    }
     return user;
   }
-
 }

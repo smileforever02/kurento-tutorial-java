@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -28,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(value = "prototype")
-public class ImageMagick {
+public class ImageMagick extends Callback {
   private static final Logger log = LoggerFactory.getLogger(ImageMagick.class);
 
   @Value("${azure.faceapi.autoprocess}")
@@ -49,16 +48,16 @@ public class ImageMagick {
   @Autowired
   ConcatenatedImageService imageService;
 
-  @Autowired
-  private ApplicationContext context;
+  private Callback callback;
 
   private static String CONCATENATE_TILE = "8x8";
   private static String CONCATENATED_IMAGE_POST_FIX = "_con%02d";
   public static String CONCATENATED_IMAGE_EXT = FFmpeg.IMAGE_EXT;
 
-  public void init(VideoRecord videoRecord, String videoFileWholePath) {
+  public void init(VideoRecord videoRecord, Callback callback) {
     this.videoRecord = videoRecord;
-    this.videoFileWholePath = videoFileWholePath;
+    this.callback = callback;
+    this.videoFileWholePath = videoRecord.getVideoFileWholePath();
     this.videoFolderPath = videoFileWholePath.substring(0,
         videoFileWholePath.lastIndexOf("/"));
     String videoName = videoFileWholePath
@@ -66,8 +65,7 @@ public class ImageMagick {
     this.videoNameWOExt = videoName.substring(0, videoName.lastIndexOf("."));
   }
 
-  @Async
-  public void concatenateImages() {
+  private boolean concatenateImages() {
     String firstImagePath = videoFolderPath + "/" + videoNameWOExt + "_001"
         + FFmpeg.IMAGE_EXT;
     Integer wh[] = getImageResolutionWxH(firstImagePath);
@@ -85,7 +83,7 @@ public class ImageMagick {
       log.info(cmdResult);
     } catch (IOException | InterruptedException e) {
       log.error(e.toString());
-      return;
+      return false;
     }
 
     int i = 0;
@@ -115,20 +113,15 @@ public class ImageMagick {
     if (!imageList.isEmpty()) {
       List<ConcatenatedImage> images = imageService.saveImages(imageList);
       if (images != null && !images.isEmpty()) {
-        extraceFaceEmotion();
+        // extraceFaceEmotion();
+        return true;
       }
     }
+
+    return false;
   }
 
-  private void extraceFaceEmotion() {
-    if (processFaceEmotion) {
-      AzureFaceClient faceClient = context.getBean(AzureFaceClient.class);
-      faceClient.init(this.videoRecord, this.videoFileWholePath);
-      faceClient.extractEmotion();
-    }
-  }
-
-  public Integer[] getImageResolutionWxH(String imagePath) {
+  private Integer[] getImageResolutionWxH(String imagePath) {
     Integer[] wh = new Integer[2];
     String wxh = null;
     String cmd = "identify -format '%wx%h' " + imagePath;
@@ -137,7 +130,7 @@ public class ImageMagick {
       wxh = CommandExecutor.execCommand("/bin/sh", "-c", cmd);
       log.info(wxh);
     } catch (IOException | InterruptedException e) {
-      e.printStackTrace();
+      log.error(e.getMessage());
     }
     if (wxh != null) {
       Integer imageWidth = Integer.valueOf(wxh.substring(0, wxh.indexOf("x")));
@@ -147,5 +140,13 @@ public class ImageMagick {
       wh[1] = imageHeight;
     }
     return wh;
+  }
+
+  @Override
+  @Async
+  public void execute() {
+    if (concatenateImages() && this.callback != null) {
+      callback.execute();
+    }
   }
 }

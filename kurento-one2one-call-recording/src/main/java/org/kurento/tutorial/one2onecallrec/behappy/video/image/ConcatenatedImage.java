@@ -47,11 +47,13 @@ public class ConcatenatedImage {
   private Integer countOfVer;
 
   private int status;
-  
+
+  private String errorMsg;
+
   @CreatedDate
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
   private Date createdDate;
-  
+
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
   private Date processDate;
 
@@ -157,6 +159,14 @@ public class ConcatenatedImage {
 
   public void setStatus(int status) {
     this.status = status;
+  }
+
+  public String getErrorMsg() {
+    return errorMsg;
+  }
+
+  public void setErrorMsg(String errorMsg) {
+    this.errorMsg = errorMsg;
   }
 
   public Date getCreatedDate() {

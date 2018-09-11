@@ -35,8 +35,8 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class GroupCallApp implements WebSocketConfigurer {
 
   @Bean
-  public UserRegistry registry() {
-    return new UserRegistry();
+  public UserSessionRegistry registry() {
+    return new UserSessionRegistry();
   }
 
   @Bean

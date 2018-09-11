@@ -63,7 +63,7 @@ public class UserSession {
     return session;
   }
 
-  public String getByUserId() {
+  public String getUserId() {
     return userId;
   }
 

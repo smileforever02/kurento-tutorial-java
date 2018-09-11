@@ -14,7 +14,11 @@ public class AudioWordsService {
     return repository.save(words);
   }
   
-  public List<AudioWords> saveAudioWordsList(List<AudioWords> wordsList) {
+  public List<AudioWords> saveAudioWordsList(Iterable<AudioWords> wordsList) {
     return repository.save(wordsList);
+  }
+  
+  public List<AudioWords> findAudioWordsList(Long videoId) {
+    return repository.findByAudioRecordVideoId(videoId);
   }
 }

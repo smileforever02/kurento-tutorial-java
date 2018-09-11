@@ -60,9 +60,6 @@ public class CallHandler extends TextWebSocketHandler {
   @Autowired
   private ApplicationContext context;
 
-  @Autowired
-  private RecordingProcessor recordingProcessor;
-
   @Override
   public void handleTextMessage(WebSocketSession session, TextMessage message)
       throws Exception {
@@ -71,7 +68,7 @@ public class CallHandler extends TextWebSocketHandler {
     UserSession user = userSessionRegistry.getBySession(session);
 
     if (user != null) {
-      log.debug("Incoming message from user '{}': {}", user.getByUserId(),
+      log.debug("Incoming message from user '{}': {}", user.getUserId(),
           jsonMessage);
     } else {
       log.debug("Incoming message from new user: {}", jsonMessage);
@@ -123,16 +120,15 @@ public class CallHandler extends TextWebSocketHandler {
     if (userId.isEmpty()) {
       responseMsg = "rejected: empty userId";
     } else if (userSessionRegistry.exists(userId)) {
-      UserSession userSession = userSessionRegistry.getByUserId(userId);
+      //comment it temporarily for local testing. if we comment it, we can test it through two tabs in same browser, otherwise, we can't.
+/*      UserSession userSession = userSessionRegistry.getByUserId(userId);
       WebSocketSession wsSession = userSession.getSession();
       releasePipeline(userSession);
       stop(wsSession);
       userSessionRegistry.removeBySession(wsSession);
-      log.warn(userId + " already has a connection. unresigter old one and register a new one");
-      userSessionRegistry.registerUserSession(caller);
-
-      // responseMsg = "rejected: user '" + userId
-      // + "' already has a websocket connection";
+      log.warn(userId
+          + " already has a connection. unresigter old one and register a new one");
+      userSessionRegistry.registerUserSession(caller);*/
     } else {
       userSessionRegistry.registerUserSession(caller);
     }
@@ -262,7 +258,6 @@ public class CallHandler extends TextWebSocketHandler {
       callMediaPipeline.getCallerWebRtcEp().gatherCandidates();
 
       callMediaPipeline.record(calleer, callee);
-
     } else {
       JsonObject response = new JsonObject();
       response.addProperty("id", "callResponse");
@@ -290,9 +285,11 @@ public class CallHandler extends TextWebSocketHandler {
 
         if (stoppedUser.getVideoId() != null
             && stoppedUser.getRecordingFileWholePath() != null) {
-          recordingProcessor.processRecording(stoppedUser.getVideoId(),
-              stoppedUser.getRecordingFileWholePath().replaceAll("file://",
-                  ""));
+          RecordingProcessor recordingProcessor = context
+              .getBean(RecordingProcessor.class);
+          Long videoId = stoppedUser.getVideoId();
+          recordingProcessor.init(videoId);
+          recordingProcessor.processRecording();
           stoppedUser.setVideoId(null);
           stoppedUser.setRecordingFileWholePath(null);
         }
@@ -301,8 +298,11 @@ public class CallHandler extends TextWebSocketHandler {
 
       if (stopperUser.getVideoId() != null
           && stopperUser.getRecordingFileWholePath() != null) {
-        recordingProcessor.processRecording(stopperUser.getVideoId(),
-            stopperUser.getRecordingFileWholePath().replaceAll("file://", ""));
+        RecordingProcessor recordingProcessor = context
+            .getBean(RecordingProcessor.class);
+        Long videoId = stopperUser.getVideoId();
+        recordingProcessor.init(videoId);
+        recordingProcessor.processRecording();
         stopperUser.setVideoId(null);
         stopperUser.setRecordingFileWholePath(null);
       }

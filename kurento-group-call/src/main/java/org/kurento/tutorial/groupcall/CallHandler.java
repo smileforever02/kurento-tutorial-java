@@ -47,7 +47,7 @@ public class CallHandler extends TextWebSocketHandler {
   private RoomManager roomManager;
 
   @Autowired
-  private UserRegistry registry;
+  private UserSessionRegistry registry;
 
   @Override
   public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
@@ -56,7 +56,7 @@ public class CallHandler extends TextWebSocketHandler {
     final UserSession user = registry.getBySession(session);
 
     if (user != null) {
-      log.debug("Incoming message from user '{}': {}", user.getName(), jsonMessage);
+      log.debug("Incoming message from user '{}': {}", user.getUserId(), jsonMessage);
     } else {
       log.debug("Incoming message from new user: {}", jsonMessage);
     }
@@ -67,7 +67,7 @@ public class CallHandler extends TextWebSocketHandler {
         break;
       case "receiveVideoFrom":
         final String senderName = jsonMessage.get("sender").getAsString();
-        final UserSession sender = registry.getByName(senderName);
+        final UserSession sender = registry.getByUserId(senderName);
         final String sdpOffer = jsonMessage.get("sdpOffer").getAsString();
         user.receiveVideoFrom(sender, sdpOffer);
         break;
