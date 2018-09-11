@@ -1,8 +1,8 @@
 <template>
     <div class="full-width center-content">
         <div>
-            <h1>Welcome, {{$route.params.userId}}!</h1>
             <div>
+            <h1>Welcome, {{$route.params.userId}}!</h1>
                 <span class="glyphicon glyphicon-plus-sign add-friend" v-on:click="addFriend"></span>
             </div>
         </div>

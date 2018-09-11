@@ -5,6 +5,7 @@ const {VueLoaderPlugin} = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const {resolve} = require('./utils')
+const WebpackShellPlugin = require('webpack-shell-plugin')
 
 module.exports = {
     entry: ['./src/app.js'],
@@ -60,6 +61,9 @@ module.exports = {
                 to: resolve('dist/static/fonts'),
                 toType: 'dir'
             }
-        ])
+        ]),
+        new WebpackShellPlugin({
+            onBuildEnd: 'node ./build/copy-to-pro.js'
+        })
     ]
 }

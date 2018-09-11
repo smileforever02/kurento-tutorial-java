@@ -58,4 +58,45 @@ if(typeof Console !== 'function'){
     // $( function() {
     //     $("#videoSmall").draggable();
     // });
+
+    const constraints = {
+        audio: true
+    };
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+        function handleAudioRawData(s){
+            window._s = s;
+            // var context = new AudioContext();
+            // var processor = context.createScriptProcessor(1024, 2, 2);
+            // processor.addEventListener('statechage', e => console.log('statechage'), false);
+            // processor.addEventListener('nodecreate', e => console.log('nodecreate'), false);
+            // processor.addEventListener('loaded', e => console.log('loaded'), false);
+            // processor.addEventListener('audioprocess', e => console.log('audioprocess'), false);
+            // processor.addEventListener('message', e => console.log('message'), false);
+            // processor.addEventListener('complete', e => console.log('complete'), false);
+            // processor.addEventListener('ended', e => console.log('ended'), false);
+
+            let recorder = new MediaRecorder(s);
+            recorder.addEventListener('start', e => console.log('start'), false);
+
+            recorder.addEventListener('stop', e => console.log('stop'), false);
+            recorder.addEventListener('dataavailable', e => {
+                console.log(e)
+            }, false);
+            recorder.addEventListener('pause', e => console.log('pause'), false);
+            recorder.addEventListener('resume', e => console.log('resume'), false);
+            recorder.addEventListener('error', e => console.log('error'), false);
+            window._sr = recorder;
+            recorder.start();
+
+            window._stopRecorder = function(){
+                recorder.stop()
+                s.getAudioTracks()[0].stop()
+            }
+        }
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(handleAudioRawData);
+    }else{
+        console.log('your browser didn\'t support audio')
+    }
+
 }())
