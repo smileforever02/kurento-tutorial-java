@@ -62,7 +62,9 @@ if(typeof Console !== 'function'){
     const constraints = {
         audio: true
     };
-    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    alert('typeof AudioContext: ' + (typeof AudioContext))
+    alert('typeof MediaRecorder: ' + (typeof MediaRecorder))
+    if(false && navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
         function handleAudioRawData(s){
             window._s = s;
             // var context = new AudioContext();
@@ -75,19 +77,20 @@ if(typeof Console !== 'function'){
             // processor.addEventListener('complete', e => console.log('complete'), false);
             // processor.addEventListener('ended', e => console.log('ended'), false);
 
-            let recorder = new MediaRecorder(s);
-            recorder.addEventListener('start', e => console.log('start'), false);
-
-            recorder.addEventListener('stop', e => console.log('stop'), false);
-            recorder.addEventListener('dataavailable', e => {
-                console.log(e)
-            }, false);
-            recorder.addEventListener('pause', e => console.log('pause'), false);
-            recorder.addEventListener('resume', e => console.log('resume'), false);
-            recorder.addEventListener('error', e => console.log('error'), false);
+            let recorder = new MediaRecorder(s, {
+                mimeType: 'audio/webm',
+                audioBitsPerSecond: 96000
+              });
+            recorder.addEventListener('start', e => console.log('start'));
+            recorder.addEventListener('stop', e => console.log('stop'));
+            recorder.addEventListener('dataavailable', e => console.log('dataavailable'));
+            recorder.addEventListener('pause', e => console.log('pause'));
+            recorder.addEventListener('resume', e => console.log('resume'));
+            recorder.addEventListener('error', e => console.log('error'));
             window._sr = recorder;
-            recorder.start();
-
+            window._startRecorder = function(){
+                recorder.start(1000 / 25);
+            };
             window._stopRecorder = function(){
                 recorder.stop()
                 s.getAudioTracks()[0].stop()
