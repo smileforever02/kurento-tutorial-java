@@ -130,6 +130,9 @@ const initApp = function(){
 }
 
 Services.getLogonUserContext()
-  .done(user => store.commit('updateLogonUser', user.userId))
+  .done(user => {
+    store.commit('updateLogonUser', user.userId)
+    newWebSocket()
+  })
   .fail(() => store.commit('clearLogonUser'))
   .always(initApp)

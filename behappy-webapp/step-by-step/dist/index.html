@@ -26,8 +26,10 @@
   <script src="webjars/draggabilly/draggabilly.pkgd.min.js"></script>
   <script src="/webjars/webrtc-adapter/release/adapter.js"></script>
   <script src="webjars/demo-console/index.js"></script>
+  <script src="static/3rd-js/conferenceroom.js"></script>
+  <script src="static/3rd-js/participant.js"></script>
   <script src="./js/kurento-utils.js"></script>
-  <script src="./js/index.js"></script>
+  <!-- <script src="./js/index.js"></script> -->
 </head>
 
 <body>
@@ -69,7 +71,7 @@
     <span>check here:</span>
     <span @click.prevent="changeStore">{{storex}}</span>
   </div>
-  <div id="video" style="display: none;">
+  <!-- <div id="video" style="display: none;">
     <div class="container">
       <div class="row" style="display: none;">
         <div class="col-md-5">
@@ -113,6 +115,34 @@
           <span class="glyphicon glyphicon-stop"></span></a>
         <a id="play" class="btn btn-warning" title="replay">
           <span class="glyphicon glyphicon-play-circle"></span></a>
+      </div>
+    </div>
+  </div> -->
+  <div id="video" style="display: none;">
+    <div id="container">
+      <div id="wrapper">
+        <div id="join" class="animate join">
+          <h1>Join a Room</h1>
+          <form onsubmit="register(); return false;" accept-charset="UTF-8">
+            <p>
+              <input type="text" name="name" value="" id="name"
+                placeholder="Username" required>
+            </p>
+            <p>
+              <input type="text" name="room" value="" id="roomName"
+                placeholder="Room" required>
+            </p>
+            <p class="submit">
+              <input type="submit" name="commit" value="Join!">
+            </p>
+          </form>
+        </div>
+        <div id="room" style="display: none;">
+          <h2 id="room-header"></h2>
+          <div id="participants"></div>
+          <input type="button" id="button-leave" onmouseup="leaveRoom();"
+            value="Leave room">
+        </div>
       </div>
     </div>
   </div>
