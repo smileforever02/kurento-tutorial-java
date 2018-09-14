@@ -19,8 +19,10 @@ package org.kurento.tutorial.groupcall;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -31,7 +33,6 @@ import org.kurento.client.Continuation;
 import org.kurento.client.MediaPipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.socket.WebSocketSession;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -49,6 +50,12 @@ public class Room implements Closeable {
   private final MediaPipeline pipeline;
   private final String name;
 
+  private static final SimpleDateFormat df = new SimpleDateFormat(
+      "yyyy-MM-dd-HH-mm-ss");
+  // public static final String RECORDING_PATH = "file:///tmp/"
+  // + df.format(new Date()) + "-";
+  public static final String RECORDING_EXT = ".webm";
+
   public String getName() {
     return name;
   }
@@ -64,9 +71,9 @@ public class Room implements Closeable {
     this.close();
   }
 
-  public UserSession join(UserSession participant)
-      throws IOException {
-    log.info("ROOM {}: adding participant {}", this.name, participant.getUserId());
+  public UserSession join(UserSession participant) throws IOException {
+    log.info("ROOM {}: adding participant {}", this.name,
+        participant.getUserId());
     participant.setRoomName(this.name);
     participant.setPipeline(this.pipeline);
     joinRoom(participant);
@@ -157,6 +164,24 @@ public class Room implements Closeable {
 
   public UserSession getParticipant(String name) {
     return participants.get(name);
+  }
+
+  public void record(String basePath) {
+    Date currentDate = new Date();
+    for (UserSession participant : getParticipants()) {
+      String folderPath = basePath + "/" + participant.getUserId() + "/"
+          + df.format(currentDate);
+      String fileNameWOExt = participant.getUserId() + "__"
+          + df.format(currentDate);
+      String wholePath = folderPath + "/" + fileNameWOExt + RECORDING_EXT;
+      participant.record(wholePath);
+    }
+  }
+
+  public void stopRecord() {
+    for (UserSession participant : getParticipants()) {
+      participant.stopRecord();
+    }
   }
 
   @Override

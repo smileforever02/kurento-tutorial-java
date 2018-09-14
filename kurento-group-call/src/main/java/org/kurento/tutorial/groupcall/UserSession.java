@@ -83,14 +83,14 @@ public class UserSession implements Closeable {
     return this.roomName;
   }
 
+  public void setRoomName(String roomName) {
+    this.roomName = roomName;
+  }
+
   public void setPipeline(MediaPipeline pipeline) {
     this.pipeline = pipeline;
-    
-    this.outgoingMedia = new WebRtcEndpoint.Builder(pipeline).build();
-    this.recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
-        "file:///var/behappy/recordings/" + userId + ".webm").build();
-    outgoingMedia.connect(recorderOutgoingMedia);
 
+    this.outgoingMedia = new WebRtcEndpoint.Builder(pipeline).build();
     this.outgoingMedia.addIceCandidateFoundListener(
         new EventListener<IceCandidateFoundEvent>() {
 
@@ -110,10 +110,6 @@ public class UserSession implements Closeable {
             }
           }
         });
-  }
-
-  public void setRoomName(String roomName) {
-    this.roomName = roomName;
   }
 
   public void receiveVideoFrom(UserSession sender, String sdpOffer)
@@ -138,8 +134,15 @@ public class UserSession implements Closeable {
     this.getEndpointForUser(sender).gatherCandidates();
   }
 
-  public void record() {
-    recorderOutgoingMedia.record();
+  public void record(String wholePath) {
+    this.recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
+        "file://" + wholePath).build();
+    this.outgoingMedia.connect(recorderOutgoingMedia);
+    this.recorderOutgoingMedia.record();
+  }
+
+  public void stopRecord() {
+    recorderOutgoingMedia.stop();
   }
 
   private WebRtcEndpoint getEndpointForUser(final UserSession sender) {

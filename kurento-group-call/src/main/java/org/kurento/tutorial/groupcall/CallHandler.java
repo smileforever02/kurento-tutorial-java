@@ -23,6 +23,7 @@ import org.kurento.client.IceCandidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -50,6 +51,9 @@ public class CallHandler extends TextWebSocketHandler {
 
   @Autowired
   private UserSessionRegistry registry;
+
+  @Value("${recording.base.path}")
+  private String RECORDING_BASE_PATH;
 
   @Override
   public void handleTextMessage(WebSocketSession session, TextMessage message)
@@ -82,6 +86,16 @@ public class CallHandler extends TextWebSocketHandler {
     case "leaveRoom":
       leaveRoom(user);
       break;
+    case "startRecord":
+      if (user != null) {
+        startRecord(user.getRoomName());
+      }
+      break;
+    case "stopRecord":
+      if (user != null) {
+        stopRecord(user.getRoomName());
+      }
+      break;
     case "onIceCandidate":
       JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
 
@@ -102,7 +116,7 @@ public class CallHandler extends TextWebSocketHandler {
   public void afterConnectionClosed(WebSocketSession session,
       CloseStatus status) throws Exception {
     UserSession user = registry.removeBySession(session);
-    roomManager.getRoom(user.getRoomName()).leave(user);
+    leaveRoom(user);
   }
 
   private void joinRoom(JsonObject params, UserSession userSession)
@@ -114,7 +128,7 @@ public class CallHandler extends TextWebSocketHandler {
     if (StringUtil.isEmpty(roomName)) {
       roomName = userSession.getUserId();
     }
-    Room room = roomManager.getRoom(roomName);
+    Room room = roomManager.getOrCreateRoom(roomName);
     room.join(userSession);
 
     JsonElement toUserIdElement = params.get("toUserId");
@@ -135,10 +149,14 @@ public class CallHandler extends TextWebSocketHandler {
   }
 
   private void leaveRoom(UserSession user) throws IOException {
-    final Room room = roomManager.getRoom(user.getRoomName());
-    room.leave(user);
-    if (room.getParticipants().isEmpty()) {
-      roomManager.removeRoom(room);
+    if (user != null) {
+      final Room room = roomManager.getRoom(user.getRoomName());
+      if (room != null) {
+        room.leave(user);
+        if (room.getParticipants().isEmpty()) {
+          roomManager.removeRoom(room);
+        }
+      }
     }
   }
 
@@ -169,5 +187,19 @@ public class CallHandler extends TextWebSocketHandler {
     response.addProperty("id", "registerResponse");
     response.addProperty("response", responseMsg);
     caller.sendMessage(response);
+  }
+
+  private void startRecord(String roomName) {
+    Room room = roomManager.getRoom(roomName);
+    if (room != null) {
+      room.record(RECORDING_BASE_PATH);
+    }
+  }
+
+  private void stopRecord(String roomName) {
+    Room room = roomManager.getRoom(roomName);
+    if (room != null) {
+      room.stopRecord();
+    }
   }
 }
