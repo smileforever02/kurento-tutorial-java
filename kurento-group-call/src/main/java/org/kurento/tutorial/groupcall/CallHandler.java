@@ -30,7 +30,9 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.iflytek.msp.cpdb.lfasr.util.StringUtil;
 
 /**
  * 
@@ -50,58 +52,86 @@ public class CallHandler extends TextWebSocketHandler {
   private UserSessionRegistry registry;
 
   @Override
-  public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-    final JsonObject jsonMessage = gson.fromJson(message.getPayload(), JsonObject.class);
+  public void handleTextMessage(WebSocketSession session, TextMessage message)
+      throws Exception {
+    final JsonObject jsonMessage = gson.fromJson(message.getPayload(),
+        JsonObject.class);
 
     final UserSession user = registry.getBySession(session);
 
     if (user != null) {
-      log.debug("Incoming message from user '{}': {}", user.getUserId(), jsonMessage);
+      log.debug("Incoming message from user '{}': {}", user.getUserId(),
+          jsonMessage);
     } else {
       log.debug("Incoming message from new user: {}", jsonMessage);
     }
 
     switch (jsonMessage.get("id").getAsString()) {
-      case "joinRoom":
-        joinRoom(jsonMessage, session);
-        break;
-      case "receiveVideoFrom":
-        final String senderName = jsonMessage.get("sender").getAsString();
-        final UserSession sender = registry.getByUserId(senderName);
-        final String sdpOffer = jsonMessage.get("sdpOffer").getAsString();
-        user.receiveVideoFrom(sender, sdpOffer);
-        break;
-      case "leaveRoom":
-        leaveRoom(user);
-        break;
-      case "onIceCandidate":
-        JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
+    case "registerUserSession":
+      registerUserSession(session, jsonMessage);
+      break;
+    case "joinRoom":
+      joinRoom(jsonMessage, user);
+      break;
+    case "receiveVideoFrom":
+      final String senderName = jsonMessage.get("sender").getAsString();
+      final UserSession sender = registry.getByUserId(senderName);
+      final String sdpOffer = jsonMessage.get("sdpOffer").getAsString();
+      user.receiveVideoFrom(sender, sdpOffer);
+      break;
+    case "leaveRoom":
+      leaveRoom(user);
+      break;
+    case "onIceCandidate":
+      JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
 
-        if (user != null) {
-          IceCandidate cand = new IceCandidate(candidate.get("candidate").getAsString(),
-              candidate.get("sdpMid").getAsString(), candidate.get("sdpMLineIndex").getAsInt());
-          user.addCandidate(cand, jsonMessage.get("name").getAsString());
-        }
-        break;
-      default:
-        break;
+      if (user != null) {
+        IceCandidate cand = new IceCandidate(
+            candidate.get("candidate").getAsString(),
+            candidate.get("sdpMid").getAsString(),
+            candidate.get("sdpMLineIndex").getAsInt());
+        user.addCandidate(cand, jsonMessage.get("name").getAsString());
+      }
+      break;
+    default:
+      break;
     }
   }
 
   @Override
-  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+  public void afterConnectionClosed(WebSocketSession session,
+      CloseStatus status) throws Exception {
     UserSession user = registry.removeBySession(session);
     roomManager.getRoom(user.getRoomName()).leave(user);
   }
 
-  private void joinRoom(JsonObject params, WebSocketSession session) throws IOException {
-    final String roomName = params.get("room").getAsString();
-    final String name = params.get("name").getAsString();
-    log.info("PARTICIPANT {}: trying to join room {}", name, roomName);
+  private void joinRoom(JsonObject params, UserSession userSession)
+      throws IOException {
+    String roomName = params.get("room").getAsString();
+    final String userId = params.get("userId").getAsString();
+    log.info("PARTICIPANT {}: trying to join room {}", userId, roomName);
 
+    if (StringUtil.isEmpty(roomName)) {
+      roomName = userSession.getUserId();
+    }
     Room room = roomManager.getRoom(roomName);
-    final UserSession user = room.join(name, session);
-    registry.register(user);
+    room.join(userSession);
+
+    JsonElement toUserIdElement = params.get("toUserId");
+    if (toUserIdElement != null) {
+      String toUserId = toUserIdElement.getAsString();
+      if (!StringUtil.isEmpty(toUserId)) {
+        UserSession toUserSession = registry.getByUserId(toUserId);
+        if (toUserSession != null) {
+          final JsonObject inviteToRoomMsg = new JsonObject();
+          inviteToRoomMsg.addProperty("id", "inviteToRoom");
+          inviteToRoomMsg.addProperty("fromUserId", userSession.getUserId());
+          inviteToRoomMsg.addProperty("toUserId", toUserId);
+          inviteToRoomMsg.addProperty("room", roomName);
+          toUserSession.sendMessage(inviteToRoomMsg);
+        }
+      }
+    }
   }
 
   private void leaveRoom(UserSession user) throws IOException {
@@ -110,5 +140,34 @@ public class CallHandler extends TextWebSocketHandler {
     if (room.getParticipants().isEmpty()) {
       roomManager.removeRoom(room);
     }
+  }
+
+  private void registerUserSession(WebSocketSession session,
+      JsonObject jsonMessage) throws IOException {
+    String userId = jsonMessage.getAsJsonPrimitive("userId").getAsString();
+
+    UserSession caller = new UserSession(session, userId);
+    String responseMsg = "accepted";
+    if (userId.isEmpty()) {
+      responseMsg = "rejected: empty userId";
+    } else if (registry.exists(userId)) {
+      // comment it temporarily for local testing. if we comment it, we can test
+      // it through two tabs in same browser, otherwise, we can't.
+      /*
+       * UserSession userSession = userSessionRegistry.getByUserId(userId);
+       * WebSocketSession wsSession = userSession.getSession();
+       * releasePipeline(userSession); stop(wsSession);
+       * userSessionRegistry.removeBySession(wsSession); log.warn(userId +
+       * " already has a connection. unresigter old one and register a new one"
+       * ); userSessionRegistry.registerUserSession(caller);
+       */
+    } else {
+      registry.registerUserSession(caller);
+    }
+
+    JsonObject response = new JsonObject();
+    response.addProperty("id", "registerResponse");
+    response.addProperty("response", responseMsg);
+    caller.sendMessage(response);
   }
 }

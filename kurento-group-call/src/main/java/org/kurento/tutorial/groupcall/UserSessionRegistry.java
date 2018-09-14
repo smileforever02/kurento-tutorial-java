@@ -35,13 +35,13 @@ public class UserSessionRegistry {
   private static final ConcurrentHashMap<String, UserSession> usersByUserId = new ConcurrentHashMap<>();
   private static final ConcurrentHashMap<String, UserSession> usersBySessionId = new ConcurrentHashMap<>();
 
-  public void register(UserSession user) {
+  public void registerUserSession(UserSession user) {
     usersByUserId.put(user.getUserId(), user);
     usersBySessionId.put(user.getSession().getId(), user);
   }
 
-  public UserSession getByUserId(String name) {
-    return usersByUserId.get(name);
+  public UserSession getByUserId(String userId) {
+    return usersByUserId.get(userId);
   }
 
   public UserSession getBySession(WebSocketSession session) {
