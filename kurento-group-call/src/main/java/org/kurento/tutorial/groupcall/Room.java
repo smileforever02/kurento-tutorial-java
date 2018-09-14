@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -31,8 +32,13 @@ import javax.annotation.PreDestroy;
 
 import org.kurento.client.Continuation;
 import org.kurento.client.MediaPipeline;
+import org.kurento.tutorial.groupcall.behappy.user.User;
+import org.kurento.tutorial.groupcall.behappy.user.UserService;
+import org.kurento.tutorial.groupcall.behappy.video.VideoRecord;
+import org.kurento.tutorial.groupcall.behappy.video.VideoRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -49,6 +55,11 @@ public class Room implements Closeable {
   private final ConcurrentMap<String, UserSession> participants = new ConcurrentHashMap<>();
   private final MediaPipeline pipeline;
   private final String name;
+
+  @Autowired
+  private UserService userService;
+  @Autowired
+  private VideoRecordService videoRecordService;
 
   private static final SimpleDateFormat df = new SimpleDateFormat(
       "yyyy-MM-dd-HH-mm-ss");
@@ -166,8 +177,9 @@ public class Room implements Closeable {
     return participants.get(name);
   }
 
-  public void record(String basePath) {
+  public void record(String basePath) throws IOException {
     Date currentDate = new Date();
+    String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     for (UserSession participant : getParticipants()) {
       String folderPath = basePath + "/" + participant.getUserId() + "/"
           + df.format(currentDate);
@@ -175,12 +187,34 @@ public class Room implements Closeable {
           + df.format(currentDate);
       String wholePath = folderPath + "/" + fileNameWOExt + RECORDING_EXT;
       participant.record(wholePath);
+
+      createVideoRecord(participant, wholePath, uuid, currentDate);
+
+      final JsonObject recordStartedMsg = new JsonObject();
+      recordStartedMsg.addProperty("id", "recordStarted");
+      recordStartedMsg.addProperty("userId", participant.getUserId());
+      participant.sendMessage(recordStartedMsg);
     }
   }
 
-  public void stopRecord() {
+  public void stopRecord() throws IOException {
     for (UserSession participant : getParticipants()) {
       participant.stopRecord();
+
+      final JsonObject recordStoppedMsg = new JsonObject();
+      recordStoppedMsg.addProperty("id", "recordStopped");
+      recordStoppedMsg.addProperty("userId", participant.getUserId());
+      participant.sendMessage(recordStoppedMsg);
+    }
+  }
+
+  private void createVideoRecord(UserSession userSession, String wholePath,
+      String uuid, Date date) {
+    if (userSession != null) {
+      User user = userService.getUser(userSession.getUserId());
+      VideoRecord videoRecord = new VideoRecord(uuid, user, wholePath);
+      videoRecord.setCreatedDate(date);
+      videoRecord = videoRecordService.createVideoRecord(videoRecord);
     }
   }
 

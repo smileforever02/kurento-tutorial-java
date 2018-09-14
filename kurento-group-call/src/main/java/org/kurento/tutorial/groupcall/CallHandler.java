@@ -189,14 +189,14 @@ public class CallHandler extends TextWebSocketHandler {
     caller.sendMessage(response);
   }
 
-  private void startRecord(String roomName) {
+  private void startRecord(String roomName) throws IOException {
     Room room = roomManager.getRoom(roomName);
     if (room != null) {
       room.record(RECORDING_BASE_PATH);
     }
   }
 
-  private void stopRecord(String roomName) {
+  private void stopRecord(String roomName) throws IOException {
     Room room = roomManager.getRoom(roomName);
     if (room != null) {
       room.stopRecord();
