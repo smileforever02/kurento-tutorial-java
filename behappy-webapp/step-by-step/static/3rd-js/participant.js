@@ -39,7 +39,7 @@ function Participant(name) {
 	// container.appendChild(span);
 	container.onclick = switchContainerClass;
 
-	container.innerHTML = '<video autoplay playsinline id="'+ ('video-' + name) +'"></video><span>'+ name +'</span>';
+	container.innerHTML = '<video width="240px" height="180px" autoplay playsinline id="'+ ('video-' + name) +'"></video><span>'+ name +'</span>';
 
 	document.getElementById('participants').appendChild(container);
 
