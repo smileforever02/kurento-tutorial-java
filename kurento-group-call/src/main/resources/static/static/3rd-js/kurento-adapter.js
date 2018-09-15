@@ -21,6 +21,18 @@ if(typeof stop === 'function'){
     }
 }
 
+if(typeof leaveRoom === 'function'){
+    let _leaveRoom = leaveRoom;
+    leaveRoom = function(){
+        try{
+            _leaveRoom()
+        }catch(e){
+            console.error(e)
+        }
+        $('#video').stop().fadeOut(250, () => $('#app').stop().fadeIn(250));
+    }
+}
+
 if(typeof Console !== 'function'){
     Console = function(){
         return console;

@@ -35,8 +35,9 @@ const m = Object.assign({
                 if(msg.code === 0){
                     $('#app').stop().fadeOut(250, () => {
                         $('#name').val(this.$root.logonUser);
-                        $('#peer').val(userId);
-                        $('#video').stop().fadeIn(250, (typeof call === 'function'? function(){try{call()}catch(e){console.error(e)}} : function(){console.log('no cal function')}));
+                        // $('#peer').val(userId);
+                        $('#peer').val("Room-" + this.$root.logonUser);
+                        $('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom(userId)}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
                     });
                 }else{
                     MessageBox.error('Soory, your friend is not online.')

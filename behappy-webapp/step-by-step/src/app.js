@@ -104,7 +104,8 @@ const initApp = function(){
         Services.logout().done(() => {
           this.$store.commit('clearLogonUser')
           MessageBox.info('You log out')
-          Services.closeWebSocket();
+          typeof leaveRoom === 'function' && leaveRoom()
+          // Services.closeWebSocket();
           this.$router.push('/login')
         })
       }
@@ -132,7 +133,9 @@ const initApp = function(){
 Services.getLogonUserContext()
   .done(user => {
     store.commit('updateLogonUser', user.userId)
-    newWebSocket()
+    Services.newWebSocket(() => {
+        Services.register(user.userId);
+    });
   })
   .fail(() => store.commit('clearLogonUser'))
   .always(initApp)
