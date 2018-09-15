@@ -87,8 +87,13 @@ function onInviteToRoom(msg){
 			label: 'Accept',
 			cssClass: 'btn-success',
 			action: function(dialog) {
-				joinRoom(null, msg.room)
 				dialog.close();
+				$('#app').stop().fadeOut(250, () => {
+					$('#name').val(this.$root.logonUser);
+					// $('#peer').val(userId);
+					$('#roomName').val(msg.room);
+					$('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom(userId)}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
+				});
 			}
 		}]
 	});
