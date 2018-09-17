@@ -251,9 +251,15 @@ $(function(){
                 cssClass: 'btn-success',
                 hotkey: 13,
                 action: function(dialog) {
-					let userName = dialog.$modalBody.children('.bootstrap-dialog-body').children('.bootstrap-dialog-message').children('input').val();
-					joinRoom(userName)
 					dialog.close()
+					let userName = dialog.$modalBody.children('.bootstrap-dialog-body').children('.bootstrap-dialog-message').children('input').val();
+					// joinRoom(userName)
+					sendMessage({
+						id: 'inviteUser',
+						fromUserId: userName,
+						room: document.getElementById('roomName').value,
+						toUserId: userName
+					});
 				}
             }]
         });
