@@ -19,6 +19,7 @@ package org.kurento.tutorial.groupcall;
 
 import java.io.IOException;
 
+import org.hibernate.service.spi.ServiceException;
 import org.kurento.client.IceCandidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +130,9 @@ public class CallHandler extends TextWebSocketHandler {
     log.info("PARTICIPANT {}: trying to join room {}", userId, roomName);
 
     if (StringUtil.isEmpty(roomName)) {
-      roomName = userSession.getUserId();
+      String errorMsg = "No roomName in argument";
+      log.error(errorMsg);
+      throw new ServiceException(errorMsg);
     }
     Room room = roomManager.getOrCreateRoom(roomName);
     room.join(userSession);
