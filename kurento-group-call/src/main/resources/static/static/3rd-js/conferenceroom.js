@@ -196,6 +196,8 @@ function leaveRoom() {
 		participants[key].dispose();
 	}
 
+	document.querySelector('#participants').innerHTML = '';
+
 	// document.getElementById('join').style.display = 'block';
 	// document.getElementById('room').style.display = 'none';
 	// don't close websocket after leaving room
