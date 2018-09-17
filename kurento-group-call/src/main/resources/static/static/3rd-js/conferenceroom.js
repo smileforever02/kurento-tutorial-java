@@ -256,7 +256,7 @@ $(function(){
 					// joinRoom(userName)
 					sendMessage({
 						id: 'inviteUser',
-						fromUserId: userName,
+						fromUserId: $('#name').val(),
 						room: document.getElementById('roomName').value,
 						toUserId: userName
 					});
