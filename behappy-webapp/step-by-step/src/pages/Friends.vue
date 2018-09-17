@@ -36,7 +36,7 @@ const m = Object.assign({
                     $('#app').stop().fadeOut(250, () => {
                         $('#name').val(this.$root.logonUser);
                         // $('#peer').val(userId);
-                        $('#peer').val("Room-" + this.$root.logonUser);
+                        $('#rooName').val("Room-" + this.$root.logonUser);
                         $('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom(userId)}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
                     });
                 }else{
