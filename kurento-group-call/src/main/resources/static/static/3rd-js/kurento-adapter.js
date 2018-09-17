@@ -55,7 +55,7 @@ if(typeof Console !== 'function'){
         let togger = $('.navbar-toggle[data-target="#bs-navbar"]');
         if(e.target === togger[0]){
             // console.log('togger clicked');
-        }else if($('#bs-navbar').hasClass('show')){
+        }else if($('#bs-navbar').hasClass('show') || $('#bs-navbar').hasClass('in')){
             togger.trigger('click');
         }
     }, false);
