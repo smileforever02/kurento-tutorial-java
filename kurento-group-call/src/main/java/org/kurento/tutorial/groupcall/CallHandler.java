@@ -77,6 +77,9 @@ public class CallHandler extends TextWebSocketHandler {
     case "joinRoom":
       joinRoom(jsonMessage, user);
       break;
+    case "inviteUser":
+      inviteUser(jsonMessage);
+      break;
     case "receiveVideoFrom":
       final String senderName = jsonMessage.get("sender").getAsString();
       final UserSession sender = registry.getByUserId(senderName);
@@ -144,6 +147,24 @@ public class CallHandler extends TextWebSocketHandler {
           inviteToRoomMsg.addProperty("room", roomName);
           toUserSession.sendMessage(inviteToRoomMsg);
         }
+      }
+    }
+  }
+
+  private void inviteUser(JsonObject params) throws IOException {
+    String roomName = params.get("room").getAsString();
+    final String fromUserId = params.get("fromUserId").getAsString();
+    final String toUserId = params.get("toUserId").getAsString();
+
+    if (!StringUtil.isEmpty(toUserId)) {
+      UserSession toUserSession = registry.getByUserId(toUserId);
+      if (toUserSession != null) {
+        final JsonObject inviteToRoomMsg = new JsonObject();
+        inviteToRoomMsg.addProperty("id", "inviteToRoom");
+        inviteToRoomMsg.addProperty("fromUserId", fromUserId);
+        inviteToRoomMsg.addProperty("toUserId", toUserId);
+        inviteToRoomMsg.addProperty("room", roomName);
+        toUserSession.sendMessage(inviteToRoomMsg);
       }
     }
   }
