@@ -54,7 +54,7 @@ function newWebSocket(callback){
 			receiveVideoResponse(parsedMessage);
 			break;
 		case 'iceCandidate':
-			participants[parsedMessage.name].rtcPeer.addIceCandidate(parsedMessage.candidate, function (error) {
+			participants[parsedMessage.userId].rtcPeer.addIceCandidate(parsedMessage.candidate, function (error) {
 				if (error) {
 				  console.error("Error adding candidate: " + error);
 				  return;
@@ -92,7 +92,7 @@ function onInviteToRoom(msg){
 					$('#name').val(this.$root.logonUser);
 					// $('#peer').val(userId);
 					$('#roomName').val(msg.room);
-					$('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom(userId)}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
+					$('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom()}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
 				});
 			}
 		}]
@@ -198,8 +198,8 @@ function leaveRoom() {
 
 	// document.getElementById('join').style.display = 'block';
 	// document.getElementById('room').style.display = 'none';
-
-	ws.close();
+	// don't close websocket after leaving room
+	// ws.close();
 }
 
 function receiveVideo(sender) {
