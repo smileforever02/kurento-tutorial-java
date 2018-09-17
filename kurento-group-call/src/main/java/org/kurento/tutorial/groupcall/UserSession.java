@@ -244,6 +244,8 @@ public class UserSession implements Closeable {
       });
     }
 
+    incomingMedia.clear();
+    
     outgoingMedia.release(new Continuation<Void>() {
 
       @Override
