@@ -124,7 +124,7 @@ public class UserSession implements Closeable {
         .processOffer(sdpOffer);
     final JsonObject scParams = new JsonObject();
     scParams.addProperty("id", "receiveVideoAnswer");
-    scParams.addProperty("name", sender.getUserId());
+    scParams.addProperty("userId", sender.getUserId());
     scParams.addProperty("sdpAnswer", ipSdpAnswer);
 
     log.trace("USER {}: SdpAnswer for {} is {}", this.userId,
