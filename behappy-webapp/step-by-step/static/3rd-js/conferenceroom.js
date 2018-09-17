@@ -89,7 +89,7 @@ function onInviteToRoom(msg){
 			action: function(dialog) {
 				dialog.close();
 				$('#app').stop().fadeOut(250, () => {
-					$('#name').val(this.$root.logonUser);
+					// $('#name').val(this.$root.logonUser);
 					// $('#peer').val(userId);
 					$('#roomName').val(msg.room);
 					$('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom()}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
@@ -135,11 +135,11 @@ function joinRoom(toUser, roomName) {
 }
 
 function onNewParticipant(request) {
-	receiveVideo(request.name);
+	receiveVideo(request.userId);
 }
 
 function receiveVideoResponse(result) {
-	participants[result.name].rtcPeer.processAnswer (result.sdpAnswer, function (error) {
+	participants[result.userId].rtcPeer.processAnswer (result.sdpAnswer, function (error) {
 		if (error) return console.error (error);
 	});
 }
@@ -222,10 +222,10 @@ function receiveVideo(sender) {
 }
 
 function onParticipantLeft(request) {
-	console.log('Participant ' + request.name + ' left');
-	var participant = participants[request.name];
+	console.log('Participant ' + request.userId + ' left');
+	var participant = participants[request.userId];
 	participant.dispose();
-	delete participants[request.name];
+	delete participants[request.userId];
 }
 
 function sendMessage(message) {
