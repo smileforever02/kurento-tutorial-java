@@ -39,6 +39,7 @@ import org.kurento.tutorial.groupcall.behappy.video.VideoRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +61,9 @@ public class Room implements Closeable {
   private final ConcurrentMap<String, UserSession> participants = new ConcurrentHashMap<>();
   private MediaPipeline pipeline;
   private String name;
+
+  @Value("${recording.base.path}")
+  private String RECORDING_BASE_PATH;
 
   @Autowired
   private UserService userService;
@@ -184,18 +188,30 @@ public class Room implements Closeable {
     return participants.get(name);
   }
 
+  public void startTranslate(final JsonObject params) throws IOException {
+    for (UserSession participant : getParticipants()) {
+      participant.sendMessage(params);
+    }
+  }
+
+  public void stopTranslate(final JsonObject params) throws IOException {
+    for (UserSession participant : getParticipants()) {
+      participant.sendMessage(params);
+    }
+  }
+
   public void speak(final JsonObject params) throws IOException {
     for (UserSession participant : getParticipants()) {
       participant.sendMessage(params);
     }
   }
 
-  public void record(String basePath) throws IOException {
+  public void record() throws IOException {
     Date date = new Date();
     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     for (UserSession participant : getParticipants()) {
-      String folderPath = basePath + "/" + dateFormat.format(date) + "/" + uuid
-          + "/" + participant.getUserId();
+      String folderPath = RECORDING_BASE_PATH + "/" + dateFormat.format(date)
+          + "/" + uuid + "/" + participant.getUserId();
 
       Date currentDate = new Date();
       String fileName = participant.getUserId() + "__" + df.format(currentDate)
@@ -261,5 +277,4 @@ public class Room implements Closeable {
 
     log.info("Room {} closed", this.name);
   }
-
 }
