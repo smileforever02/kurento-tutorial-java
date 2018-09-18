@@ -139,9 +139,10 @@ function OnSpeechEndDetected(){
 
 function UpdateRecognizedPhrase(event){
 	if(event.Result && event.Result.RecognitionStatus === 'Success'){
-        let txt = appendChat($('#name').val() + ': ' + event.Result.DisplayText);
+        let txt = appendChat(event.Result.DisplayText);
         sendMessage({
             id: 'speak',
+            fromUserId: $('#name').val(),
             content: txt
         })
     }else{

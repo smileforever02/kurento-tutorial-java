@@ -61,8 +61,8 @@ function newWebSocket(callback){
 				}
 			});
 			break;
-		case 'speaked':
-			appendChat(parsedMessage.content)
+		case 'speak':
+			appendChat(parsedMessage.fromUserId + ': ' + parsedMessage.content)
 			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
