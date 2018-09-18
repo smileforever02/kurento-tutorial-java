@@ -101,7 +101,7 @@ public class Room implements Closeable {
   }
 
   public void leave(UserSession user) throws IOException {
-    log.debug("PARTICIPANT {}: Leaving room {}", user.getUserId(), this.name);
+    log.info("PARTICIPANT {}: Leaving room {}", user.getUserId(), this.name);
     this.removeParticipant(user.getUserId());
     user.close();
   }
@@ -114,14 +114,14 @@ public class Room implements Closeable {
 
     final List<String> participantsList = new ArrayList<>(
         participants.values().size());
-    log.debug("ROOM {}: notifying other participants of new participant {}",
+    log.info("ROOM {}: notifying other participants of new participant {}",
         name, newParticipant.getUserId());
 
     for (final UserSession participant : participants.values()) {
       try {
         participant.sendMessage(newParticipantMsg);
       } catch (final IOException e) {
-        log.debug("ROOM {}: participant {} could not be notified", name,
+        log.error("ROOM {}: participant {} could not be notified", name,
             participant.getUserId(), e);
       }
       participantsList.add(participant.getUserId());
@@ -133,7 +133,7 @@ public class Room implements Closeable {
   private void removeParticipant(String userId) throws IOException {
     participants.remove(userId);
 
-    log.debug("ROOM {}: notifying all users that {} is leaving the room",
+    log.info("ROOM {}: notifying all users that {} is leaving the room",
         this.name, userId);
 
     final List<String> unnotifiedParticipants = new ArrayList<>();
@@ -150,7 +150,7 @@ public class Room implements Closeable {
     }
 
     if (!unnotifiedParticipants.isEmpty()) {
-      log.debug(
+      log.info(
           "ROOM {}: The users {} could not be notified that {} left the room",
           this.name, unnotifiedParticipants, userId);
     }
@@ -171,7 +171,7 @@ public class Room implements Closeable {
     final JsonObject existingParticipantsMsg = new JsonObject();
     existingParticipantsMsg.addProperty("id", "existingParticipants");
     existingParticipantsMsg.add("data", participantsArray);
-    log.debug("PARTICIPANT {}: sending a list of {} participants",
+    log.info("PARTICIPANT {}: sending a list of {} participants",
         user.getUserId(), participantsArray.size());
     user.sendMessage(existingParticipantsMsg);
   }
@@ -233,7 +233,7 @@ public class Room implements Closeable {
       try {
         user.close();
       } catch (IOException e) {
-        log.debug("ROOM {}: Could not invoke close on participant {}",
+        log.error("ROOM {}: Could not invoke close on participant {}",
             this.name, user.getUserId(), e);
       }
     }
@@ -244,16 +244,16 @@ public class Room implements Closeable {
 
       @Override
       public void onSuccess(Void result) throws Exception {
-        log.trace("ROOM {}: Released Pipeline", Room.this.name);
+        log.info("ROOM {}: Released Pipeline", Room.this.name);
       }
 
       @Override
       public void onError(Throwable cause) throws Exception {
-        log.warn("PARTICIPANT {}: Could not release Pipeline", Room.this.name);
+        log.error("PARTICIPANT {}: Could not release Pipeline", Room.this.name);
       }
     });
 
-    log.debug("Room {} closed", this.name);
+    log.info("Room {} closed", this.name);
   }
 
 }
