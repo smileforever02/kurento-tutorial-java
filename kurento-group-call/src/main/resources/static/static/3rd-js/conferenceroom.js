@@ -230,6 +230,18 @@ function onParticipantLeft(request) {
 	delete participants[request.userId];
 }
 
+function startRecord(){
+	sendMessage({
+		id: 'startRecord'
+	});
+}
+
+function stopRecord(){
+	sendMessage({
+		id: 'stopRecord'
+	});
+}
+
 function sendMessage(message) {
 	var jsonMessage = JSON.stringify(message);
 	console.log('Senging message: ' + jsonMessage);
