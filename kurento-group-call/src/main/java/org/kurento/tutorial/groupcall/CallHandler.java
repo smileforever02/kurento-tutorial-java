@@ -100,6 +100,11 @@ public class CallHandler extends TextWebSocketHandler {
         stopRecord(user.getRoomName());
       }
       break;
+    case "speak":
+      if (user != null) {
+        speak(jsonMessage, user);
+      }
+      break;
     case "onIceCandidate":
       JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
 
@@ -113,6 +118,18 @@ public class CallHandler extends TextWebSocketHandler {
       break;
     default:
       break;
+    }
+  }
+
+  private void speak(JsonObject params, UserSession userSession)
+      throws IOException {
+    String content = params.get("content").getAsString();
+    String roomName = userSession.getRoomName();
+    if (!StringUtil.isEmpty(content) && !StringUtil.isEmpty(roomName)) {
+      Room room = roomManager.getRoom(roomName);
+      if (room != null) {
+        room.speak(params);
+      }
     }
   }
 

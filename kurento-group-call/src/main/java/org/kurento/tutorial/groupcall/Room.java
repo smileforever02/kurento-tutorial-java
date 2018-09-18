@@ -184,13 +184,19 @@ public class Room implements Closeable {
     return participants.get(name);
   }
 
+  public void speak(final JsonObject params) throws IOException {
+    for (UserSession participant : getParticipants()) {
+      participant.sendMessage(params);
+    }
+  }
+
   public void record(String basePath) throws IOException {
     Date date = new Date();
     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     for (UserSession participant : getParticipants()) {
-      String folderPath = basePath + "/" + dateFormat.format(date) + "/"
-          + uuid + "/" + participant.getUserId();
-      
+      String folderPath = basePath + "/" + dateFormat.format(date) + "/" + uuid
+          + "/" + participant.getUserId();
+
       Date currentDate = new Date();
       String fileName = participant.getUserId() + "__" + df.format(currentDate)
           + RECORDING_EXT;
