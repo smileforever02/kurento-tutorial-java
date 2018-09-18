@@ -24,6 +24,7 @@ import org.kurento.client.KurentoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @author Ivan Gracia (izanmail@gmail.com)
@@ -35,6 +36,9 @@ public class RoomManager {
 
   @Autowired
   private KurentoClient kurento;
+
+  @Autowired
+  private ApplicationContext context;
 
   private final ConcurrentMap<String, Room> rooms = new ConcurrentHashMap<>();
 
@@ -52,7 +56,8 @@ public class RoomManager {
 
     if (room == null) {
       log.debug("Room {} not existent. Will create now!", roomName);
-      room = new Room(roomName, kurento.createMediaPipeline());
+      room = context.getBean(Room.class);
+      room.init(roomName, kurento.createMediaPipeline());
       rooms.put(roomName, room);
     }
     log.debug("Room {} found!", roomName);
