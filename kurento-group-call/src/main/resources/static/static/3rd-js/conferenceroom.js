@@ -38,6 +38,9 @@ function newWebSocket(callback){
 		console.info('Received message: ' + message.data);
 	
 		switch (parsedMessage.id) {
+		case 'inviteToRoom':
+			onInviteToRoom(parsedMessage)
+			break;
 		case 'existingParticipants':
 			onExistingParticipants(parsedMessage);
 			break;
@@ -51,7 +54,7 @@ function newWebSocket(callback){
 			receiveVideoResponse(parsedMessage);
 			break;
 		case 'iceCandidate':
-			participants[parsedMessage.name].rtcPeer.addIceCandidate(parsedMessage.candidate, function (error) {
+			participants[parsedMessage.userId].rtcPeer.addIceCandidate(parsedMessage.candidate, function (error) {
 				if (error) {
 				  console.error("Error adding candidate: " + error);
 				  return;
@@ -68,9 +71,53 @@ window.onbeforeunload = function() {
 	ws.close();
 };
 
+function onInviteToRoom(msg){
+	BootstrapDialog.show({
+		title: 'Invitaion',
+		closable: false,
+		message: msg.fromUserId + ' invites you to join a video room, accecpt it?',
+		buttons: [{
+			label: 'Cancel',
+			cssClass: 'btn-warning',
+			action: function(dialog) {
+				MessageBox && MessageBox.warn('You reject ' + msg.fromUserId + '\'s invitation');
+				dialog.close();
+			}
+		}, {
+			label: 'Accept',
+			cssClass: 'btn-success',
+			action: function(dialog) {
+				dialog.close();
+				$('#app').stop().fadeOut(250, () => {
+					// $('#name').val(this.$root.logonUser);
+					// $('#peer').val(userId);
+					$('#roomName').val(msg.room);
+					$('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom()}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
+				});
+			}
+		}]
+	});
+}
+
 function register() {
+	var name = document.getElementById('name').value;
+	if (name == '') {
+		window.alert('You must insert your user name');
+		document.getElementById('name').focus();
+		return;
+	}
+	// setRegisterState(REGISTERING);
+
+	var message = {
+		id : 'registerUserSession',
+		userId : name
+	};
+	sendMessage(message);
+}
+
+function joinRoom(toUser, roomName) {
 	name = document.getElementById('name').value;
-	var room = document.getElementById('roomName').value;
+	var room = roomName || document.getElementById('roomName').value;
 
 	document.getElementById('room-header').innerText = 'ROOM ' + room;
 	document.getElementById('join').style.display = 'none';
@@ -78,18 +125,21 @@ function register() {
 
 	var message = {
 		id : 'joinRoom',
-		name : name,
-		room : room,
+		userId : name,
+		room : room
+	}
+	if(toUser){
+		message.toUserId = toUser;
 	}
 	sendMessage(message);
 }
 
 function onNewParticipant(request) {
-	receiveVideo(request.name);
+	receiveVideo(request.userId);
 }
 
 function receiveVideoResponse(result) {
-	participants[result.name].rtcPeer.processAnswer (result.sdpAnswer, function (error) {
+	participants[result.userId].rtcPeer.processAnswer (result.sdpAnswer, function (error) {
 		if (error) return console.error (error);
 	});
 }
@@ -146,10 +196,12 @@ function leaveRoom() {
 		participants[key].dispose();
 	}
 
-	document.getElementById('join').style.display = 'block';
-	document.getElementById('room').style.display = 'none';
+	document.querySelector('#participants').innerHTML = '';
 
-	ws.close();
+	// document.getElementById('join').style.display = 'block';
+	// document.getElementById('room').style.display = 'none';
+	// don't close websocket after leaving room
+	// ws.close();
 }
 
 function receiveVideo(sender) {
@@ -172,10 +224,10 @@ function receiveVideo(sender) {
 }
 
 function onParticipantLeft(request) {
-	console.log('Participant ' + request.name + ' left');
-	var participant = participants[request.name];
+	console.log('Participant ' + request.userId + ' left');
+	var participant = participants[request.userId];
 	participant.dispose();
-	delete participants[request.name];
+	delete participants[request.userId];
 }
 
 function sendMessage(message) {
@@ -183,3 +235,35 @@ function sendMessage(message) {
 	console.log('Senging message: ' + jsonMessage);
 	ws.send(jsonMessage);
 }
+
+$(function(){
+	$('#inviteUser').click(function(){
+		BootstrapDialog.show({
+			title: 'Invite',
+			closable: false,
+            message: $('<input class="form-control" placeholder="user you want to invite">'),
+            buttons: [{
+				label: 'Cancel',
+				cssClass: 'btn-warning',
+                action: function(dialog) {
+                    dialog.close()
+                }
+            },{
+                label: 'OK',
+                cssClass: 'btn-success',
+                hotkey: 13,
+                action: function(dialog) {
+					dialog.close()
+					let userName = dialog.$modalBody.children('.bootstrap-dialog-body').children('.bootstrap-dialog-message').children('input').val();
+					// joinRoom(userName)
+					sendMessage({
+						id: 'inviteUser',
+						fromUserId: $('#name').val(),
+						room: document.getElementById('roomName').value,
+						toUserId: userName
+					});
+				}
+            }]
+        });
+	})
+})

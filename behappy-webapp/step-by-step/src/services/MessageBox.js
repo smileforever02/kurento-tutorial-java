@@ -8,7 +8,7 @@ const LEVEL = {
 }
 const msgBox = $('.message-box')
 let timeoutIdx
-export default {
+let MessageBox = {
     info(msg){
         this.showMsg(LEVEL.INFO, msg)
     },
@@ -32,3 +32,7 @@ export default {
             })
     }
 }
+if(typeof window === 'object'){
+    window.MessageBox = MessageBox;
+}
+export default MessageBox

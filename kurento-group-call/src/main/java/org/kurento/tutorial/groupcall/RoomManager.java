@@ -43,10 +43,10 @@ public class RoomManager {
    *
    * @param roomName
    *          the name of the room
-   * @return the room if it was already created, or a new one if it is the first time this room is
-   *         accessed
+   * @return the room if it was already created, or a new one if it is the first
+   *         time this room is accessed
    */
-  public Room getRoom(String roomName) {
+  public Room getOrCreateRoom(String roomName) {
     log.debug("Searching for room {}", roomName);
     Room room = rooms.get(roomName);
 
@@ -56,6 +56,18 @@ public class RoomManager {
       rooms.put(roomName, room);
     }
     log.debug("Room {} found!", roomName);
+    return room;
+  }
+
+  public Room getRoom(String roomName) {
+    log.debug("Searching for room {}", roomName);
+    Room room = rooms.get(roomName);
+
+    if (room == null) {
+      log.info("Room {} not existent.", roomName);
+    } else {
+      log.info("Room {} found!", roomName);
+    }
     return room;
   }
 
