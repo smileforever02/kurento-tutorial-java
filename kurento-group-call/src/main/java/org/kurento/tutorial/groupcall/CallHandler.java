@@ -25,7 +25,6 @@ import org.kurento.tutorial.groupcall.behappy.tools.translator.baidu.BaiduTransA
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -53,9 +52,6 @@ public class CallHandler extends TextWebSocketHandler {
 
   @Autowired
   private UserSessionRegistry registry;
-
-  @Value("${recording.base.path}")
-  private String RECORDING_BASE_PATH;
 
   @Autowired
   private BaiduTransApi transApi;
@@ -104,6 +100,16 @@ public class CallHandler extends TextWebSocketHandler {
         stopRecord(user.getRoomName());
       }
       break;
+    case "startTranslate":
+      if (user != null) {
+        startTranslate(user.getRoomName(), jsonMessage);
+      }
+      break;
+    case "stopTranslate":
+      if (user != null) {
+        stopTranslate(user.getRoomName(), jsonMessage);
+      }
+      break;
     case "speak":
       if (user != null) {
         speak(jsonMessage, user);
@@ -122,6 +128,22 @@ public class CallHandler extends TextWebSocketHandler {
       break;
     default:
       break;
+    }
+  }
+
+  private void startTranslate(String roomName, JsonObject jsonMessage)
+      throws IOException {
+    Room room = roomManager.getRoom(roomName);
+    if (room != null) {
+      room.startTranslate(jsonMessage);
+    }
+  }
+
+  private void stopTranslate(String roomName, JsonObject jsonMessage)
+      throws IOException {
+    Room room = roomManager.getRoom(roomName);
+    if (room != null) {
+      room.stopTranslate(jsonMessage);
     }
   }
 
@@ -240,7 +262,7 @@ public class CallHandler extends TextWebSocketHandler {
   private void startRecord(String roomName) throws IOException {
     Room room = roomManager.getRoom(roomName);
     if (room != null) {
-      room.record(RECORDING_BASE_PATH);
+      room.record();
     }
   }
 
