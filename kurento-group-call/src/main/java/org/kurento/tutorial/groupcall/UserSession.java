@@ -57,7 +57,6 @@ public class UserSession implements Closeable {
   private final ConcurrentMap<String, WebRtcEndpoint> incomingMedia = new ConcurrentHashMap<>();
 
   public UserSession(final WebSocketSession session, final String userId) {
-
     this.userId = userId;
     this.session = session;
   }
@@ -244,8 +243,6 @@ public class UserSession implements Closeable {
       });
     }
 
-    incomingMedia.clear();
-    
     outgoingMedia.release(new Continuation<Void>() {
 
       @Override
@@ -260,6 +257,11 @@ public class UserSession implements Closeable {
             UserSession.this.userId);
       }
     });
+    
+    incomingMedia.clear();
+    outgoingMedia = null;
+    recorderOutgoingMedia = null;
+    pipeline = null;
   }
 
   public void sendMessage(JsonObject message) throws IOException {
