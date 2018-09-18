@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.hibernate.service.spi.ServiceException;
 import org.kurento.client.IceCandidate;
+import org.kurento.tutorial.groupcall.behappy.tools.translator.baidu.BaiduTransApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,9 @@ public class CallHandler extends TextWebSocketHandler {
 
   @Value("${recording.base.path}")
   private String RECORDING_BASE_PATH;
+
+  @Autowired
+  private BaiduTransApi transApi;
 
   @Override
   public void handleTextMessage(WebSocketSession session, TextMessage message)
@@ -128,6 +132,9 @@ public class CallHandler extends TextWebSocketHandler {
     if (!StringUtil.isEmpty(content) && !StringUtil.isEmpty(roomName)) {
       Room room = roomManager.getRoom(roomName);
       if (room != null) {
+        String translatedContent = transApi.getTransResult(content, "auto",
+            "en");
+        params.addProperty("translatedContent", translatedContent);
         room.speak(params);
       }
     }

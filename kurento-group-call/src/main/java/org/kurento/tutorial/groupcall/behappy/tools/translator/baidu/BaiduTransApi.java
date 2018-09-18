@@ -98,7 +98,7 @@ public class BaiduTransApi extends Callback {
   }
 
   @Async
-  private String getTransResult(String query, String from, String to) {
+  public String getTransResult(String query, String from, String to) {
     Map<String, String> params = buildParams(query, from, to);
     return HttpGet.get(TRANS_API_HOST, params);
   }
