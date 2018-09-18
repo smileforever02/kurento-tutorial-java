@@ -258,6 +258,22 @@ public class UserSession implements Closeable {
       }
     });
     
+    recorderOutgoingMedia.stop();
+    recorderOutgoingMedia.release(new Continuation<Void>() {
+
+      @Override
+      public void onSuccess(Void result) throws Exception {
+        log.trace("PARTICIPANT {}: Released recording EP",
+            UserSession.this.userId);
+      }
+
+      @Override
+      public void onError(Throwable cause) throws Exception {
+        log.warn("USER {}: Could not release recording EP",
+            UserSession.this.userId);
+      }
+    });
+    
     incomingMedia.clear();
     outgoingMedia = null;
     recorderOutgoingMedia = null;
