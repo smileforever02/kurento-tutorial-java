@@ -65,10 +65,10 @@ public class CallHandler extends TextWebSocketHandler {
     final UserSession user = registry.getBySession(session);
 
     if (user != null) {
-      log.debug("Incoming message from user '{}': {}", user.getUserId(),
+      log.info("Incoming message from user '{}': {}", user.getUserId(),
           jsonMessage);
     } else {
-      log.debug("Incoming message from new user: {}", jsonMessage);
+      log.info("Incoming message from new user: {}", jsonMessage);
     }
 
     switch (jsonMessage.get("id").getAsString()) {

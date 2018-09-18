@@ -39,6 +39,8 @@ import org.kurento.tutorial.groupcall.behappy.video.VideoRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -49,12 +51,15 @@ import com.google.gson.JsonPrimitive;
  * @author Ivan Gracia (izanmail@gmail.com)
  * @since 4.3.1
  */
+
+@Component
+@Scope(value = "prototype")
 public class Room implements Closeable {
   private final Logger log = LoggerFactory.getLogger(Room.class);
 
   private final ConcurrentMap<String, UserSession> participants = new ConcurrentHashMap<>();
-  private final MediaPipeline pipeline;
-  private final String name;
+  private MediaPipeline pipeline;
+  private String name;
 
   @Autowired
   private UserService userService;
@@ -63,6 +68,8 @@ public class Room implements Closeable {
 
   private static final SimpleDateFormat df = new SimpleDateFormat(
       "yyyy-MM-dd-HH-mm-ss");
+  private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
+      "yyyyMMdd");
   // public static final String RECORDING_PATH = "file:///tmp/"
   // + df.format(new Date()) + "-";
   public static final String RECORDING_EXT = ".webm";
@@ -71,7 +78,7 @@ public class Room implements Closeable {
     return name;
   }
 
-  public Room(String roomName, MediaPipeline pipeline) {
+  public void init(String roomName, MediaPipeline pipeline) {
     this.name = roomName;
     this.pipeline = pipeline;
     log.info("ROOM {} has been created", roomName);
@@ -94,7 +101,7 @@ public class Room implements Closeable {
   }
 
   public void leave(UserSession user) throws IOException {
-    log.debug("PARTICIPANT {}: Leaving room {}", user.getUserId(), this.name);
+    log.info("PARTICIPANT {}: Leaving room {}", user.getUserId(), this.name);
     this.removeParticipant(user.getUserId());
     user.close();
   }
@@ -107,14 +114,14 @@ public class Room implements Closeable {
 
     final List<String> participantsList = new ArrayList<>(
         participants.values().size());
-    log.debug("ROOM {}: notifying other participants of new participant {}",
+    log.info("ROOM {}: notifying other participants of new participant {}",
         name, newParticipant.getUserId());
 
     for (final UserSession participant : participants.values()) {
       try {
         participant.sendMessage(newParticipantMsg);
       } catch (final IOException e) {
-        log.debug("ROOM {}: participant {} could not be notified", name,
+        log.error("ROOM {}: participant {} could not be notified", name,
             participant.getUserId(), e);
       }
       participantsList.add(participant.getUserId());
@@ -126,7 +133,7 @@ public class Room implements Closeable {
   private void removeParticipant(String userId) throws IOException {
     participants.remove(userId);
 
-    log.debug("ROOM {}: notifying all users that {} is leaving the room",
+    log.info("ROOM {}: notifying all users that {} is leaving the room",
         this.name, userId);
 
     final List<String> unnotifiedParticipants = new ArrayList<>();
@@ -143,7 +150,7 @@ public class Room implements Closeable {
     }
 
     if (!unnotifiedParticipants.isEmpty()) {
-      log.debug(
+      log.info(
           "ROOM {}: The users {} could not be notified that {} left the room",
           this.name, unnotifiedParticipants, userId);
     }
@@ -164,7 +171,7 @@ public class Room implements Closeable {
     final JsonObject existingParticipantsMsg = new JsonObject();
     existingParticipantsMsg.addProperty("id", "existingParticipants");
     existingParticipantsMsg.add("data", participantsArray);
-    log.debug("PARTICIPANT {}: sending a list of {} participants",
+    log.info("PARTICIPANT {}: sending a list of {} participants",
         user.getUserId(), participantsArray.size());
     user.sendMessage(existingParticipantsMsg);
   }
@@ -178,17 +185,19 @@ public class Room implements Closeable {
   }
 
   public void record(String basePath) throws IOException {
-    Date currentDate = new Date();
+    Date date = new Date();
     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     for (UserSession participant : getParticipants()) {
-      String folderPath = basePath + "/" + participant.getUserId() + "/"
-          + df.format(currentDate);
-      String fileNameWOExt = participant.getUserId() + "__"
-          + df.format(currentDate);
-      String wholePath = folderPath + "/" + fileNameWOExt + RECORDING_EXT;
-      participant.record(wholePath);
+      String folderPath = basePath + "/" + dateFormat.format(date) + "/"
+          + uuid + "/" + participant.getUserId();
+      
+      Date currentDate = new Date();
+      String fileName = participant.getUserId() + "__" + df.format(currentDate)
+          + RECORDING_EXT;
+      participant.record(folderPath, fileName);
 
-      createVideoRecord(participant, wholePath, uuid, currentDate);
+      createVideoRecord(participant, folderPath + "/" + fileName, uuid,
+          currentDate);
 
       final JsonObject recordStartedMsg = new JsonObject();
       recordStartedMsg.addProperty("id", "recordStarted");
@@ -224,7 +233,7 @@ public class Room implements Closeable {
       try {
         user.close();
       } catch (IOException e) {
-        log.debug("ROOM {}: Could not invoke close on participant {}",
+        log.error("ROOM {}: Could not invoke close on participant {}",
             this.name, user.getUserId(), e);
       }
     }
@@ -235,16 +244,16 @@ public class Room implements Closeable {
 
       @Override
       public void onSuccess(Void result) throws Exception {
-        log.trace("ROOM {}: Released Pipeline", Room.this.name);
+        log.info("ROOM {}: Released Pipeline", Room.this.name);
       }
 
       @Override
       public void onError(Throwable cause) throws Exception {
-        log.warn("PARTICIPANT {}: Could not release Pipeline", Room.this.name);
+        log.error("PARTICIPANT {}: Could not release Pipeline", Room.this.name);
       }
     });
 
-    log.debug("Room {} closed", this.name);
+    log.info("Room {} closed", this.name);
   }
 
 }
