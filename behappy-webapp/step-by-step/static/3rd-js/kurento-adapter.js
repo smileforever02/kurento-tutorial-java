@@ -55,7 +55,7 @@ var recognizerConfig = new SDK.RecognizerConfig(
     format);
 
 var authentication = new SDK.CognitiveSubscriptionKeyAuthentication(msKey);
-var recognizer = SDK.CreateRecognizer(recognizerConfig, authentication);
+var recognizer;
 
 function RecognizerStop(SDK, recognizer) {
     // recognizer.AudioSource.Detach(audioNodeId) can be also used here. (audioNodeId is part of ListeningStartedEvent)
@@ -63,6 +63,11 @@ function RecognizerStop(SDK, recognizer) {
 }
 
 function RecognizerStart(){
+    recognizer = SDK.CreateRecognizer(recognizerConfig, authentication);
+    recognize();
+}
+
+function recognize(){
 	recognizer.Recognize((event) => {
         /*
          Alternative syntax for typescript devs.
@@ -110,7 +115,7 @@ function RecognizerStart(){
             	console.log("RecognitionEndedEvent");
                 // OnComplete();
                 UpdateStatus("Idle");
-                RecognizerStart();
+                recognize();
                 console.log(JSON.stringify(event)); // Debug information
                 break;
             default:
