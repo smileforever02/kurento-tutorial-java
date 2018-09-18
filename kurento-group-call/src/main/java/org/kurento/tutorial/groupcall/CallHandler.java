@@ -18,10 +18,13 @@
 package org.kurento.tutorial.groupcall;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.hibernate.service.spi.ServiceException;
 import org.kurento.client.IceCandidate;
 import org.kurento.tutorial.groupcall.behappy.tools.translator.baidu.BaiduTransApi;
+import org.kurento.tutorial.groupcall.behappy.tools.translator.baidu.BaiduTransJson;
+import org.kurento.tutorial.groupcall.behappy.tools.translator.baidu.BaiduTransResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,8 +157,14 @@ public class CallHandler extends TextWebSocketHandler {
     if (!StringUtil.isEmpty(content) && !StringUtil.isEmpty(roomName)) {
       Room room = roomManager.getRoom(roomName);
       if (room != null) {
-        String translatedContent = transApi.getTransResult(content, "auto",
-            "en");
+        String translatedContent = "";
+        String jsonString = transApi.getTransResult(content, "auto", "en");
+        if (jsonString != null) {
+          BaiduTransJson json = gson.fromJson(jsonString, BaiduTransJson.class);
+          List<BaiduTransResult> results = json.getTransResult();
+          translatedContent = results.get(0).getDst();
+        }
+
         params.addProperty("translatedContent", translatedContent);
         room.speak(params);
       }
