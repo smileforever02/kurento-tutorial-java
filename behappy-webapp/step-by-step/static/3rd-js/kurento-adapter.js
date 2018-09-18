@@ -44,6 +44,7 @@ const msKey = '4df708c0fee649599bc5c9cbe24a763a';
 const recognitionMode = 0;
 const language = 'zh-CN';
 const format = 0;
+const chatPane = $('#conversation');
 var recognizerConfig = new SDK.RecognizerConfig(
     new SDK.SpeechConfig(
         new SDK.Context(
@@ -138,13 +139,22 @@ function OnSpeechEndDetected(){
 
 function UpdateRecognizedPhrase(event){
 	if(event.Result && event.Result.RecognitionStatus === 'Success'){
-		$('#conversation').append('<li>' + event.Result.DisplayText + '</li>')
-	}else{
-		// console.log()
+        let txt = appendChat($('#name').val() + ': ' + event.Result.DisplayText);
+        sendMessage({
+            id: 'speak',
+            content: txt
+        })
+    }else{
+        // console.log()
 	}
-	let chat = $('#conversation');
-	chat.finish().animate({scrollTop: chat[0].scrollHeight})
 }
+
+function appendChat(txt){
+    chatPane.append('<li>' + txt + '</li>')
+    chatPane.finish().animate({scrollTop: chatPane[0].scrollHeight})
+}
+
+$('#clearChat').click(() => chatPane.html(''))
 
 //
 (function(){
