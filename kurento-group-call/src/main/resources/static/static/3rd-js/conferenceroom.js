@@ -18,6 +18,7 @@
 var ws = null;
 var participants = {};
 var name;
+var recognizerStarted = false;
 
 function newWebSocket(callback){
 	if(ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)){
@@ -65,6 +66,11 @@ function newWebSocket(callback){
 			appendChat(parsedMessage.fromUserId + ': ' + parsedMessage.content + '(' + parsedMessage.translatedContent + ')')
 			break;
 		case 'startTranslate':
+			if(recognizerStarted){
+				console.log('recognizer is already started')
+				return;
+			}
+			recognizerStarted = true;
 			RecognizerStart();
 			break;
 		default:
