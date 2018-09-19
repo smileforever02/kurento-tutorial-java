@@ -59,6 +59,11 @@ module.exports = {
                 from: resolve('static/fonts'),
                 to: resolve('dist/static/fonts'),
                 toType: 'dir'
+            },
+            {
+                from: resolve('index.chat.html'),
+                to: resolve('dist/'),
+                toType: 'dir'
             }
         ])
     ]

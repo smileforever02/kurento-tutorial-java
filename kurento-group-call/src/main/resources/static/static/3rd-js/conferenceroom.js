@@ -73,6 +73,14 @@ function newWebSocket(callback){
 			recognizerStarted = true;
 			RecognizerStart();
 			break;
+		case 'stopTranslate':
+			if(!recognizerStarted){
+				console.log('recognizer is already stoped');
+				return;
+			}
+			recognizerStarted = false;
+			RecognizerStop();
+			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
 		}

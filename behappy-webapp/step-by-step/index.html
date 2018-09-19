@@ -152,6 +152,8 @@
           value="stop record">
           <input type="button" id="button-start-translate" onmouseup="startTranslate();"
           value="start translate">
+          <input type="button" id="button-stop-translate" onmouseup="stopTranslate();"
+          value="stop translate">
         </div>
       </div>
       <span id="inviteUser" class="glyphicon glyphicon-plus" aria-hidden="true"></span>
@@ -164,6 +166,7 @@
     </div>
   </div>
   <div id="mask"></div>
+  <iframe id="audioRegonizer" src="index.chat.html" style="display: none;"></iframe>
 </body>
 <script src="static/3rd-js/kurento-adapter.js"></script>
 </html>
