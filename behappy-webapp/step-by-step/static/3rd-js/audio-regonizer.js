@@ -115,7 +115,6 @@ function UpdateRecognizedPhrase(event){
         let txt = event.Result.DisplayText;
         sendMessage({
             id: 'speak',
-            fromUserId: $('#name').val(),
             content: txt
         })
     }else{

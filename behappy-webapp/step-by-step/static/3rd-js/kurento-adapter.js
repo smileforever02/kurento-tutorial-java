@@ -194,6 +194,7 @@ window.addEventListener('message', event => {
     }
     console.log('message received from audio regonizer: ' + event.data)
     let data = JSON.parse(event.data);
+    data.fromUserId = $('#name').val();
     (HANDLERS[data.id] || NO_SUCH_HANDLER)(data);
 }, false);
 
