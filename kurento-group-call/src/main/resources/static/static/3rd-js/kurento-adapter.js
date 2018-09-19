@@ -41,12 +41,12 @@ if(typeof Console !== 'function'){
     }
 }
 
+const chatPane = $('#conversation');
 // audio recognizer related
 // const msKey = '4df708c0fee649599bc5c9cbe24a763a';
 // const recognitionMode = 0;
 // const language = 'zh-CN';
 // const format = 0;
-// const chatPane = $('#conversation');
 // var recognizerConfig = new SDK.RecognizerConfig(
 //     new SDK.SpeechConfig(
 //         new SDK.Context(
