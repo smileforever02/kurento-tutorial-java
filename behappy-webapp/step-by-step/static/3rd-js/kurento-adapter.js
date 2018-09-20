@@ -58,7 +58,7 @@ var recognizerConfig = new SDK.RecognizerConfig(
 var authentication = new SDK.CognitiveSubscriptionKeyAuthentication(msKey);
 var recognizer;
 
-function RecognizerStop(SDK, recognizer) {
+function RecognizerStop() {
     // recognizer.AudioSource.Detach(audioNodeId) can be also used here. (audioNodeId is part of ListeningStartedEvent)
     if(recognizer){
         recognizer.AudioSource.TurnOff();
