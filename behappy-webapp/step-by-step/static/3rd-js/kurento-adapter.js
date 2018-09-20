@@ -176,7 +176,7 @@ function stopTranslate(){
     })
 }
 
-('#clearChat').click(() => chatPane.html(''));
+$('#clearChat').click(() => chatPane.html(''));
 
 // function RecognizerStop(){
 //     recognierWindow.postMessage(JSON.stringify({id: 'stopTranslate'}), origin);
