@@ -43,12 +43,10 @@ if(typeof Console !== 'function'){
 
 const chatPane = $('#conversation');
 // audio recognizer related
-<<<<<<< HEAD
 const msKey = '4df708c0fee649599bc5c9cbe24a763a';
 const recognitionMode = 0;
 const language = 'zh-CN';
 const format = 0;
-const chatPane = $('#conversation');
 var recognizerConfig = new SDK.RecognizerConfig(
     new SDK.SpeechConfig(
         new SDK.Context(
@@ -57,21 +55,6 @@ var recognizerConfig = new SDK.RecognizerConfig(
     recognitionMode,
     language, // Supported languages are specific to each recognition mode. Refer to docs.
     format);
-=======
-// const msKey = '4df708c0fee649599bc5c9cbe24a763a';
-// const recognitionMode = 0;
-// const language = 'zh-CN';
-// const format = 0;
-// var recognizerConfig = new SDK.RecognizerConfig(
-//     new SDK.SpeechConfig(
-//         new SDK.Context(
-//             new SDK.OS(navigator.userAgent, "Browser", null),
-//             new SDK.Device("SpeechSample", "SpeechSample", "1.0.00000"))),
-//     recognitionMode,
-//     language, // Supported languages are specific to each recognition mode. Refer to docs.
-//     format);
->>>>>>> bfd7795f6784d430996357b49635b13268ee499e
-
 var authentication = new SDK.CognitiveSubscriptionKeyAuthentication(msKey);
 var recognizer;
 
@@ -199,7 +182,6 @@ function stopTranslate(){
 //     recognierWindow.postMessage(JSON.stringify({id: 'stopTranslate'}), origin);
 // }
 
-<<<<<<< HEAD
 // const HANDLERS = {
 //     'speak': sendMessage
 // };
@@ -216,25 +198,6 @@ function stopTranslate(){
 //     let data = JSON.parse(event.data);
 //     (HANDLERS[data.id] || NO_SUCH_HANDLER)(data);
 // }, false);
-=======
-const HANDLERS = {
-    'speak': sendMessage
-};
-const NO_SUCH_HANDLER = function(data){
-    console.warn('no handler for this message: ' + JSON.stringify(data));
-}
-const recognierWindow = document.querySelector('#audioRegonizer').contentWindow;
-window.addEventListener('message', event => {
-    if(event.origin !== origin){
-        conosle.error('invide origin');
-        return;
-    }
-    console.log('message received from audio regonizer: ' + event.data)
-    let data = JSON.parse(event.data);
-    data.fromUserId = $('#name').val();
-    (HANDLERS[data.id] || NO_SUCH_HANDLER)(data);
-}, false);
->>>>>>> bfd7795f6784d430996357b49635b13268ee499e
 
 // function RecognizerStart(){
 //     recognierWindow.postMessage(JSON.stringify({id: 'startTranslate'}), origin);
