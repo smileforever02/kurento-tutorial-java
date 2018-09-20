@@ -79,7 +79,7 @@ function newWebSocket(callback){
 				return;
 			}
 			recognizerStarted = false;
-			RecognizerStop();
+			RecognizerStop(SDK, recognizer);
 			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
@@ -223,7 +223,7 @@ function leaveRoom() {
 	// ws.close();
 
 	recognizerStarted = false;
-	RecognizerStop();
+	RecognizerStop(SDK, recognizer);
 	window.globalStream = null;
 }
 
