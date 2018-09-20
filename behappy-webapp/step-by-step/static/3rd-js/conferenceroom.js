@@ -217,11 +217,14 @@ function leaveRoom() {
 	}
 
 	document.querySelector('#participants').innerHTML = '';
-
 	// document.getElementById('join').style.display = 'block';
 	// document.getElementById('room').style.display = 'none';
 	// don't close websocket after leaving room
 	// ws.close();
+
+	recognizerStarted = false;
+	RecognizerStop();
+	window.globalStream = null;
 }
 
 function receiveVideo(sender) {

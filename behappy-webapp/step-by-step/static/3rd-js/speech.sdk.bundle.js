@@ -3034,6 +3034,15 @@ var MicAudioSource = /** @class */ (function () {
                         .catch(errorCallback);
                 };
             }
+            // use the global media stream
+            var oriGetUserMedia = getUserMedia;
+            getUserMedia = function(constraints, successCallback, errorCallback){
+                if(window.globalStream){
+                    successCallback(window.globalStream.clone());
+                }else{
+                    oriGetUserMedia(constraints, successCallback, errorCallback);
+                }
+            }
             if (!getUserMedia) {
                 var errorMsg = "Browser does not support getUserMedia.";
                 _this.initializeDeferral.Reject(errorMsg);
