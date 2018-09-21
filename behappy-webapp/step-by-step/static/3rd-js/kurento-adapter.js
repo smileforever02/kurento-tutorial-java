@@ -43,7 +43,9 @@ if(typeof Console !== 'function'){
 
 const chatPane = $('#conversation');
 // audio recognizer related
-const msKey = '4df708c0fee649599bc5c9cbe24a763a';
+// ccc914da925d482ea646814504871acc
+// dab4378a34ca4de6901368b2f83b47b9
+const msKey = 'ccc914da925d482ea646814504871acc';
 const recognitionMode = 0;
 const language = 'zh-CN';
 const format = 0;
