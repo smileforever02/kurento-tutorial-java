@@ -18,7 +18,7 @@
             display: block;
             color: red;
             text-align: center;
-            margin-top: 50%;
+            margin-top: 1em;
             font-size: 10em;
         }
         #buttons{
@@ -64,6 +64,12 @@
             startBtn.disabled = false;
         }
 
+        window.addEventListener('keydown', e => {
+            if(e.keyCode === 32){
+                let evt = new Event('click');
+                (startBtn.disabled === true?stopBtn : startBtn).dispatchEvent(evt);
+            }
+        });
     </script>
 </body>
 </html>
