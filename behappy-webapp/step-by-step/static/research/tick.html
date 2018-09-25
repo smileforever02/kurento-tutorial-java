@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Example 3</title>
+    <style>
+        html, body{
+            position: relative;
+            height: 100%;
+            width: 100%;
+            padding: 0px;
+            margin: 0px;
+            overflow: hidden;
+        }
+        #timestamp{
+            display: block;
+            color: red;
+            text-align: center;
+            margin-top: 50%;
+            font-size: 10em;
+        }
+        #buttons{
+            margin-top: 1em;
+            text-align: center;
+        }
+        #buttons > button{
+            width: 100px;
+            height: 36px;
+        }
+    </style>
+</head>
+<body>
+    <span id="timestamp">000</span>
+    <div id="buttons">
+        <button id="startBtn">start</button>
+        <button id="stopBtn">stop</button>
+    </div>
+    <script>
+        const startBtn = document.querySelector('#startBtn');
+        const stopBtn = document.querySelector('#stopBtn');
+        const screen = document.querySelector('#timestamp');
+        let tickId;
+
+        stopBtn.disabled = true;
+        startBtn.onclick = startTick;
+        stopBtn.onclick = stopTick;
+
+        function startTick(){
+            let now = window.performance.now();
+            function tick(timestamp){
+                screen.innerHTML = ((timestamp - now)/100).toFixed(2);
+                tickId = requestAnimationFrame(tick);
+            }
+            tickId = requestAnimationFrame(tick);
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+        }
+
+        function stopTick(){
+            cancelAnimationFrame(tickId);
+            stopBtn.disabled = true;
+            startBtn.disabled = false;
+        }
+
+    </script>
+</body>
+</html>
