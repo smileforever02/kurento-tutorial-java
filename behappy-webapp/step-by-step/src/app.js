@@ -98,7 +98,7 @@ const initApp = function(){
         MessageBox[level[idx%4]]('some thing happend' + (idx++))
       },
       showme(){
-        this.$router.push('/user/' + this.logonUser)
+        this.$router.push('/user')
       },
       logout(){
         Services.logout().done(() => {

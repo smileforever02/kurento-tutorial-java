@@ -47,6 +47,20 @@ export default {
     addFriend(userId){
         return this.post('/addfriend?friendUserId=' + userId)
     },
+    uploadPhoto(photoFile){
+        let deffer = $.Deferred()
+        let formData = new FormData();
+        formData.append("photo", photoFile);
+        mask.show();
+        $.ajax({
+            type: 'POST',
+            url: '/user/photo',
+            data: formData
+        }).done(data => deffer.resolve(data))
+          .fail((arg1, arg2, arg3) => deffer.reject(arg1, arg2, arg3))
+          .always(() => mask.hide());
+        return deffer;
+    },
     post(url, data){
         return this.send(url, 'POST', data);
     },

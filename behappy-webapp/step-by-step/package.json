@@ -6,7 +6,7 @@
   "scripts": {
     "build-dev": "webpack --config build/webpack.config.dev.js",
     "build": "webpack --config build/webpack.config.pro.js",
-    "dev": "webpack-dev-server --config build/webpack.config.dev.js"
+    "dev": "webpack-dev-server --host 10.58.81.6 --config build/webpack.config.dev.js"
   },
   "author": "Allen",
   "license": "MIT",

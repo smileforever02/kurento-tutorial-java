@@ -16,7 +16,7 @@ const routes = [
     { path: '/signup', component: SignUp },
     { path: '/login', component: Login },
     { path: '/login/:to', component: Login },
-    { path: '/user/:userId', component: UserProfile, meta: {requireAuth: true}},
+    { path: '/user', component: UserProfile, meta: {requireAuth: false}},
     { path: '/friends', component: Friends, meta: {requireAuth: true}},
     { path: '/user-list', component: Users, meta: {requireAuth: true}}
 ];
