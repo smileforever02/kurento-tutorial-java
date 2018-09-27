@@ -174,6 +174,7 @@ public class CallHandler extends TextWebSocketHandler {
   @Override
   public void afterConnectionClosed(WebSocketSession session,
       CloseStatus status) throws Exception {
+    log.info(status.toString());
     UserSession user = registry.removeBySession(session);
     leaveRoom(user);
   }
@@ -280,5 +281,10 @@ public class CallHandler extends TextWebSocketHandler {
     if (room != null) {
       room.stopRecord();
     }
+  }
+  
+  @Override
+  public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+    log.error("in handleTransportError,", exception);
   }
 }
