@@ -212,6 +212,16 @@ $('#button-stop-translate').click(e => {
     $('#button-start-translate').show();
     stopTranslate();
 });
+$('#participants .others').delegate('.participant', 'click', e => {
+    e.stopPropagation();
+    let otherContainer = document.querySelector('#participants .others');
+    let mainContainer = document.querySelector('#participants .main');
+    let mainVideo = document.querySelector('#participants .main .participant');
+    otherContainer.removeChild(e.currentTarget);
+    mainContainer.removeChild(mainVideo);
+    mainContainer.appendChild(e.currentTarget);
+    otherContainer.appendChild(mainVideo);
+});
 // function RecognizerStop(){
 //     recognierWindow.postMessage(JSON.stringify({id: 'stopTranslate'}), origin);
 // }
