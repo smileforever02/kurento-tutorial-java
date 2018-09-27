@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -21,6 +22,7 @@ public class User {
   private String gender;
   private Date birthday;
   private String email;
+  @Lob
   private String photo;
   private int roleId;
 
