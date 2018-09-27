@@ -54,7 +54,7 @@ export default {
         mask.show();
         $.ajax({
             type: 'POST',
-            url: '/user/photo',
+            url: '/uploadphoto',
             data: formData,
             processData: false,
             contentType: false
