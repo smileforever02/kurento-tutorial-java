@@ -67,6 +67,7 @@ public class UserController {
         User user = userService.getUser(userId);
         if (user != null) {
           user.setPhoto(photoClob);
+          userService.updateUser(user);
         }
       }
     } catch (IOException | ServletException e) {
