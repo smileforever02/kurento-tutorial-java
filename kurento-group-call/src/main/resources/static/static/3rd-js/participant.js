@@ -29,26 +29,24 @@ const PARTICIPANT_CLASS = 'participant';
 function Participant(name) {
 	this.name = name;
 	var container = document.createElement('div');
-	container.className = isPresentMainParticipant() ? PARTICIPANT_CLASS : PARTICIPANT_MAIN_CLASS;
+	// container.className = isPresentMainParticipant() ? PARTICIPANT_CLASS : PARTICIPANT_MAIN_CLASS;
+	container.className = PARTICIPANT_CLASS;
 	container.id = name;
 	// var span = document.createElement('span');
 	// var video = document.createElement('video');
-	var rtcPeer;
+	// var rtcPeer;
 
 	// container.appendChild(video);
 	// container.appendChild(span);
-	container.onclick = switchContainerClass;
-
-	container.innerHTML = '<video width="240px" height="180px" autoplay playsinline id="'+ ('video-' + name) +'"></video><span>'+ name +'</span>';
-
-	document.getElementById('participants').appendChild(container);
-
+	// container.onclick = switchContainerClass;
+	container.innerHTML = '<video width="100%" height="100%" autoplay playsinline id="'+ ('video-' + name) +'"></video><span>'+ name +'</span>';
+	
+	let parentSelector = isPresentMainParticipant()?'#participants .others' : '#participants .main';
+	document.querySelector(parentSelector).appendChild(container);
 	// span.appendChild(document.createTextNode(name));
-
 	// video.id = 'video-' + name;
 	// video.autoplay = true;
 	// video.controls = false;
-
 
 	this.getElement = function() {
 		return container;
@@ -72,7 +70,7 @@ function Participant(name) {
 	}
 
 	function isPresentMainParticipant() {
-		return ((document.getElementsByClassName(PARTICIPANT_MAIN_CLASS)).length != 0);
+		return document.querySelector('#participants .main .participant') != null;
 	}
 
 	this.offerToReceiveVideo = function(error, offerSdp, wp){

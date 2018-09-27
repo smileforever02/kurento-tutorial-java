@@ -1,6 +1,6 @@
 <template>
     <div class="full-width center-content">
-        <form class="full-width page-content" v-on:submit.prevent="submit" v-on:click="formItemClick" v-on:focusout="formItemBlur">
+        <form class="full-width page-content" v-on:submit.prevent="submit" v-on:click="formItemClick" v-on:change="onchange" v-on:focusout="formItemBlur">
             <div class="form-group row list-item user-img">
                 <label for="photo" class="col-xs-3 col-form-label">photo</label>
                 <img class="col-xs-9 align-right" :src="userImg" v-on:click.stop="editPhoto" alt="">
@@ -87,13 +87,28 @@ export default {
                 this.$nextTick(() => document.querySelector('#' + editFor).focus());
             }
         },
+        onchange(evt){
+            let edirDone = evt.target.dataset.editdone;
+            if(edirDone && this[edirDone + 'Editable'] === true){
+                Services.updateUser({
+                    userId: this.$store.state.logonUser,
+                    nickName: this.nickName,
+                    phoneNumber: this.phoneNumber,
+                    email: this.mail
+                }).done(() => MessageBox.success('Update successfully'))
+                .fail(() => MessageBox.error('Failed to update information.'));
+            }
+        },
         formItemBlur(evt){
             let edirDone = evt.target.dataset.editdone;
             if(edirDone && this[edirDone + 'Editable'] === true){
-                console.log(`save: ${edirDone}`);
                 this[edirDone + 'Editable'] = false;
             }
         },
+        // onchange(evt){
+        //     console.log('onchange')
+        //     console.log(evt.target)
+        // },
         submit(){
             console.log('nothing to do here')
         },

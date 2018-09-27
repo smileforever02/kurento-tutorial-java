@@ -1,11 +1,18 @@
 liMargin = 0.2em
 lineHeight = 2em
+charPaneHeight = 8em
 
 html, body
   height 100%
   width 100%
   font-size 1.1em
   overflow hidden
+
+.negative
+  color red
+
+.positive
+  color green
 
 .navbar-header
   background-color #6f5499
@@ -43,6 +50,9 @@ html, body
     padding-bottom: 0;
     line-height 2em
     color white
+
+.form-control.col-xs-9
+  width 75%
 
 .navbar-nav li
   padding 0
@@ -179,6 +189,7 @@ li
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
 }
+
 .message-box
   display none
   position absolute
@@ -210,7 +221,8 @@ li
   left 0px
   bottom 5px
   width 100%
-  height 8em
+  height charPaneHeight
+  padding-top 10px
   background #80808059
 
 #conversation
@@ -233,7 +245,10 @@ li
 #buttons
   position absolute
   left 0px
-  top 10px
+  bottom 145px
+  width 100%
+  text-align center
+  font-size 2em
 
 .align-right
   text-align right
@@ -250,3 +265,67 @@ li
   img
     width 6em
     float right
+
+#wrapper
+  position absolute 
+  left 0px
+  right 0px
+  top 0px
+  bottom charPaneHeight
+  background-color gray
+
+#room, #participants
+  width 100%;
+  height 100%;
+
+// .participant
+//   position absolute
+//   bottom 0px
+//   width 240px
+//   height 180px
+//   background-color yellow
+//   span 
+//     display block
+//     position absolute 
+//     top 0px
+//     width 100%
+//     text-align center
+//   video
+//     width 100%
+//     height 100% 
+
+// .participant.main
+//   position relative 
+//   top 0px
+//   width 100%
+//   height 100%
+//   background-color red
+
+#participants
+  .main
+    width 100%
+    height 100%
+    .participant
+      width 100%
+      height 100%
+  .others
+    position absolute 
+    bottom 0px
+    height 125px
+    left 0px
+    right 0px
+    background none
+    .participant
+      float left
+      margin-left 2px
+      width 160px
+      height 120px
+
+.participant
+  position relative
+  span 
+    display block
+    position absolute 
+    top 0px
+    width 100%
+    text-align center

@@ -179,7 +179,39 @@ function stopTranslate(){
 }
 
 $('#clearChat').click(() => chatPane.html(''));
-
+$('#room').click(() => {
+    $('#buttons').stop().fadeToggle({
+        duration: 300
+    });
+});
+$('#button-leave').click(e => {
+    e.stopPropagation();
+    leaveRoom();
+});
+$('#button-start-record').click(e => {
+    e.stopPropagation();
+    $('#button-start-record').hide();
+    $('#button-stop-record').show();
+    startRecord();
+});
+$('#button-stop-record').click(e => {
+    e.stopPropagation();
+    $('#button-stop-record').hide();
+    $('#button-start-record').show();
+    stopRecord();
+});
+$('#button-start-translate').click(e => {
+    e.stopPropagation();
+    $('#button-start-translate').hide();
+    $('#button-stop-translate').show();
+    startTranslate();
+});
+$('#button-stop-translate').click(e => {
+    e.stopPropagation();
+    $('#button-stop-translate').hide();
+    $('#button-start-translate').show();
+    stopTranslate();
+});
 // function RecognizerStop(){
 //     recognierWindow.postMessage(JSON.stringify({id: 'stopTranslate'}), origin);
 // }

@@ -125,7 +125,7 @@
       </div>
     </div>
   </div> -->
-  <div id="video" style="display: none;">
+  <div id="video" style="display: block;">
     <div id="container" class="container">
       <div id="wrapper">
         <div id="join" class="animate join" style="display: none;">
@@ -142,20 +142,26 @@
             </p>
           </form>
         </div>
-        <div id="room" style="display: none;">
-          <h2 id="room-header"></h2>
-          <div id="participants"></div>
+        <div id="room" style="display: block;">
+          <h2 id="room-header" style="display: none;"></h2>
+          <div id="participants">
+            <div class="main"></div>
+            <div class="others"></div>
+          </div>
           <div id="buttons">
-            <input type="button" id="button-leave" onmouseup="leaveRoom();"
-              value="Leave room">
-            <input type="button" id="button-start-record" onmouseup="startRecord();"
+            <span title="leave room" id="button-leave" class="glyphicon glyphicon-remove-sign negative" aria-hidden="true"></span>
+            <span title="start recording" id="button-start-record" class="glyphicon glyphicon-facetime-video positive" aria-hidden="true"></span>
+            <span title="stop recording" style="display: none;" id="button-stop-record" class="glyphicon glyphicon-facetime-video negative" aria-hidden="true"></span>
+            <span title="generate subtitle" id="button-start-translate" class="glyphicon glyphicon-subtitles positive" aria-hidden="true"></span>
+            <span title="stop subtitle" style="display: none;" id="button-stop-translate" class="glyphicon glyphicon-subtitles negative" aria-hidden="true"></span>
+            <!-- <input type="button" id="button-start-record" onmouseup="startRecord();"
             value="start record">
             <input type="button" id="button-stop-record" onmouseup="stopRecord();"
             value="stop record">
             <input type="button" id="button-start-translate" onmouseup="startTranslate();"
             value="start translate">
             <input type="button" id="button-stop-translate" onmouseup="stopTranslate();"
-            value="stop translate">
+            value="stop translate"> -->
           </div>
         </div>
       </div>

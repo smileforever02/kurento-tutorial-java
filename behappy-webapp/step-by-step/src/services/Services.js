@@ -55,17 +55,25 @@ export default {
         $.ajax({
             type: 'POST',
             url: '/user/photo',
-            data: formData
+            data: formData,
+            processData: false,
+            contentType: false
         }).done(data => deffer.resolve(data))
           .fail((arg1, arg2, arg3) => deffer.reject(arg1, arg2, arg3))
           .always(() => mask.hide());
         return deffer;
+    },
+    updateUser(user){
+        return this.put('/user', user);
     },
     post(url, data){
         return this.send(url, 'POST', data);
     },
     get(url){
         return this.send(url, 'GET');
+    },
+    put(url, data){
+        return this.send(url, 'PUT', data);
     },
     send(url, method, data){
         let options = {
