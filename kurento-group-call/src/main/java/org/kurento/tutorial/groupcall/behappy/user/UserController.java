@@ -53,10 +53,10 @@ public class UserController {
   public ResponseEntity<?> uploadPhoto(HttpServletRequest req) {
     Part photo;
     try {
-      String userId = req.getParameter("userId");
+      String userId = (String)req.getSession().getAttribute("userId");
       if (StringUtils.isEmpty(userId)) {
-        return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST)
-            .body(new Message(1, "userId is empty"));
+        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED)
+            .body(new Message(1, "Session is invalid, please logon again"));
       }
       photo = req.getPart("photo");
       if (photo != null) {
