@@ -1,13 +1,20 @@
 package org.kurento.tutorial.groupcall.behappy.user;
 
-import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.kurento.tutorial.groupcall.UserSessionRegistry;
 import org.kurento.tutorial.groupcall.behappy.http.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +47,33 @@ public class UserController {
   @PutMapping(value = "/updateuser")
   public ResponseEntity<?> updateUser(@RequestBody User user) {
     return ResponseEntity.ok(userService.updateUser(user));
+  }
+
+  @PostMapping(value = "/uploadphoto")
+  public ResponseEntity<?> uploadPhoto(HttpServletRequest req) {
+    Part photo;
+    try {
+      String userId = req.getParameter("userId");
+      if (StringUtils.isEmpty(userId)) {
+        return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST)
+            .body(new Message(1, "userId is empty"));
+      }
+      photo = req.getPart("photo");
+      if (photo != null) {
+        byte[] photoBytes = IOUtils.toByteArray(photo.getInputStream());
+        String photoBase64 = Base64Utils.encodeToString(photoBytes);
+        String photoClob = "data:" + photo.getContentType() + ";base64,"
+            + photoBase64;
+        User user = userService.getUser(userId);
+        if (user != null) {
+          user.setPhoto(photoClob);
+        }
+      }
+    } catch (IOException | ServletException e) {
+      e.printStackTrace();
+    }
+
+    return ResponseEntity.ok(null);
   }
 
   @GetMapping(value = "/user/{userId}")
