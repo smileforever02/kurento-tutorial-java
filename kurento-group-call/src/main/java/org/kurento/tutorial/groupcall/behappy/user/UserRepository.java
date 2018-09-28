@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 	public List<User> findByUserIdOrNickName(String userId, String nickName);
 	
 	@Transactional
-    @Query(value="update users set photo=:photo where userId=:userId", nativeQuery=true)  
+    @Query(value="update users set photo=:photo where user_id=:userId", nativeQuery=true)  
     @Modifying 
-    public User updatePhoto(@Param("userId") String userId, @Param("photo") String photo);
+    public void updatePhoto(@Param("userId") String userId, @Param("photo") String photo);
 }

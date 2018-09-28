@@ -26,8 +26,8 @@ public class UserService {
     return userRepository.save(user);
   }
   
-  public User uploadPhoto(String userId, String photo) {
-    return userRepository.updatePhoto(userId, photo);
+  public void uploadPhoto(String userId, String photo) {
+    userRepository.updatePhoto(userId, photo);
   }
 
   public User getUser(String userId) {
