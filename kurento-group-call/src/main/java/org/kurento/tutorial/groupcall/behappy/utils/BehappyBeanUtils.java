@@ -65,14 +65,13 @@ public class BehappyBeanUtils extends BeanUtils {
                 readMethod.setAccessible(true);
               }
               Object value = readMethod.invoke(source);
-              if (value == null) {
-                continue;
+              if (value != null) {
+                if (!Modifier
+                    .isPublic(writeMethod.getDeclaringClass().getModifiers())) {
+                  writeMethod.setAccessible(true);
+                }
+                writeMethod.invoke(target, value);
               }
-              if (!Modifier
-                  .isPublic(writeMethod.getDeclaringClass().getModifiers())) {
-                writeMethod.setAccessible(true);
-              }
-              writeMethod.invoke(target, value);
             } catch (Throwable ex) {
               throw new FatalBeanException("Could not copy property '"
                   + targetPd.getName() + "' from source to target", ex);
