@@ -25,6 +25,10 @@ public class UserService {
   public User updateUser(User user) {
     return userRepository.save(user);
   }
+  
+  public void uploadPhoto(String userId, String photo) {
+    userRepository.updatePhoto(userId, photo);
+  }
 
   public User getUser(String userId) {
     return userRepository.findOne(userId);

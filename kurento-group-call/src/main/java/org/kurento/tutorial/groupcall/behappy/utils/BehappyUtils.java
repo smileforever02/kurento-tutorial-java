@@ -5,9 +5,9 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BehappyUtil {
+public class BehappyUtils {
 
-  private static final Logger log = LoggerFactory.getLogger(BehappyUtil.class);
+  private static final Logger log = LoggerFactory.getLogger(BehappyUtils.class);
 
   public static void createFolder(String folderPath) {
     String createFolderCmd = "[ -e " + folderPath + " ] || mkdir -p -m 777 "
