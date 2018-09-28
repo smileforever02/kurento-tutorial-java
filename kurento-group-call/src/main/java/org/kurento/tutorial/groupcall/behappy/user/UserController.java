@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.kurento.tutorial.groupcall.UserSessionRegistry;
 import org.kurento.tutorial.groupcall.behappy.http.Message;
+import org.kurento.tutorial.groupcall.behappy.utils.BehappyBeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
@@ -46,7 +47,9 @@ public class UserController {
 
   @PutMapping(value = "/updateuser")
   public ResponseEntity<?> updateUser(@RequestBody User user) {
-    return ResponseEntity.ok(userService.updateUser(user));
+    User target = userService.getUser(user.getUserId());
+    BehappyBeanUtils.copyNotNullProperties(user, target);
+    return ResponseEntity.ok(userService.updateUser(target));
   }
 
   @PostMapping(value = "/uploadphoto")
@@ -64,11 +67,7 @@ public class UserController {
         String photoBase64 = Base64Utils.encodeToString(photoBytes);
         String photoClob = "data:" + photo.getContentType() + ";base64,"
             + photoBase64;
-        User user = userService.getUser(userId);
-        if (user != null) {
-          user.setPhoto(photoClob);
-          userService.updateUser(user);
-        }
+        userService.uploadPhoto(userId, photoClob);
       }
     } catch (IOException | ServletException e) {
       e.printStackTrace();
@@ -79,7 +78,11 @@ public class UserController {
 
   @GetMapping(value = "/user/{userId}")
   public ResponseEntity<?> getUser(@PathVariable("userId") String userId) {
-    return ResponseEntity.ok(userService.getUser(userId));
+    User user = userService.getUser(userId);
+    if(user != null) {
+      user.setPassword(null);
+    }
+    return ResponseEntity.ok(user);
   }
 
   @GetMapping(value = "/finduser")
@@ -96,7 +99,9 @@ public class UserController {
   public ResponseEntity<?> getLoginUser() {
     String userId = (String) httpSession.getAttribute("userId");
     if (!StringUtils.isEmpty(userId)) {
-      return ResponseEntity.ok(userService.getUser(userId));
+      User user = userService.getUser(userId);
+      user.setPassword(null);
+      return ResponseEntity.ok(user);
     } else {
       return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED)
           .body(new Message(1, "no active user in current session"));
