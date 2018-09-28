@@ -110,7 +110,7 @@ export default {
                     userId: this.$store.state.logonUser,
                     nickName: this.nickName,
                     phoneNumber: this.phoneNumber,
-                    email: this.mail
+                    email: this.email
                 }).done(() => MessageBox.success('Update successfully'))
                 .fail(() => MessageBox.error('Failed to update information.'));
             }

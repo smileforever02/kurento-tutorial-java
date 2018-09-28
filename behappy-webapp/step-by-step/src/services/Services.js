@@ -71,7 +71,7 @@ export default {
         return deffer;
     },
     updateUser(user){
-        return this.put('/user', user);
+        return this.put('/updateuser', user);
     },
     post(url, data){
         return this.send(url, 'POST', data);
