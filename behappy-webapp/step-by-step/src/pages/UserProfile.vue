@@ -1,24 +1,30 @@
-<template>
+    <template>
     <div class="full-width center-content">
         <form class="full-width page-content" v-on:submit.prevent="submit" v-on:click="formItemClick" v-on:change="onchange" v-on:focusout="formItemBlur">
             <div class="form-group row list-item user-img">
                 <label for="photo" class="col-xs-3 col-form-label">photo</label>
-                <img class="col-xs-9 align-right" :src="userImg" v-on:click.stop="editPhoto" alt="">
+                <span class="col-xs-8">
+                    <img class="align-right" :src="userImg" v-on:click.stop="editPhoto" alt="">
+                </span>
+                <label class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true"></label>
             </div>
             <div class="form-group row list-item">
                 <label for="nickName" class="col-xs-3 col-form-label">nickName</label>
-                <span v-if="nickNameEditable === false" class="col-xs-9 align-right" data-editfor="nickName">{{nickName}}</span>
-                <input v-if="nickNameEditable === true" class="col-xs-9" id="nickName" name="nickName" data-editdone="nickName" v-model="nickName">
+                <span v-if="nickNameEditable === false" class="col-xs-8 align-right" data-editfor="nickName">{{nickName}}</span>
+                <input v-if="nickNameEditable === true" class="col-xs-8" id="nickName" name="nickName" data-editdone="nickName" v-model="nickName">
+                <span class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true"></span>
             </div>
             <div class="form-group row list-item">
                 <label for="phoneNumber" class="col-xs-3 col-form-label">phoneNumber</label>
-                <span v-if="phoneNumberEditable === false" class="col-xs-9 align-right" data-editfor="phoneNumber">{{phoneNumber}}</span>
-                <input v-if="phoneNumberEditable === true" class="col-xs-9" id="phoneNumber" name="phoneNumber" data-editdone="phoneNumber" v-model="phoneNumber">
+                <span v-if="phoneNumberEditable === false" class="col-xs-8 align-right" data-editfor="phoneNumber">{{phoneNumber}}</span>
+                <input v-if="phoneNumberEditable === true" class="col-xs-8" id="phoneNumber" name="phoneNumber" data-editdone="phoneNumber" v-model="phoneNumber">
+                <span class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true"></span>
             </div>
             <div class="form-group row list-item">
                 <label for="email" class="col-xs-3 col-form-label">email</label>
-                <span v-if="emailEditable === false" class="col-xs-9 align-right" data-editfor="email">{{email}}</span>
-                <input v-if="emailEditable === true" class="col-xs-9" id="email" name="email" data-editdone="email" v-model="email">
+                <span v-if="emailEditable === false" class="col-xs-8 align-right" data-editfor="email">{{email}}</span>
+                <input v-if="emailEditable === true" class="col-xs-8" id="email" name="email" data-editdone="email" v-model="email">
+                <span class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true"></span>
             </div>
         </form>
     </div>
