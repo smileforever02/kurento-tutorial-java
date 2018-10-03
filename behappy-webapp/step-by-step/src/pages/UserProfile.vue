@@ -4,27 +4,27 @@
             <div class="form-group row list-item user-img">
                 <label for="photo" class="col-xs-3 col-form-label">photo</label>
                 <span class="col-xs-8">
-                    <img class="align-right" :src="userImg" v-on:click.stop="editPhoto" alt="">
+                    <img class="align-right" :src="userImg" alt="" v-on:click="showBigPhoto">
                 </span>
-                <label class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true"></label>
+                <label class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true" v-on:click.stop="editPhoto"></label>
             </div>
             <div class="form-group row list-item">
                 <label for="nickName" class="col-xs-3 col-form-label">nickName</label>
-                <span v-if="nickNameEditable === false" class="col-xs-8 align-right" data-editfor="nickName">{{nickName}}</span>
+                <span v-if="nickNameEditable === false" class="col-xs-8 align-right">{{nickName}}</span>
                 <input v-if="nickNameEditable === true" class="col-xs-8" id="nickName" name="nickName" data-editdone="nickName" v-model="nickName">
-                <span class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true" data-editfor="nickName"></span>
             </div>
             <div class="form-group row list-item">
                 <label for="phoneNumber" class="col-xs-3 col-form-label">phoneNumber</label>
-                <span v-if="phoneNumberEditable === false" class="col-xs-8 align-right" data-editfor="phoneNumber">{{phoneNumber}}</span>
+                <span v-if="phoneNumberEditable === false" class="col-xs-8 align-right">{{phoneNumber}}</span>
                 <input v-if="phoneNumberEditable === true" class="col-xs-8" id="phoneNumber" name="phoneNumber" data-editdone="phoneNumber" v-model="phoneNumber">
-                <span class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true" data-editfor="phoneNumber"></span>
             </div>
             <div class="form-group row list-item">
                 <label for="email" class="col-xs-3 col-form-label">email</label>
-                <span v-if="emailEditable === false" class="col-xs-8 align-right" data-editfor="email">{{email}}</span>
+                <span v-if="emailEditable === false" class="col-xs-8 align-right">{{email}}</span>
                 <input v-if="emailEditable === true" class="col-xs-8" id="email" name="email" data-editdone="email" v-model="email">
-                <span class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-chevron-right col-xs-1" aria-hidden="true" data-editfor="email"></span>
             </div>
         </form>
     </div>
@@ -94,6 +94,9 @@ export default {
                 }]
             });
             dialog.open();
+        },
+        showBigPhoto(evt){
+            Services.showPhoto(evt.target.src);
         },
         enableEditNickName(){
             this.editNickName = true;

@@ -98,8 +98,12 @@ function Participant(name) {
 	Object.defineProperty(this, 'rtcPeer', { writable: true});
 
 	this.dispose = function() {
-		console.log('Disposing participant ' + this.name);
-		this.rtcPeer.dispose();
-		container.parentNode.removeChild(container);
+		try{
+			console.log('Disposing participant ' + this.name);
+			this.rtcPeer.dispose();
+			container.parentNode.removeChild(container);
+		}catch(e){
+			console.error(e);
+		}
 	};
 }

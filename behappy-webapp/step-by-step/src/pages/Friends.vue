@@ -2,6 +2,7 @@
     <div class="full-width center-content">
         <ul class="page-content item-list">
             <li v-for="item in items" v-bind:key="item.userId" v-bind:data-userid="item.userId">
+                <img :src="item.photo">
                 <span v-on:click="checkUser(item.userId, item.displayName)">{{item.displayName}}</span>
                 <span v-on:click="callFriend(item.userId, item.displayName)" class="glyphicon glyphicon-facetime-video right" aria-hidden="true"></span>
             </li>
@@ -26,7 +27,10 @@ const m = Object.assign({
     mounted(){
         Services.getFriends().done((data) => {
             // console.log(data);
-            this.items = data;
+            this.items = data.map(d => {
+                d.photo = d.photo || Services.getDefPhoto();
+                return d;
+            });
         }).fail(() => MessageBox.error('Sorry, can\'t find your friends'));
     },
     methods:{
