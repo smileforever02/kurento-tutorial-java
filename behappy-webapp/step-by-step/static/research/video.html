@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Video</title>
+    <link rel="stylesheet" href="../3rd-css/jquery-ui.1.12.1.min.css">
+    <style>
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 5px;   
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%; 
+            background: #4CAF50;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        #slider{
+            margin: auto;
+            width: 80%;
+        }
+        #custom-handle {
+            width: 3em;
+            height: 1.6em;
+            top: 50%;
+            margin-top: -.8em;
+            text-align: center;
+            line-height: 1.6em;
+        }
+    </style>
+</head>
+<body>
+    <video src="./chrome.mp4" playsinline></video>
+    <button>click me</button>
+    <div id="message"></div>
+    <div class="slidecontainer">
+        <input type="range" min="-4" max="4" value="0" class="slider" id="myRange">
+    </div>
+    <div id="demo"></div>
+
+    <div id="slider">
+        <div id="custom-handle" class="ui-slider-handle"></div>
+    </div>
+
+    <script src="../3rd-js/jquery-3.3.1.min.js"></script>
+    <script src="../3rd-js/jquery-ui.1.12.1.min.js"></script>
+    <script type="text/javascript" src="../3rd-js/jquery.ui.touch-punch.0.2.3.min.js"></script>
+    <script>
+        let video = document.querySelector('video');
+        let button = document.querySelector('button')
+        let message = document.querySelector('div');
+        let videoStopped = true;
+        button.addEventListener('click', e => {
+            if(videoStopped){
+                video.play();
+            }else{
+                video.pause();
+            }
+            videoStopped = !videoStopped;
+        }, false);
+
+        let updateTime = function(){
+            message.innerHTML = video.currentTime + ' s';
+            requestAnimationFrame(updateTime)
+        };
+        updateTime();
+        // setInterval(() => message.innerHTML = video.currentTime + ' s');
+
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        output.innerHTML = slider.value; // Display the default slider value
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function() {
+            output.innerHTML = this.value;
+        }
+        
+        slider.addEventListener('dragstart', e => {console.log('drag start')}, false);
+        slider.addEventListener('dragend', e => {console.log('drag end')}, false);
+        slider.onchange = function(){
+            console.log('slider change');
+            console.log(slider.value);
+        };
+
+        var handle = $( "#custom-handle" );
+        $( "#slider" ).slider({
+            min: -4,
+            max: 4,
+            step: 1,
+            value: 0,
+            create: function() {
+                handle.text( $( this ).slider( "value" ) );
+            },
+            slide: function( event, ui ) {
+                handle.text( ui.value );
+            },
+            start: function( event, ui ) {
+                console.log('start: ' + ui.value );
+                video.pause();
+            },
+            stop: function( event, ui ) {
+                console.log('stop, score is: ' + ui.value );
+                video.play();
+            }
+        });
+    </script>
+</body>
+</html>
