@@ -52,6 +52,9 @@ export default {
     getFriends(){
         return this.get('/allfriends');
     },
+    getReplays(){
+        return this.get('/replays')
+    },
     getUsers(){
         return this.get('/users')
     },
