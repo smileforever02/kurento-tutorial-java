@@ -8,6 +8,7 @@ import UserProfile from '../pages/UserProfile.vue'
 import Friends from '../pages/Friends.vue'
 import Users from '../pages/Users.vue'
 import Login from '../pages/Login.vue'
+import Replays from '../pages/Replays.vue'
 
 Vue.use(VueRouter);
 Vue.use(Vuex)
@@ -18,7 +19,8 @@ const routes = [
     { path: '/login/:to', component: Login },
     { path: '/user', component: UserProfile, meta: {requireAuth: false}},
     { path: '/friends', component: Friends, meta: {requireAuth: true}},
-    { path: '/user-list', component: Users, meta: {requireAuth: true}}
+    { path: '/user-list', component: Users, meta: {requireAuth: true}},
+    { path: '/replays', component: Replays, meta: {requireAuth: true}}
 ];
 export default new VueRouter({
     // mode: 'history',
