@@ -9,4 +9,6 @@ public interface VideoRecordRepository
   public List<VideoRecord> findByUserUserIdOrderByCreatedDateDesc(String userId);
 
   public VideoRecord findByVideoFileWholePath(String videoFileWholePath);
+  
+  public List<VideoRecord> findByGroupSessionId(String groupSessionId);
 }

@@ -22,6 +22,10 @@ public class VideoRecordService {
     return videoRecordRepository.findOne(videoId);
   }
   
+  public List<VideoRecord> getVideoRecordByGroupSessionId(String groupSessionId) {
+    return videoRecordRepository.findByGroupSessionId(groupSessionId);
+  }
+  
   public Long getVideoIdByVideoFileWholePath(String videoFileWholePath) {
     VideoRecord videoRecord =  videoRecordRepository.findByVideoFileWholePath(videoFileWholePath);
     if(videoRecord != null) {

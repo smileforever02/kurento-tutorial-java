@@ -76,7 +76,8 @@ public class Room implements Closeable {
       "yyyyMMdd");
   // public static final String RECORDING_PATH = "file:///tmp/"
   // + df.format(new Date()) + "-";
-  public static final String RECORDING_EXT = ".webm";
+  // public static final String RECORDING_EXT = ".webm";
+  public static final String RECORDING_EXT = ".mp4";
 
   public String getName() {
     return name;
@@ -210,16 +211,17 @@ public class Room implements Closeable {
     Date date = new Date();
     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     for (UserSession participant : getParticipants()) {
-      String folderPath = RECORDING_BASE_PATH + "/" + dateFormat.format(date)
-          + "/" + uuid + "/" + participant.getUserId();
+      String relativeFolderPath = "/" + dateFormat.format(date) + "/" + uuid
+          + "/" + participant.getUserId();
+      String folderPath = RECORDING_BASE_PATH + relativeFolderPath;
 
       Date currentDate = new Date();
       String fileName = participant.getUserId() + "__" + df.format(currentDate)
           + RECORDING_EXT;
       participant.record(folderPath, fileName);
 
-      createVideoRecord(participant, folderPath + "/" + fileName, uuid,
-          currentDate);
+      createVideoRecord(participant, folderPath + "/" + fileName,
+          "." + relativeFolderPath + "/" + fileName, uuid, currentDate);
 
       final JsonObject recordStartedMsg = new JsonObject();
       recordStartedMsg.addProperty("id", "recordStarted");
@@ -240,10 +242,11 @@ public class Room implements Closeable {
   }
 
   private void createVideoRecord(UserSession userSession, String wholePath,
-      String uuid, Date date) {
+      String relativePath, String uuid, Date date) {
     if (userSession != null) {
       User user = userService.getUser(userSession.getUserId());
-      VideoRecord videoRecord = new VideoRecord(uuid, user, wholePath);
+      VideoRecord videoRecord = new VideoRecord(uuid, user, wholePath,
+          relativePath);
       videoRecord.setCreatedDate(date);
       videoRecord = videoRecordService.createVideoRecord(videoRecord);
     }
