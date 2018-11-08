@@ -12,6 +12,8 @@
             <video id="replay-video" playsinline></video>
             <video id="peer-replay-video" playsinline></video>
             <div id="slider">
+                <span>negative</span>
+                <span style="float: right">positive</span>
                 <div id="custom-handle" class="ui-slider-handle"></div>
             </div>
         </div>
@@ -24,8 +26,8 @@ import Services from '../services/Services'
 import MessageBox from '../services/MessageBox'
 import {routerGuard} from '../router/router'
 
-console.log(routerGuard)
-
+let intervalFlag = -1;
+const interval = 1000;
 const m = Object.assign({
     data(){
         return {
@@ -41,6 +43,9 @@ const m = Object.assign({
                 return d;
             });
         }).fail(() => MessageBox.error('Sorry, can\'t find your friends'));
+    },
+    destroyed(){
+        clearInterval(intervalFlag);
     },
     methods:{
         replay(_replay){
@@ -61,18 +66,43 @@ const m = Object.assign({
                 step: 0.0001,
                 value: 5.5,
                 create: function() {
-                    handle.text( $( this ).slider( "value" ) );
+                    handle.text( $(this).slider( "value" ) );
                 },
                 slide: function( event, ui ) {
-                    handle.text( ui.value );
+                    handle.text(ui.value);
                 },
-                start: function( event, ui ) {
+                start: function(event, ui) {
                     console.log('start: ' + ui.value );
                 },
                 stop: function( event, ui ) {
                     console.log('stop, score is: ' + ui.value );
+                    $(this).slider("value", 5.5);
+                    handle.text(5.5);
                 }
             });
+            this.__startRecording(_replay, video, $( "#slider" ));
+        },
+        __startRecording(_replay, video, slider){
+            clearInterval(intervalFlag);
+            let scores = [];
+            intervalFlag = setInterval(() => {
+                console.log('recording');
+                if(video.ended !== true){
+                    scores.push({
+                        time: Math.round(video.currentTime),
+                        score: slider.slider( "value" )
+                    });
+                }else{
+                    clearInterval(intervalFlag);
+                    Services.markMood({
+                        videoId: _replay.videoId,
+                        userId: _replay.userId,
+                        peerVideoId: _replay.peerVideoId,
+                        peerUserId: _replay.peerUserId,
+                        scores: scores
+                    }).done(() => MessageBox.success('Mark mood successfully')).fail(() => MessageBox.error('Failed to mark mood, please try again later.'));
+                }
+            }, interval);
         },
         cancelReplay(){
             let video = document.querySelector('#replay-video');
@@ -82,20 +112,6 @@ const m = Object.assign({
             video.src = '';
             peerVideo.src = '';
             this.playing = false;
-        },
-        callFriend(userId, userName){
-            Services.getUserStatus(userId).done(msg => {
-                if(msg.code === 0){
-                    $('#app').stop().fadeOut(250, () => {
-                        $('#name').val(this.$root.logonUser);
-                        // $('#peer').val(userId);
-                        $('#roomName').val(this.$root.logonUser);
-                        $('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom(userId)}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
-                    });
-                }else{
-                    MessageBox.error('Soory, your friend is not online.')
-                }
-            })
         }
     }
 }, routerGuard)

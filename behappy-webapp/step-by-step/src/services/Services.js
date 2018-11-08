@@ -80,6 +80,9 @@ export default {
           .always(() => mask.hide());
         return deffer;
     },
+    markMood(data){
+        return this.post('/replays/markmood', data);
+    },
     updateUser(user){
         return this.put('/updateuser', user);
     },
