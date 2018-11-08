@@ -38,7 +38,7 @@ const m = Object.assign({
     data(){
         return {
             playing: false,
-            recording: true,
+            recording: false,
             items: []
         }
     },
