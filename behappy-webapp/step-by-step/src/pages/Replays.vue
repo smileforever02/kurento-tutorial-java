@@ -74,8 +74,8 @@ const m = Object.assign({
             let peerVideo = document.querySelector('#peer-replay-video');
             video.src = _replay.relativePath;
             peerVideo.src = _replay.peerRelativePath;
-            video.play();
-            peerVideo.play();
+            // video.play();
+            // peerVideo.play();
             var handle = $( "#custom-handle" );
             $( "#slider" ).slider({
                 min: 1,
@@ -100,7 +100,6 @@ const m = Object.assign({
             this.__startRecording(_replay, video, $( "#slider" ));
         },
         __startRecording(_replay, video, slider){
-            this.recording = true;
             let progress = document.querySelector('#replay-progress').querySelector('div');
             progress.style.cssText = 'width: 0';
             clearInterval(intervalFlag);
