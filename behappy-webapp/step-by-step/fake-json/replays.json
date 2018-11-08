@@ -1,17 +1,29 @@
 [{
-	"id": "1001",
-	"label": "Tom-Jim",
-	"time": "2018-11-06 12:00:00",
-	"src": "static/research/chrome.mp4"
+	"videoId": "1001",
+	"peerVideoId": "1002",
+	"userId": "Tom",
+	"peerUserId": "Jimy",
+	"createdDate": "2018-11-08 12:00:00",
+	"peerCreatedDate": "2018-11-06 12:00:00",
+	"relativePath": "static/research/chrome.mp4",
+	"peerRelativePath": "static/research/chrome.mp4"
  },{
-	"id": "1002",
-	"label": "Tom2-Jim2",
-	"time": "2018-11-07 12:00:00",
-	"src": "static/research/chrome.mp4"
+	"videoId": "1002",
+	"peerVideoId": "1001",
+	"userId": "John",
+	"peerUserId": "Flank",
+	"createdDate": "2018-11-07 12:00:00",
+	"peerCreatedDate": "2018-11-06 12:00:00",
+	"relativePath": "static/research/chrome.mp4",
+	"peerRelativePath": "static/research/chrome.mp4"
  },{
-	"id": "1003",
-	"label": "Tom3-Jim3",
-	"time": "2018-11-08 12:00:00",
-	"src": "static/research/chrome.mp4"
+	"videoId": "1001",
+	"peerVideoId": "1002",
+	"userId": "Jojo",
+	"peerUserId": "Tan",
+	"createdDate": "2018-11-06 12:00:00",
+	"peerCreatedDate": "2018-11-06 12:00:00",
+	"relativePath": "static/research/chrome.mp4",
+	"peerRelativePath": "static/research/chrome.mp4"
  }
 ]

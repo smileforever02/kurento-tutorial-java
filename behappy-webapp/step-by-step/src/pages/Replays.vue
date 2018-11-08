@@ -2,14 +2,15 @@
     <div class="full-width center-content">
         <ul v-if="playing === false" class="page-content item-list">
             <li v-for="item in items" v-bind:key="item.id" v-bind:data-id="item.id">
-                <span>{{item.time}}</span>
-                <span>{{item.label}}</span>
-                <span v-on:click="replay(item.id, item.src)" class="glyphicon glyphicon-expand right" aria-hidden="true"></span>
+                <span>{{item.createdDate}}</span>
+                <span>{{item.userId + '-' + item.peerUserId}}</span>
+                <span v-on:click="replay(item)" class="glyphicon glyphicon-expand right" aria-hidden="true"></span>
             </li>
         </ul>
         <div v-if="playing === true" class="replay-wrapper">
-            <video id="replay-video" controls playsinline></video>
             <span v-on:click="cancelReplay()" class="glyphicon glyphicon-remove-circle right" aria-hidden="true"></span>
+            <video id="replay-video" playsinline></video>
+            <video id="peer-replay-video" playsinline></video>
         </div>
     </div>
 </template>
@@ -39,18 +40,24 @@ const m = Object.assign({
         }).fail(() => MessageBox.error('Sorry, can\'t find your friends'));
     },
     methods:{
-        replay(id, src){
+        replay(_replay){
             this.playing = true;
             this.$nextTick(() => {
                 let video = document.querySelector('#replay-video');
-                video.src = src;
+                let peerVideo = document.querySelector('#peer-replay-video');
+                video.src = _replay.relativePath;
+                peerVideo.src = _replay.peerRelativePath;
                 video.play();
+                peerVideo.play();
             });
         },
         cancelReplay(){
             let video = document.querySelector('#replay-video');
+            let peerVideo = document.querySelector('#peer-replay-video');
             video.pause();
+            peerVideo.pause();
             video.src = '';
+            peerVideo.src = '';
             this.playing = false;
         },
         callFriend(userId, userName){
