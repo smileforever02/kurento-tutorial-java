@@ -7,8 +7,10 @@
                 <span v-on:click="replay(item)" class="glyphicon glyphicon-expand right" aria-hidden="true"></span>
             </li>
         </ul>
-        <div v-if="playing === true" class="replay-wrapper">
-            <span v-on:click="cancelReplay()" class="glyphicon glyphicon-remove-circle right" aria-hidden="true"></span>
+        <div v-if="playing === true" class="replay-wrapper" style="padding: 2.2em 0 0 0;">
+            <span v-on:click="cancelReplay()" class="glyphicon glyphicon-remove-circle" aria-hidden="true" style="position:absolute;top: 1em;color: red;font-size:2em;z-index:1000;"></span>
+            <span v-if="recording === true" v-on:click="pause()" class="glyphicon glyphicon-pause" aria-hidden="true" style="position:absolute;top: 2em;color: green;font-size:2em;z-index:1000;"></span>
+            <span v-if="recording === false" v-on:click="resume()" class="glyphicon glyphicon-play" aria-hidden="true" style="top: 5em;color: green;font-size:2em;z-index:1000;"></span>
             <video id="replay-video" playsinline></video>
             <video id="peer-replay-video" playsinline></video>
         </div>
@@ -32,6 +34,7 @@ const m = Object.assign({
     data(){
         return {
             playing: false,
+            recording: true,
             items: []
         }
     },
@@ -51,6 +54,16 @@ const m = Object.assign({
         replay(_replay){
             this.playing = true;
             this.$nextTick(() => {this.__initReplay(_replay)});
+        },
+        pause(){
+            this.recording = false;
+            document.querySelector('#replay-video').pause();
+            document.querySelector('#peer-replay-video').pause();
+        },
+        resume(){
+            this.recording = true;
+            document.querySelector('#replay-video').play();
+            document.querySelector('#peer-replay-video').play();
         },
         __initReplay(_replay){
             let video = document.querySelector('#replay-video');
@@ -83,9 +96,13 @@ const m = Object.assign({
             this.__startRecording(_replay, video, $( "#slider" ));
         },
         __startRecording(_replay, video, slider){
+            this.recording = true;
             clearInterval(intervalFlag);
             let scores = [];
             intervalFlag = setInterval(() => {
+                if(this.recording === false){
+                    return;
+                }
                 console.log('recording');
                 if(video.ended !== true){
                     scores.push({
