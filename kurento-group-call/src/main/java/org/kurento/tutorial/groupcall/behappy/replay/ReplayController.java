@@ -40,15 +40,15 @@ public class ReplayController {
               replayVideo.setRelativePath(groupRecord.getRelativePath());
               replayVideo.setCreatedDate(groupRecord.getCreatedDate());
             } else {
-              replayVideo.setPeerUserId(userId);
+              replayVideo.setPeerUserId(groupRecord.getUser().getUserId());
               replayVideo.setGroupSessionId(groupSessionId);
               replayVideo.setPeerVideoId(groupRecord.getVideoId());
               replayVideo.setPeerRelativePath(groupRecord.getRelativePath());
               replayVideo.setPeerCreatedDate(groupRecord.getCreatedDate());
             }
-            replayVideos.add(replayVideo);
           }
         }
+        replayVideos.add(replayVideo);
       }
     }
     return ResponseEntity.ok(replayVideos);
