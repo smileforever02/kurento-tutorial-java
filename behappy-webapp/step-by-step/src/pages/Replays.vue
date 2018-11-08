@@ -94,13 +94,31 @@ const m = Object.assign({
                     });
                 }else{
                     clearInterval(intervalFlag);
-                    Services.markMood({
-                        videoId: _replay.videoId,
-                        userId: _replay.userId,
-                        peerVideoId: _replay.peerVideoId,
-                        peerUserId: _replay.peerUserId,
-                        scores: scores
-                    }).done(() => MessageBox.success('Mark mood successfully')).fail(() => MessageBox.error('Failed to mark mood, please try again later.'));
+                    BootstrapDialog.show({
+                        title: 'Upload mood mark',
+                        closable: true,
+                        message: 'Upload your mood mark?',
+                        buttons: [{
+                            label: 'Cancel',
+                            cssClass: 'btn-warning',
+                            action: function(dialog) {
+                                dialog.close();
+                            }
+                        }, {
+                            label: 'OK',
+                            cssClass: 'btn-success',
+                            action: function(dialog) {
+                                dialog.close();
+                                Services.markMood({
+                                    videoId: _replay.videoId,
+                                    userId: _replay.userId,
+                                    peerVideoId: _replay.peerVideoId,
+                                    peerUserId: _replay.peerUserId,
+                                    scores: scores
+                                }).done(() => MessageBox.success('Mark mood successfully')).fail(() => MessageBox.error('Failed to mark mood, please try again later.'));
+                            }
+                        }]
+                    });
                 }
             }, interval);
         },
