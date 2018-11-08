@@ -11,6 +11,9 @@
             <span v-on:click="cancelReplay()" class="glyphicon glyphicon-remove-circle right" aria-hidden="true"></span>
             <video id="replay-video" playsinline></video>
             <video id="peer-replay-video" playsinline></video>
+            <div id="slider">
+                <div id="custom-handle" class="ui-slider-handle"></div>
+            </div>
         </div>
     </div>
 </template>
@@ -42,13 +45,33 @@ const m = Object.assign({
     methods:{
         replay(_replay){
             this.playing = true;
-            this.$nextTick(() => {
-                let video = document.querySelector('#replay-video');
-                let peerVideo = document.querySelector('#peer-replay-video');
-                video.src = _replay.relativePath;
-                peerVideo.src = _replay.peerRelativePath;
-                video.play();
-                peerVideo.play();
+            this.$nextTick(() => {this.__initReplay(_replay)});
+        },
+        __initReplay(_replay){
+            let video = document.querySelector('#replay-video');
+            let peerVideo = document.querySelector('#peer-replay-video');
+            video.src = _replay.relativePath;
+            peerVideo.src = _replay.peerRelativePath;
+            video.play();
+            peerVideo.play();
+            var handle = $( "#custom-handle" );
+            $( "#slider" ).slider({
+                min: 1,
+                max: 10,
+                step: 0.0001,
+                value: 5.5,
+                create: function() {
+                    handle.text( $( this ).slider( "value" ) );
+                },
+                slide: function( event, ui ) {
+                    handle.text( ui.value );
+                },
+                start: function( event, ui ) {
+                    console.log('start: ' + ui.value );
+                },
+                stop: function( event, ui ) {
+                    console.log('stop, score is: ' + ui.value );
+                }
             });
         },
         cancelReplay(){

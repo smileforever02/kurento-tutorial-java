@@ -261,6 +261,7 @@ $('#participants .others').delegate('.participant', 'click', e => {
     let eventName = isTouchDevice?'touchstart' : 'click';
     window.addEventListener(eventName, e =>{
         let togger = $('.navbar-toggle[data-target="#bs-navbar"]');
+        alert(eventName);
         if(e.target === togger[0]){
             // console.log('togger clicked');
         }else if($('#bs-navbar').hasClass('show') || $('#bs-navbar').hasClass('in')){
