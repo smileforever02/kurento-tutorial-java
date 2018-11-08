@@ -15,8 +15,8 @@ public class ReplayVideo {
   private String relativePath;
   private String peerRelativePath;
   
-  private Date createdDate;
-  private Date peerCreatedDate;
+  private String createdDate;
+  private String peerCreatedDate;
   public Long getVideoId() {
     return videoId;
   }
@@ -59,16 +59,16 @@ public class ReplayVideo {
   public void setPeerRelativePath(String peerRelativePath) {
     this.peerRelativePath = peerRelativePath;
   }
-  public Date getCreatedDate() {
+  public String getCreatedDate() {
     return createdDate;
   }
-  public void setCreatedDate(Date createdDate) {
+  public void setCreatedDate(String createdDate) {
     this.createdDate = createdDate;
   }
-  public Date getPeerCreatedDate() {
+  public String getPeerCreatedDate() {
     return peerCreatedDate;
   }
-  public void setPeerCreatedDate(Date peerCreatedDate) {
+  public void setPeerCreatedDate(String peerCreatedDate) {
     this.peerCreatedDate = peerCreatedDate;
   }
 }

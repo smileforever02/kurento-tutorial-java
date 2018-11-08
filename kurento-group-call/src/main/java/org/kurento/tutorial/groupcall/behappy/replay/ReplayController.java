@@ -1,5 +1,6 @@
 package org.kurento.tutorial.groupcall.behappy.replay;
 
+import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class ReplayController {
     List<ReplayVideo> replayVideos = new LinkedList<>();
     if (!StringUtils.isEmpty(userId)) {
       List<VideoRecord> records = videoRecordService.getVideoRecords(userId);
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       for (VideoRecord record : records) {
         ReplayVideo replayVideo = new ReplayVideo();
         String groupSessionId = record.getGroupSessionId();
@@ -38,13 +40,15 @@ public class ReplayController {
               replayVideo.setGroupSessionId(groupSessionId);
               replayVideo.setVideoId(groupRecord.getVideoId());
               replayVideo.setRelativePath(groupRecord.getRelativePath());
-              replayVideo.setCreatedDate(groupRecord.getCreatedDate());
+              replayVideo
+                  .setCreatedDate(sdf.format(groupRecord.getCreatedDate()));
             } else {
               replayVideo.setPeerUserId(groupRecord.getUser().getUserId());
               replayVideo.setGroupSessionId(groupSessionId);
               replayVideo.setPeerVideoId(groupRecord.getVideoId());
               replayVideo.setPeerRelativePath(groupRecord.getRelativePath());
-              replayVideo.setPeerCreatedDate(groupRecord.getCreatedDate());
+              replayVideo
+                  .setPeerCreatedDate(sdf.format(groupRecord.getCreatedDate()));
             }
           }
         }
