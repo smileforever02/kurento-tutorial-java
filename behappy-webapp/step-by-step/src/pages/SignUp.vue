@@ -10,6 +10,14 @@
                 <input class="form-control col-xs-9" id="userNickName" placeholder="User Nick Name" required v-model.lazy.trim="userNickName">
             </div>
             <div class="form-group row">
+                <label for="gender" class="col-xs-3 col-form-label">Gender</label>
+                <!-- <input class="form-control col-xs-9" id="genter" placeholder="User Nick Name" required v-model.lazy.trim="userNickName"> -->
+                <select class="form-control col-xs-9" id="gender" required v-model.lazy.trim="gender">
+                    <option value="male" selected>male</option>
+                    <option value="female">female</option>
+                </select>
+            </div>
+            <div class="form-group row">
                 <label for="password" class="col-xs-3 col-form-label">Password</label>
                 <input type="password" class="form-control col-xs-9" data-minlength="6" id="password" placeholder="Password" required v-model.lazy="password">
                 <div class="help-block" style="display:none">Minimum of 6 characters</div>
@@ -33,6 +41,7 @@ export default {
         return {
             userId: null,
             userNickName: null,
+            gender: 'male',
             password: null,
             passwordConfirm: null
         }
@@ -50,7 +59,7 @@ export default {
             // console.log(this.userNickName)
             // console.log(this.password)
             // console.log(this.passwordConfirm)
-            Services.createUser({userId: this.userId, nickName: this.userNickName, password: this.password})
+            Services.createUser({userId: this.userId, nickName: this.userNickName, gender: this.gender, password: this.password})
                 .done(() => this.$router.push('/user/' + this.userId)).fail(() => console.log(arguments))
             //     .done(() => console.log('create user done'));
             // setTimeout(() => this.$router.push('/user/Allen'), 1000)
