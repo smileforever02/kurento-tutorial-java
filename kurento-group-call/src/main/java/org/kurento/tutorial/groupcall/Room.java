@@ -76,7 +76,7 @@ public class Room implements Closeable {
       "yyyyMMdd");
   // public static final String RECORDING_PATH = "file:///tmp/"
   // + df.format(new Date()) + "-";
-  // public static final String RECORDING_EXT = ".webm";
+//   public static final String RECORDING_EXT = ".webm";
   public static final String RECORDING_EXT = ".mp4";
 
   public String getName() {

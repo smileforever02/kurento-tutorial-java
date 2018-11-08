@@ -27,6 +27,7 @@ import org.kurento.client.EventListener;
 import org.kurento.client.IceCandidate;
 import org.kurento.client.IceCandidateFoundEvent;
 import org.kurento.client.MediaPipeline;
+import org.kurento.client.MediaProfileSpecType;
 import org.kurento.client.RecorderEndpoint;
 import org.kurento.client.WebRtcEndpoint;
 import org.kurento.jsonrpc.JsonUtils;
@@ -142,7 +143,7 @@ public class UserSession implements Closeable {
     BehappyUtils.createFolder(folderPath);
 
     recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
-        "file://" + folderPath + "/" + fileName).build();
+        "file://" + folderPath + "/" + fileName).withMediaProfile(MediaProfileSpecType.MP4).build();
     outgoingMedia.connect(recorderOutgoingMedia);
     recorderOutgoingMedia.record();
     log.info("Now recording for user " + userId + " to file://" + folderPath
