@@ -14,8 +14,8 @@
 	"peerUserId": "Flank",
 	"createdDate": "2018-11-07 12:00:00",
 	"peerCreatedDate": "2018-11-06 12:00:00",
-	"relativePath": "static/research/self.mp4",
-	"peerRelativePath": "static/research/peer.mp4"
+	"relativePath": "static/research/big.mp4",
+	"peerRelativePath": "static/research/peer-big.mp4"
  },{
 	"videoId": "1001",
 	"peerVideoId": "1002",
