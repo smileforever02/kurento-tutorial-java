@@ -8,9 +8,9 @@
             </li>
         </ul>
         <div v-if="playing === true" class="replay-wrapper" style="padding: 2.2em 0 0 0;">
-            <span v-on:click="cancelReplay()" class="glyphicon glyphicon-remove-circle" aria-hidden="true" style="position:absolute;top: 1em;color: red;font-size:2em;z-index:1000;"></span>
-            <span v-if="recording === true" v-on:click="pause()" class="glyphicon glyphicon-pause" aria-hidden="true" style="position:absolute;top: 2em;color: green;font-size:2em;z-index:1000;"></span>
-            <span v-if="recording === false" v-on:click="resume()" class="glyphicon glyphicon-play" aria-hidden="true" style="top: 5em;color: green;font-size:2em;z-index:1000;"></span>
+            <span v-on:click="cancelReplay()" class="glyphicon glyphicon-remove-circle" aria-hidden="true" style="position:absolute;top: 1.5em;color: red;font-size:2em;z-index:1000;"></span>
+            <span v-if="recording === true" v-on:click="pause()" class="glyphicon glyphicon-pause" aria-hidden="true" style="position:absolute;top: 2.5em;color: green;font-size:2em;z-index:1000;"></span>
+            <span v-if="recording === false" v-on:click="resume()" class="glyphicon glyphicon-play" aria-hidden="true" style="position:absolute;top: 2.5em;color: green;font-size:2em;z-index:1000;"></span>
             <video id="replay-video" playsinline></video>
             <video id="peer-replay-video" playsinline></video>
         </div>
@@ -18,6 +18,10 @@
             <span>negative</span>
             <span style="float: right">positive</span>
             <div id="custom-handle" class="ui-slider-handle"></div>
+        </div>
+        <div v-if="playing === true" id="replay-progress" class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+        </div>
         </div>
     </div>
 </template>
@@ -97,13 +101,17 @@ const m = Object.assign({
         },
         __startRecording(_replay, video, slider){
             this.recording = true;
+            let progress = document.querySelector('#replay-progress').querySelector('div');
+            progress.style.cssText = 'width: 0';
             clearInterval(intervalFlag);
             let scores = [];
             intervalFlag = setInterval(() => {
-                if(this.recording === false){
+                if(video.readyState === 0 || this.recording === false){
                     return;
                 }
+                let duration = video.duration;
                 console.log('recording');
+                progress.style.cssText = 'width: ' + (100 * video.currentTime/duration) + '%;';
                 if(video.ended !== true){
                     scores.push({
                         time: Math.round(video.currentTime),

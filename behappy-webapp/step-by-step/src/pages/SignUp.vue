@@ -13,8 +13,8 @@
                 <label for="gender" class="col-xs-3 col-form-label">Gender</label>
                 <!-- <input class="form-control col-xs-9" id="genter" placeholder="User Nick Name" required v-model.lazy.trim="userNickName"> -->
                 <select class="form-control col-xs-9" id="gender" required v-model.lazy.trim="gender">
-                    <option value="male" selected>male</option>
-                    <option value="female">female</option>
+                    <option value="M" selected>male</option>
+                    <option value="F">female</option>
                 </select>
             </div>
             <div class="form-group row">
