@@ -30,6 +30,10 @@ public class VideoMoodController {
               score.getScore(), peerVideoId, peerUserId));
         }
       }
+      
+      // delete old ones if exist.
+      videoMoodService.deleteVideoMoods(videoId);
+      
       videoMoods = videoMoodService.saveVideoMoods(videoMoods);
     }
 

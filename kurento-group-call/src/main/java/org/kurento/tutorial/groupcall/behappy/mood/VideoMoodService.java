@@ -18,4 +18,15 @@ public class VideoMoodService {
   public List<VideoMood> saveVideoMoods(List<VideoMood> entities) {
     return repository.save(entities);
   }
+
+  public List<VideoMood> getVideoMoods(Long videoId) {
+    return repository.findByVideoId(videoId);
+  }
+  
+  public void deleteVideoMoods(Long videoId) {
+    List<VideoMood> moods = getVideoMoods(videoId);
+    if(moods != null && moods.size() >0) {
+      repository.delete(moods);
+    }
+  }
 }
