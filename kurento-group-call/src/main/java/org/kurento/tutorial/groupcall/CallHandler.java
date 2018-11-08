@@ -251,14 +251,15 @@ public class CallHandler extends TextWebSocketHandler {
     } else if (registry.exists(userId)) {
       // comment it temporarily for local testing. if we comment it, we can test
       // it through two tabs in same browser, otherwise, we can't.
-      /*
-       * UserSession userSession = userSessionRegistry.getByUserId(userId);
-       * WebSocketSession wsSession = userSession.getSession();
-       * releasePipeline(userSession); stop(wsSession);
-       * userSessionRegistry.removeBySession(wsSession); log.warn(userId +
-       * " already has a connection. unresigter old one and register a new one"
-       * ); userSessionRegistry.registerUserSession(caller);
-       */
+      UserSession userSession = registry.getByUserId(userId);
+      WebSocketSession wsSession = userSession.getSession();
+      // releasePipeline(userSession);
+      // stop(wsSession);
+      registry.removeBySession(wsSession);
+      log.warn(userId
+          + " already has a connection. unresigter old one and register a new one");
+      registry.registerUserSession(caller);
+
     } else {
       registry.registerUserSession(caller);
     }
@@ -282,9 +283,10 @@ public class CallHandler extends TextWebSocketHandler {
       room.stopRecord();
     }
   }
-  
+
   @Override
-  public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+  public void handleTransportError(WebSocketSession session,
+      Throwable exception) throws Exception {
     log.error("in handleTransportError,", exception);
   }
 }
