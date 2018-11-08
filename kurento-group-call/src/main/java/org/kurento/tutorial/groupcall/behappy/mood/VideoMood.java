@@ -28,6 +28,9 @@ public class VideoMood {
 
   private Long peerVideoId;
 
+  public VideoMood() {
+  }
+
   public VideoMood(Long videoId, String userId, Long time, float score,
       Long peerVideoId, String peerUserId) {
     this.videoId = videoId;
