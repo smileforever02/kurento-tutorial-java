@@ -57,6 +57,7 @@ const m = Object.assign({
     methods:{
         replay(_replay){
             this.playing = true;
+            this.recording = false;
             this.$nextTick(() => {this.__initReplay(_replay)});
         },
         pause(){
