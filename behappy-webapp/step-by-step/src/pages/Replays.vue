@@ -11,11 +11,11 @@
             <span v-on:click="cancelReplay()" class="glyphicon glyphicon-remove-circle right" aria-hidden="true"></span>
             <video id="replay-video" playsinline></video>
             <video id="peer-replay-video" playsinline></video>
-            <div id="slider">
-                <span>negative</span>
-                <span style="float: right">positive</span>
-                <div id="custom-handle" class="ui-slider-handle"></div>
-            </div>
+        </div>
+        <div v-if="playing === true" id="slider">
+            <span>negative</span>
+            <span style="float: right">positive</span>
+            <div id="custom-handle" class="ui-slider-handle"></div>
         </div>
     </div>
 </template>
