@@ -30,9 +30,12 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PreDestroy;
 
+import org.kurento.client.Composite;
 import org.kurento.client.Continuation;
+import org.kurento.client.HubPort;
 import org.kurento.client.MediaPipeline;
 import org.kurento.client.MediaProfileSpecType;
+import org.kurento.client.MediaType;
 import org.kurento.client.RecorderEndpoint;
 import org.kurento.tutorial.groupcall.behappy.user.User;
 import org.kurento.tutorial.groupcall.behappy.user.UserService;
@@ -220,9 +223,13 @@ public class Room implements Closeable {
     String audioFolderPath = RECORDING_BASE_PATH + "/" + dateFormat.format(date)
         + "/" + uuid;
     BehappyUtils.createFolder(audioFolderPath);
+    
     audioRecordEp = new RecorderEndpoint.Builder(pipeline,
         "file://" + audioFolderPath + "/" + uuid + ".mp3")
             .withMediaProfile(MediaProfileSpecType.MP4_AUDIO_ONLY).build();
+    
+    Composite composite = new Composite.Builder(pipeline).build();
+    HubPort hubport = new HubPort.Builder(composite).build(); 
 
     for (UserSession participant : getParticipants()) {
       String relativeFolderPath = "/" + dateFormat.format(date) + "/" + uuid
@@ -233,7 +240,8 @@ public class Room implements Closeable {
       String fileName = participant.getUserId() + "__" + df.format(currentDate)
           + RECORDING_EXT;
       participant.record(folderPath, fileName);
-      participant.getOutgoingWebRtcPeer().connect(audioRecordEp);
+      
+      participant.getOutgoingWebRtcPeer().connect(hubport, MediaType.AUDIO);
 
       createVideoRecord(participant, folderPath + "/" + fileName,
           "." + relativeFolderPath + "/" + fileName, uuid, currentDate);
@@ -243,6 +251,7 @@ public class Room implements Closeable {
       recordStartedMsg.addProperty("userId", participant.getUserId());
       participant.sendMessage(recordStartedMsg);
     }
+    hubport.connect(audioRecordEp);
     audioRecordEp.record();
 
   }
