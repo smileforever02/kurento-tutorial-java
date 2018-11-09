@@ -91,33 +91,33 @@ const m = Object.assign({
             document.querySelector('#audio-wrapper').appendChild(this.audioPlayer);
             this.player.src = _replay.videoUri;
             this.player.muted = true;
-            this.audioPlayer.src = _replay.audioUri;
+            this.audioPlayer.src = _replay.peerVideoUri;
 
 
-            this.player.addEventListener('ended', function() {
-                console.log('player ended');
-            });
-            this.player.addEventListener('load', function() {
-                console.log('player load');
-            });
-            this.player.addEventListener('loadend', function() {
-                console.log('player loadend');
-            });
-            this.player.addEventListener('canplay', function() {
-                console.log('player canplay');
-            });
-            this.audioPlayer.addEventListener('ended', function() {
-                console.log('player ended');
-            });
-            this.audioPlayer.addEventListener('load', function() {
-                console.log('player load');
-            });
-            this.audioPlayer.addEventListener('loadend', function() {
-                console.log('player loadend');
-            });
-            this.audioPlayer.addEventListener('canplay', function() {
-                console.log('player canplay');
-            });
+            // this.player.addEventListener('ended', function() {
+            //     console.log('player ended');
+            // });
+            // this.player.addEventListener('load', function() {
+            //     console.log('player load');
+            // });
+            // this.player.addEventListener('loadend', function() {
+            //     console.log('player loadend');
+            // });
+            // this.player.addEventListener('canplay', function() {
+            //     console.log('player canplay');
+            // });
+            // this.audioPlayer.addEventListener('ended', function() {
+            //     console.log('player ended');
+            // });
+            // this.audioPlayer.addEventListener('load', function() {
+            //     console.log('player load');
+            // });
+            // this.audioPlayer.addEventListener('loadend', function() {
+            //     console.log('player loadend');
+            // });
+            // this.audioPlayer.addEventListener('canplay', function() {
+            //     console.log('player canplay');
+            // });
 
             var handle = $( "#custom-handle" );
             $( "#slider" ).slider({
@@ -183,14 +183,13 @@ const m = Object.assign({
                 }
                 let duration = video.duration;
                 // console.log('recording: ' + this.player.currentTime + ', ' + this.audioPlayer.currentTime);
-
-                let gap = this.player.currentTime - this.audioPlayer.currentTime;
-                if(Math.abs(gap) > 0.1){
-                    let v = gap > 0? this.player : this.audioPlayer;
-                    console.log('aligment');
-                    v.pause();
-                    setTimeout(() => v.play(), Math.abs(gap) * 1000);
-                }
+                // let gap = this.player.currentTime - this.audioPlayer.currentTime;
+                // if(Math.abs(gap) > 0.1){
+                //     let v = gap > 0? this.player : this.audioPlayer;
+                //     console.log('aligment');
+                //     v.pause();
+                //     setTimeout(() => v.play(), Math.abs(gap) * 1000);
+                // }
 
                 progress.style.cssText = 'width: ' + (100 * video.currentTime/duration) + '%;';
                 if(video.ended !== true){
