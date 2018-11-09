@@ -142,11 +142,11 @@ public class UserSession implements Closeable {
 
     BehappyUtils.createFolder(folderPath);
 
-    recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
-        "file://" + folderPath + "/" + fileName).build();
-    
 //    recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
-//        "file://" + folderPath + "/" + fileName).withMediaProfile(MediaProfileSpecType.MP4).build();
+//        "file://" + folderPath + "/" + fileName).build();
+    
+    recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
+        "file://" + folderPath + "/" + fileName).withMediaProfile(MediaProfileSpecType.MP4_VIDEO_ONLY).build();
     
     outgoingMedia.connect(recorderOutgoingMedia);
     recorderOutgoingMedia.record();

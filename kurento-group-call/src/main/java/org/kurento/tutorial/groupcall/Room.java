@@ -242,10 +242,11 @@ public class Room implements Closeable {
       Date currentDate = new Date();
       String fileName = participant.getUserId() + "__" + df.format(currentDate)
           + RECORDING_EXT;
-      participant.record(folderPath, fileName);
       
       participant.getOutgoingWebRtcPeer().connect(hubport, MediaType.AUDIO);
-
+      
+      participant.record(folderPath, fileName);
+      
       createVideoRecord(participant, folderPath + "/" + fileName,
           "." + relativeFolderPath + "/" + fileName, uuid, currentDate);
 
