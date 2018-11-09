@@ -32,8 +32,11 @@ import javax.annotation.PreDestroy;
 
 import org.kurento.client.Continuation;
 import org.kurento.client.MediaPipeline;
+import org.kurento.client.MediaProfileSpecType;
+import org.kurento.client.RecorderEndpoint;
 import org.kurento.tutorial.groupcall.behappy.user.User;
 import org.kurento.tutorial.groupcall.behappy.user.UserService;
+import org.kurento.tutorial.groupcall.behappy.utils.BehappyUtils;
 import org.kurento.tutorial.groupcall.behappy.video.VideoRecord;
 import org.kurento.tutorial.groupcall.behappy.video.VideoRecordService;
 import org.slf4j.Logger;
@@ -60,6 +63,9 @@ public class Room implements Closeable {
 
   private final ConcurrentMap<String, UserSession> participants = new ConcurrentHashMap<>();
   private MediaPipeline pipeline;
+
+  private RecorderEndpoint audioRecordEp;
+
   private String name;
 
   @Value("${recording.base.path}")
@@ -76,7 +82,7 @@ public class Room implements Closeable {
       "yyyyMMdd");
   // public static final String RECORDING_PATH = "file:///tmp/"
   // + df.format(new Date()) + "-";
-//   public static final String RECORDING_EXT = ".webm";
+  // public static final String RECORDING_EXT = ".webm";
   public static final String RECORDING_EXT = ".mp4";
 
   public String getName() {
@@ -210,6 +216,14 @@ public class Room implements Closeable {
   public void record() throws IOException {
     Date date = new Date();
     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+
+    String audioFolderPath = RECORDING_BASE_PATH + "/" + dateFormat.format(date)
+        + "/" + uuid;
+    BehappyUtils.createFolder(audioFolderPath);
+    audioRecordEp = new RecorderEndpoint.Builder(pipeline,
+        "file://" + audioFolderPath + "/" + uuid + ".mp3")
+            .withMediaProfile(MediaProfileSpecType.MP4_AUDIO_ONLY).build();
+
     for (UserSession participant : getParticipants()) {
       String relativeFolderPath = "/" + dateFormat.format(date) + "/" + uuid
           + "/" + participant.getUserId();
@@ -219,6 +233,7 @@ public class Room implements Closeable {
       String fileName = participant.getUserId() + "__" + df.format(currentDate)
           + RECORDING_EXT;
       participant.record(folderPath, fileName);
+      participant.getOutgoingWebRtcPeer().connect(audioRecordEp);
 
       createVideoRecord(participant, folderPath + "/" + fileName,
           "." + relativeFolderPath + "/" + fileName, uuid, currentDate);
@@ -228,6 +243,8 @@ public class Room implements Closeable {
       recordStartedMsg.addProperty("userId", participant.getUserId());
       participant.sendMessage(recordStartedMsg);
     }
+    audioRecordEp.record();
+
   }
 
   public void stopRecord() throws IOException {
@@ -239,6 +256,7 @@ public class Room implements Closeable {
       recordStoppedMsg.addProperty("userId", participant.getUserId());
       participant.sendMessage(recordStoppedMsg);
     }
+    audioRecordEp.stop();
   }
 
   private void createVideoRecord(UserSession userSession, String wholePath,
