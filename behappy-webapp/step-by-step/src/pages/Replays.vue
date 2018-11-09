@@ -241,7 +241,9 @@ const m = Object.assign({
             // video.src = '';
             // peerVideo.src = '';
             clearInterval(intervalFlag);
+            this.player&&this.player.pause();
             this.player = null;
+            this.audioPlayer&&this.audioPlayer.pause();
             this.audioPlayer = null;
             this.playing = false;
         }

@@ -224,8 +224,8 @@ $('#mute-videos').click(e => {
 });
 $('#unmute-videos').click(e => {
     e.stopPropagation();
-    $('#mute-videos').hide();
-    $('#unmute-videos').show();
+    $('#mute-videos').show();
+    $('#unmute-videos').hide();
     let videos = document.querySelectorAll('#participants video');
     let userId = $('#name').val();
     videos && slice.apply(videos).filter(v => v.id !== ('video-' + userId)).forEach(v => v.muted = false);
