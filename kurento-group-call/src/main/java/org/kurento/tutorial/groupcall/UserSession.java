@@ -142,12 +142,13 @@ public class UserSession implements Closeable {
 
     BehappyUtils.createFolder(folderPath);
 
-//    recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
-//        "file://" + folderPath + "/" + fileName).build();
-    
+    // recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
+    // "file://" + folderPath + "/" + fileName).build();
+
     recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
-        "file://" + folderPath + "/" + fileName).withMediaProfile(MediaProfileSpecType.MP4).build();
-    
+        "file://" + folderPath + "/" + fileName)
+            .withMediaProfile(MediaProfileSpecType.WEBM).build();
+
     outgoingMedia.connect(recorderOutgoingMedia);
     recorderOutgoingMedia.record();
     log.info("Now recording for user " + userId + " to file://" + folderPath
@@ -264,13 +265,13 @@ public class UserSession implements Closeable {
 
       @Override
       public void onSuccess(Void result) throws Exception {
-        log.trace("PARTICIPANT {}: Released outgoing EP",
+        log.trace("PARTICIPANT {}: Released outgoingMedia EP",
             UserSession.this.userId);
       }
 
       @Override
       public void onError(Throwable cause) throws Exception {
-        log.warn("USER {}: Could not release outgoing EP",
+        log.warn("USER {}: Could not release outgoingMedia EP",
             UserSession.this.userId);
       }
     });
