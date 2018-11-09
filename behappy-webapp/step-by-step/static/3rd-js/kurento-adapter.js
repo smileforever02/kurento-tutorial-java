@@ -212,6 +212,25 @@ $('#button-stop-translate').click(e => {
     $('#button-start-translate').show();
     stopTranslate();
 });
+
+let slice = Array.prototype.slice;
+$('#mute-videos').click(e => {
+    e.stopPropagation();
+    $('#mute-videos').hide();
+    $('#unmute-videos').show();
+    let videos = document.querySelectorAll('#participants video');
+    let userId = $('#name').val();
+    videos && slice.apply(videos).filter(v => v.id !== ('video-' + userId)).forEach(v => v.muted = true);
+});
+$('#unmute-videos').click(e => {
+    e.stopPropagation();
+    $('#mute-videos').hide();
+    $('#unmute-videos').show();
+    let videos = document.querySelectorAll('#participants video');
+    let userId = $('#name').val();
+    videos && slice.apply(videos).filter(v => v.id !== ('video-' + userId)).forEach(v => v.muted = false);
+});
+
 $('#participants .others').delegate('.participant', 'click', e => {
     e.stopPropagation();
     let otherContainer = document.querySelector('#participants .others');

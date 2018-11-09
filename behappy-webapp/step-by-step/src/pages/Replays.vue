@@ -1,5 +1,8 @@
 <template>
-    <div class="full-width center-content">
+    <div class="full-width center-content" style="padding-top: 2em;">
+        <div v-if="playing === false" style="position: absolute;top: 2.1em;left: 1em;">
+            <input type="checkbox" id="peerReplay" name="peerReplay" v-model="peerReplay"> <label for="peerReplay">peer video replay</label>
+        </div>
         <ul v-if="playing === false" class="page-content item-list">
             <li v-for="item in items" v-bind:key="item.id" v-bind:data-id="item.id">
                 <span>{{item.createdDate}}</span>
@@ -39,6 +42,7 @@ const m = Object.assign({
     data(){
         return {
             playing: false,
+            peerReplay: false,
             recording: false,
             items: []
         }
@@ -84,14 +88,16 @@ const m = Object.assign({
                 // debug: true,
                 // debugFilter: /demuxer/
             });
-            this.audioPlayer = new OGVPlayer({});
             let containerElement = document.querySelector('#replay-wrapper');
             // Now treat it just like a video or audio element
             containerElement.appendChild(this.player);
-            document.querySelector('#audio-wrapper').appendChild(this.audioPlayer);
+            if(this.peerReplay === true){
+                this.audioPlayer = new OGVPlayer({});
+                document.querySelector('#audio-wrapper').appendChild(this.audioPlayer);
+                this.audioPlayer.src = _replay.peerVideoUri;
+            }
             this.player.src = _replay.videoUri;
             // this.player.muted = true;
-            this.audioPlayer.src = _replay.peerVideoUri;
 
 
             // this.player.addEventListener('ended', function() {
