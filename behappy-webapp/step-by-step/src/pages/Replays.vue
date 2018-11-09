@@ -90,7 +90,7 @@ const m = Object.assign({
             containerElement.appendChild(this.player);
             document.querySelector('#audio-wrapper').appendChild(this.audioPlayer);
             this.player.src = _replay.videoUri;
-            this.player.muted = true;
+            // this.player.muted = true;
             this.audioPlayer.src = _replay.peerVideoUri;
 
 
