@@ -66,7 +66,7 @@ public class Room implements Closeable {
   private final ConcurrentMap<String, UserSession> participants = new ConcurrentHashMap<>();
   private MediaPipeline pipeline;
 
-  private RecorderEndpoint audioRecordEp;
+//  private RecorderEndpoint audioRecordEp;
 
   private String name;
 
@@ -236,19 +236,19 @@ public class Room implements Closeable {
 
     String audioFileName = groupSessionId + "_au" + RECORDING_EXT;
 
-    audioRecordEp = new RecorderEndpoint.Builder(pipeline,
-        "file://" + folderPath + "/" + audioFileName)
-            .withMediaProfile(MediaProfileSpecType.WEBM_AUDIO_ONLY).build();
+//    audioRecordEp = new RecorderEndpoint.Builder(pipeline,
+//        "file://" + folderPath + "/" + audioFileName)
+//            .withMediaProfile(MediaProfileSpecType.WEBM_AUDIO_ONLY).build();
 
-    Composite composite = new Composite.Builder(pipeline).build();
+//    Composite composite = new Composite.Builder(pipeline).build();
 
     for (UserSession participant : getParticipants()) {
       Date currentDate = new Date();
       String videoFileName = participant.getUserId() + "__"
           + df.format(currentDate) + RECORDING_EXT;
 
-      HubPort hubport = new HubPort.Builder(composite).build();
-      participant.getOutgoingWebRtcPeer().connect(hubport, MediaType.AUDIO);
+//      HubPort hubport = new HubPort.Builder(composite).build();
+//      participant.getOutgoingWebRtcPeer().connect(hubport, MediaType.AUDIO);
 
       participant.record(folderPath, videoFileName);
 
@@ -261,9 +261,9 @@ public class Room implements Closeable {
       recordStartedMsg.addProperty("userId", participant.getUserId());
       participant.sendMessage(recordStartedMsg);
     }
-    HubPort hubport = new HubPort.Builder(composite).build();
-    hubport.connect(audioRecordEp);
-    audioRecordEp.record();
+//    HubPort hubport = new HubPort.Builder(composite).build();
+//    hubport.connect(audioRecordEp);
+//    audioRecordEp.record();
   }
 
   public void stopRecord() throws IOException {
@@ -275,7 +275,7 @@ public class Room implements Closeable {
       recordStoppedMsg.addProperty("userId", participant.getUserId());
       participant.sendMessage(recordStoppedMsg);
     }
-    audioRecordEp.stop();
+//    audioRecordEp.stop();
   }
 
   private void createVideoRecord(UserSession userSession, String wholePath,
@@ -302,7 +302,7 @@ public class Room implements Closeable {
 
     participants.clear();
     
-    if(audioRecordEp != null) {
+/*    if(audioRecordEp != null) {
       audioRecordEp.release(new Continuation<Void>() {
 
         @Override
@@ -315,7 +315,7 @@ public class Room implements Closeable {
           log.error("PARTICIPANT {}: Could not release audioRecordEp", Room.this.name);
         }
       });
-    }
+    }*/
 
     pipeline.release(new Continuation<Void>() {
 
