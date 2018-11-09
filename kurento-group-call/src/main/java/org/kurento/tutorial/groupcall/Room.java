@@ -223,16 +223,15 @@ public class Room implements Closeable {
     String audioFolderPath = RECORDING_BASE_PATH + "/" + dateFormat.format(date)
         + "/" + uuid;
     BehappyUtils.createFolder(audioFolderPath);
-    
+
     audioRecordEp = new RecorderEndpoint.Builder(pipeline,
-        "file://" + audioFolderPath + "/" + uuid + ".mp3").build();
-    
-//    audioRecordEp = new RecorderEndpoint.Builder(pipeline,
-//        "file://" + audioFolderPath + "/" + uuid + ".mp3")
-//            .withMediaProfile(MediaProfileSpecType.MP4_AUDIO_ONLY).build();
-    
+        "file://" + audioFolderPath + "/" + uuid + ".mp4").build();
+
+    // audioRecordEp = new RecorderEndpoint.Builder(pipeline,
+    // "file://" + audioFolderPath + "/" + uuid + ".mp3")
+    // .withMediaProfile(MediaProfileSpecType.MP4_AUDIO_ONLY).build();
+
     Composite composite = new Composite.Builder(pipeline).build();
-    HubPort hubport = new HubPort.Builder(composite).build(); 
 
     for (UserSession participant : getParticipants()) {
       String relativeFolderPath = "/" + dateFormat.format(date) + "/" + uuid
@@ -242,11 +241,13 @@ public class Room implements Closeable {
       Date currentDate = new Date();
       String fileName = participant.getUserId() + "__" + df.format(currentDate)
           + RECORDING_EXT;
-      
+
+      // participant.getOutgoingWebRtcPeer().connect(hubport);
+      HubPort hubport = new HubPort.Builder(composite).build();
       participant.getOutgoingWebRtcPeer().connect(hubport, MediaType.AUDIO);
-      
+
       participant.record(folderPath, fileName);
-      
+
       createVideoRecord(participant, folderPath + "/" + fileName,
           "." + relativeFolderPath + "/" + fileName, uuid, currentDate);
 
@@ -255,6 +256,7 @@ public class Room implements Closeable {
       recordStartedMsg.addProperty("userId", participant.getUserId());
       participant.sendMessage(recordStartedMsg);
     }
+    HubPort hubport = new HubPort.Builder(composite).build();
     hubport.connect(audioRecordEp);
     audioRecordEp.record();
 

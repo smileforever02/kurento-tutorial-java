@@ -146,7 +146,7 @@ public class UserSession implements Closeable {
 //        "file://" + folderPath + "/" + fileName).build();
     
     recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
-        "file://" + folderPath + "/" + fileName).withMediaProfile(MediaProfileSpecType.MP4_VIDEO_ONLY).build();
+        "file://" + folderPath + "/" + fileName).withMediaProfile(MediaProfileSpecType.MP4).build();
     
     outgoingMedia.connect(recorderOutgoingMedia);
     recorderOutgoingMedia.record();
