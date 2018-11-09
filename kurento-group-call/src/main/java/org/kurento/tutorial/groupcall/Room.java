@@ -225,8 +225,11 @@ public class Room implements Closeable {
     BehappyUtils.createFolder(audioFolderPath);
     
     audioRecordEp = new RecorderEndpoint.Builder(pipeline,
-        "file://" + audioFolderPath + "/" + uuid + ".mp3")
-            .withMediaProfile(MediaProfileSpecType.MP4_AUDIO_ONLY).build();
+        "file://" + audioFolderPath + "/" + uuid + ".mp3").build();
+    
+//    audioRecordEp = new RecorderEndpoint.Builder(pipeline,
+//        "file://" + audioFolderPath + "/" + uuid + ".mp3")
+//            .withMediaProfile(MediaProfileSpecType.MP4_AUDIO_ONLY).build();
     
     Composite composite = new Composite.Builder(pipeline).build();
     HubPort hubport = new HubPort.Builder(composite).build(); 
