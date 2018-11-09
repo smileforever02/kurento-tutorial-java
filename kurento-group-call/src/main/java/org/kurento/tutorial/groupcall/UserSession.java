@@ -31,7 +31,6 @@ import org.kurento.client.MediaProfileSpecType;
 import org.kurento.client.RecorderEndpoint;
 import org.kurento.client.WebRtcEndpoint;
 import org.kurento.jsonrpc.JsonUtils;
-import org.kurento.tutorial.groupcall.behappy.utils.BehappyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.TextMessage;
@@ -139,11 +138,6 @@ public class UserSession implements Closeable {
     if (recorderOutgoingMedia != null) {
       recorderOutgoingMedia.release();
     }
-
-    BehappyUtils.createFolder(folderPath);
-
-    // recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
-    // "file://" + folderPath + "/" + fileName).build();
 
     recorderOutgoingMedia = new RecorderEndpoint.Builder(pipeline,
         "file://" + folderPath + "/" + fileName)

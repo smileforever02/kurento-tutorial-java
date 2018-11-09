@@ -243,12 +243,10 @@ public class Room implements Closeable {
     Composite composite = new Composite.Builder(pipeline).build();
 
     for (UserSession participant : getParticipants()) {
-
       Date currentDate = new Date();
       String videoFileName = participant.getUserId() + "__"
           + df.format(currentDate) + RECORDING_EXT;
 
-      // participant.getOutgoingWebRtcPeer().connect(hubport);
       HubPort hubport = new HubPort.Builder(composite).build();
       participant.getOutgoingWebRtcPeer().connect(hubport, MediaType.AUDIO);
 
@@ -266,7 +264,6 @@ public class Room implements Closeable {
     HubPort hubport = new HubPort.Builder(composite).build();
     hubport.connect(audioRecordEp);
     audioRecordEp.record();
-
   }
 
   public void stopRecord() throws IOException {
