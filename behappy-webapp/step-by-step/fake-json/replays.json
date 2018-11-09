@@ -5,8 +5,9 @@
 	"peerUserId": "Jimy",
 	"createdDate": "2018-11-08 12:00:00",
 	"peerCreatedDate": "2018-11-06 12:00:00",
-	"relativePath": "static/research/self.mp4",
-	"peerRelativePath": "static/research/peer.mp4"
+	"videoUri": "static/research/wang__webm.webm",
+	"peerVideoUri": "static/research/wang__webm.webm",
+	"audioUri": "static/research/wang__webm.webm"
  },{
 	"videoId": "1002",
 	"peerVideoId": "1001",
@@ -14,8 +15,9 @@
 	"peerUserId": "Flank",
 	"createdDate": "2018-11-07 12:00:00",
 	"peerCreatedDate": "2018-11-06 12:00:00",
-	"relativePath": "static/research/big.mp4",
-	"peerRelativePath": "static/research/peer-big.mp4"
+	"videoUri": "static/research/wang__webm.webm",
+	"peerVideoUri": "static/research/wang__webm.webm",
+	"audioUri": "static/research/wang__webm.webm"
  },{
 	"videoId": "1001",
 	"peerVideoId": "1002",
@@ -23,7 +25,8 @@
 	"peerUserId": "Tan",
 	"createdDate": "2018-11-06 12:00:00",
 	"peerCreatedDate": "2018-11-06 12:00:00",
-	"relativePath": "static/research/self.mp4",
-	"peerRelativePath": "static/research/peer.mp4"
+	"videoUri": "static/research/wang__webm.webm",
+	"peerVideoUri": "static/research/wang__webm.webm",
+	"audioUri": "static/research/wang__webm.webm"
  }
 ]

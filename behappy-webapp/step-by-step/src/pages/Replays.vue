@@ -7,12 +7,12 @@
                 <span v-on:click="replay(item)" class="glyphicon glyphicon-expand right" aria-hidden="true"></span>
             </li>
         </ul>
-        <div v-if="playing === true" class="replay-wrapper" style="padding: 2.2em 0 0 0;">
+        <div v-if="playing === true" id="replay-wrapper" class="replay-wrapper" style="padding: 2.2em 0 0 0;">
             <span v-on:click="cancelReplay()" class="glyphicon glyphicon-remove-circle" aria-hidden="true" style="position:absolute;top: 1.5em;color: red;font-size:2em;z-index:1000;"></span>
             <span v-if="recording === true" v-on:click="pause()" class="glyphicon glyphicon-pause" aria-hidden="true" style="position:absolute;top: 2.5em;color: green;font-size:2em;z-index:1000;"></span>
             <span v-if="recording === false" v-on:click="resume()" class="glyphicon glyphicon-play" aria-hidden="true" style="position:absolute;top: 2.5em;color: green;font-size:2em;z-index:1000;"></span>
-            <video id="replay-video" playsinline></video>
-            <video id="peer-replay-video" playsinline></video>
+            <!-- <video id="replay-video" playsinline></video> -->
+            <!-- <video id="peer-replay-video" playsinline></video> -->
         </div>
         <div v-if="playing === true" id="slider">
             <span>negative</span>
@@ -23,6 +23,7 @@
             <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
         </div>
         </div>
+        <div v-if="playing === true" id="audio-wrapper" style="display: none;"></div>
     </div>
 </template>
 
@@ -53,22 +54,69 @@ const m = Object.assign({
     },
     destroyed(){
         clearInterval(intervalFlag);
+        this.player = null;
+        this.audioPlayer = null;
     },
     methods:{
         replay(_replay){
             this.playing = true;
             this.recording = false;
-            this.$nextTick(() => {this.__initReplay(_replay)});
+            this.$nextTick(() => {this.__initReplay_safari(_replay)});
         },
         pause(){
             this.recording = false;
-            document.querySelector('#replay-video').pause();
-            document.querySelector('#peer-replay-video').pause();
+            // document.querySelector('#replay-video').pause();
+            // document.querySelector('#peer-replay-video').pause();
+            this.player && this.player.pause();
+            this.audioPlayer && this.audioPlayer.pause();
         },
         resume(){
             this.recording = true;
-            document.querySelector('#replay-video').play();
-            document.querySelector('#peer-replay-video').play();
+            // document.querySelector('#replay-video').play();
+            // document.querySelector('#peer-replay-video').play();
+            this.player && this.player.play();
+            this.audioPlayer && this.audioPlayer.play();
+        },
+        __initReplay_safari(_replay){
+            // Create a new player with the constructor
+            // Or with options
+            this.player = new OGVPlayer({
+                // debug: true,
+                // debugFilter: /demuxer/
+            });
+            this.audioPlayer = new OGVPlayer({});
+            let containerElement = document.querySelector('#replay-wrapper');
+            // Now treat it just like a video or audio element
+            containerElement.appendChild(this.player);
+            document.querySelector('#audio-wrapper').appendChild(this.audioPlayer);
+            this.player.src = _replay.videoUri;
+            this.player.muted = true;
+            this.audioPlayer.src = _replay.audioUri;
+            this.player.addEventListener('ended', function() {
+                // ta-da!
+            });
+            var handle = $( "#custom-handle" );
+            $( "#slider" ).slider({
+                min: 1,
+                max: 10,
+                step: 0.0001,
+                value: 5.5,
+                create: function() {
+                    handle.text( $(this).slider( "value" ) );
+                },
+                slide: function( event, ui ) {
+                    handle.text(ui.value);
+                },
+                start: function(event, ui) {
+                    console.log('start: ' + ui.value );
+                },
+                stop: function( event, ui ) {
+                    console.log('stop, score is: ' + ui.value );
+                    $(this).slider("value", 5.5);
+                    handle.text(5.5);
+                }
+            });
+            this.__startRecording(_replay, this.player, $( "#slider" ));
         },
         __initReplay(_replay){
             let video = document.querySelector('#replay-video');
@@ -148,12 +196,15 @@ const m = Object.assign({
             }, interval);
         },
         cancelReplay(){
-            let video = document.querySelector('#replay-video');
-            let peerVideo = document.querySelector('#peer-replay-video');
-            video.pause();
-            peerVideo.pause();
-            video.src = '';
-            peerVideo.src = '';
+            // let video = document.querySelector('#replay-video');
+            // let peerVideo = document.querySelector('#peer-replay-video');
+            // video.pause();
+            // peerVideo.pause();
+            // video.src = '';
+            // peerVideo.src = '';
+            clearInterval(intervalFlag);
+            this.player = null;
+            this.audioPlayer = null;
             this.playing = false;
         }
     }
