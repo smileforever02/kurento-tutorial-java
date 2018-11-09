@@ -84,8 +84,8 @@ public class Room implements Closeable {
       "yyyyMMdd");
   // public static final String RECORDING_PATH = "file:///tmp/"
   // + df.format(new Date()) + "-";
-  public static final String RECORDING_EXT = ".webm";
-  // public static final String RECORDING_EXT = ".mp4";
+//  public static final String RECORDING_EXT = ".webm";
+   public static final String RECORDING_EXT = ".mp4";
 
   public String getName() {
     return name;
@@ -217,7 +217,6 @@ public class Room implements Closeable {
 
   public void record() throws IOException {
     Date date = new Date();
-    // String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     String userIds = "";
     List<String> userIdList = new ArrayList<>();
     for (UserSession participant : getParticipants()) {
@@ -240,10 +239,6 @@ public class Room implements Closeable {
     audioRecordEp = new RecorderEndpoint.Builder(pipeline,
         "file://" + folderPath + "/" + audioFileName)
             .withMediaProfile(MediaProfileSpecType.WEBM_AUDIO_ONLY).build();
-
-    // audioRecordEp = new RecorderEndpoint.Builder(pipeline,
-    // "file://" + audioFolderPath + "/" + uuid + ".mp3")
-    // .withMediaProfile(MediaProfileSpecType.MP4_AUDIO_ONLY).build();
 
     Composite composite = new Composite.Builder(pipeline).build();
 
