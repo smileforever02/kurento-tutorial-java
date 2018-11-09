@@ -33,8 +33,10 @@ public class VideoRecord {
   private User user;
 
   private String videoFileWholePath;
-  
-  private String relativePath;
+
+  private String videoUri;
+
+  private String audioUri;
 
   private int status;
 
@@ -47,12 +49,13 @@ public class VideoRecord {
   }
 
   public VideoRecord(String groupSessionId, User user,
-      String videoFileWholePath, String relativePath) {
+      String videoFileWholePath, String videoUri, String audioUri) {
     super();
     this.groupSessionId = groupSessionId;
     this.user = user;
     this.videoFileWholePath = videoFileWholePath;
-    this.relativePath = relativePath;
+    this.videoUri = videoUri;
+    this.audioUri = audioUri;
     this.status = BeHappyConstants.STATUS_NOT_PROCESSED;
   }
 
@@ -84,12 +87,20 @@ public class VideoRecord {
     this.videoFileWholePath = videoFileWholePath;
   }
 
-  public String getRelativePath() {
-    return relativePath;
+  public String getVideoUri() {
+    return videoUri;
   }
 
-  public void setRelativePath(String relativePath) {
-    this.relativePath = relativePath;
+  public void setVideoUri(String videoUri) {
+    this.videoUri = videoUri;
+  }
+
+  public String getAudioUri() {
+    return audioUri;
+  }
+
+  public void setAudioUri(String audioUri) {
+    this.audioUri = audioUri;
   }
 
   public int getStatus() {

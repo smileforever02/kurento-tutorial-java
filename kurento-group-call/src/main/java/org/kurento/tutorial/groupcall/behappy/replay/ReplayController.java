@@ -39,16 +39,18 @@ public class ReplayController {
               replayVideo.setUserId(userId);
               replayVideo.setGroupSessionId(groupSessionId);
               replayVideo.setVideoId(groupRecord.getVideoId());
-              replayVideo.setRelativePath(groupRecord.getRelativePath());
+              replayVideo.setVideoUri(groupRecord.getVideoUri());
               replayVideo
                   .setCreatedDate(sdf.format(groupRecord.getCreatedDate()));
+              replayVideo.setAudioUri(groupRecord.getAudioUri());
             } else {
               replayVideo.setPeerUserId(groupRecord.getUser().getUserId());
               replayVideo.setGroupSessionId(groupSessionId);
               replayVideo.setPeerVideoId(groupRecord.getVideoId());
-              replayVideo.setPeerRelativePath(groupRecord.getRelativePath());
+              replayVideo.setPeerVideoUri(groupRecord.getVideoUri());
               replayVideo
                   .setPeerCreatedDate(sdf.format(groupRecord.getCreatedDate()));
+              replayVideo.setAudioUri(groupRecord.getAudioUri());
             }
           }
         }

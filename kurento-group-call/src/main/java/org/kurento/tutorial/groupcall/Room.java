@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -85,8 +84,8 @@ public class Room implements Closeable {
       "yyyyMMdd");
   // public static final String RECORDING_PATH = "file:///tmp/"
   // + df.format(new Date()) + "-";
-  // public static final String RECORDING_EXT = ".webm";
-  public static final String RECORDING_EXT = ".mp4";
+  public static final String RECORDING_EXT = ".webm";
+  // public static final String RECORDING_EXT = ".mp4";
 
   public String getName() {
     return name;
@@ -218,14 +217,29 @@ public class Room implements Closeable {
 
   public void record() throws IOException {
     Date date = new Date();
-    String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+    // String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+    String userIds = "";
+    List<String> userIdList = new ArrayList<>();
+    for (UserSession participant : getParticipants()) {
+      userIdList.add(participant.getUserId());
+    }
+    userIdList.sort(null);
+    for (String s : userIdList) {
+      userIds += "-" + s;
+    }
 
-    String audioFolderPath = RECORDING_BASE_PATH + "/" + dateFormat.format(date)
-        + "/" + uuid;
-    BehappyUtils.createFolder(audioFolderPath);
+    String groupSessionId = df.format(date).replaceAll("-", "") + userIds;
+
+    String relativeFolderPath = "/" + dateFormat.format(date) + "/" + groupSessionId;
+
+    String folderPath = RECORDING_BASE_PATH + relativeFolderPath;
+    BehappyUtils.createFolder(folderPath);
+
+    String audioFileName = groupSessionId + "_au" + RECORDING_EXT;
 
     audioRecordEp = new RecorderEndpoint.Builder(pipeline,
-        "file://" + audioFolderPath + "/" + uuid + ".mp4").build();
+        "file://" + folderPath + "/" + audioFileName)
+            .withMediaProfile(MediaProfileSpecType.WEBM_AUDIO_ONLY).build();
 
     // audioRecordEp = new RecorderEndpoint.Builder(pipeline,
     // "file://" + audioFolderPath + "/" + uuid + ".mp3")
@@ -234,22 +248,20 @@ public class Room implements Closeable {
     Composite composite = new Composite.Builder(pipeline).build();
 
     for (UserSession participant : getParticipants()) {
-      String relativeFolderPath = "/" + dateFormat.format(date) + "/" + uuid
-          + "/" + participant.getUserId();
-      String folderPath = RECORDING_BASE_PATH + relativeFolderPath;
 
       Date currentDate = new Date();
-      String fileName = participant.getUserId() + "__" + df.format(currentDate)
-          + RECORDING_EXT;
+      String videoFileName = participant.getUserId() + "__"
+          + df.format(currentDate) + RECORDING_EXT;
 
       // participant.getOutgoingWebRtcPeer().connect(hubport);
       HubPort hubport = new HubPort.Builder(composite).build();
       participant.getOutgoingWebRtcPeer().connect(hubport, MediaType.AUDIO);
 
-      participant.record(folderPath, fileName);
+      participant.record(folderPath, videoFileName);
 
-      createVideoRecord(participant, folderPath + "/" + fileName,
-          "." + relativeFolderPath + "/" + fileName, uuid, currentDate);
+      createVideoRecord(participant, folderPath + "/" + videoFileName,
+          "." + relativeFolderPath + "/" + videoFileName,
+          "." + relativeFolderPath + "/" + audioFileName, groupSessionId, currentDate);
 
       final JsonObject recordStartedMsg = new JsonObject();
       recordStartedMsg.addProperty("id", "recordStarted");
@@ -275,11 +287,11 @@ public class Room implements Closeable {
   }
 
   private void createVideoRecord(UserSession userSession, String wholePath,
-      String relativePath, String uuid, Date date) {
+      String videoUri, String audioUri, String groupSessionId, Date date) {
     if (userSession != null) {
       User user = userService.getUser(userSession.getUserId());
-      VideoRecord videoRecord = new VideoRecord(uuid, user, wholePath,
-          relativePath);
+      VideoRecord videoRecord = new VideoRecord(groupSessionId, user, wholePath, videoUri,
+          audioUri);
       videoRecord.setCreatedDate(date);
       videoRecord = videoRecordService.createVideoRecord(videoRecord);
     }
@@ -297,6 +309,21 @@ public class Room implements Closeable {
     }
 
     participants.clear();
+    
+    if(audioRecordEp != null) {
+      audioRecordEp.release(new Continuation<Void>() {
+
+        @Override
+        public void onSuccess(Void result) throws Exception {
+          log.info("ROOM {}: Released audioRecordEp", Room.this.name);
+        }
+
+        @Override
+        public void onError(Throwable cause) throws Exception {
+          log.error("PARTICIPANT {}: Could not release audioRecordEp", Room.this.name);
+        }
+      });
+    }
 
     pipeline.release(new Continuation<Void>() {
 
@@ -310,7 +337,7 @@ public class Room implements Closeable {
         log.error("PARTICIPANT {}: Could not release Pipeline", Room.this.name);
       }
     });
-
+    
     log.info("Room {} closed", this.name);
   }
 }
