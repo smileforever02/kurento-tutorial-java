@@ -271,19 +271,21 @@ public class UserSession implements Closeable {
       });
     }
 
-    outgoingMedia.release(new Continuation<Void>() {
-      @Override
-      public void onSuccess(Void result) throws Exception {
-        log.trace("PARTICIPANT {}: Released outgoingMedia EP",
-            UserSession.this.userId);
-      }
+    if(outgoingMedia != null) {
+      outgoingMedia.release(new Continuation<Void>() {
+        @Override
+        public void onSuccess(Void result) throws Exception {
+          log.trace("PARTICIPANT {}: Released outgoingMedia EP",
+              UserSession.this.userId);
+        }
 
-      @Override
-      public void onError(Throwable cause) throws Exception {
-        log.warn("USER {}: Could not release outgoingMedia EP",
-            UserSession.this.userId);
-      }
-    });
+        @Override
+        public void onError(Throwable cause) throws Exception {
+          log.warn("USER {}: Could not release outgoingMedia EP",
+              UserSession.this.userId);
+        }
+      });
+    }
 
     incomingMedia.clear();
     outgoingMedia = null;
