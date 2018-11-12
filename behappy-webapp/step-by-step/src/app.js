@@ -133,6 +133,10 @@ const initApp = function(){
 Services.getLogonUserContext()
   .done(user => {
     store.commit('updateLogonUser', user.userId)
+
+    window.__context__ = window.__context__ || {};
+    window.__context__.user = user;
+
     Services.newWebSocket(() => {
         Services.register(user.userId);
     });

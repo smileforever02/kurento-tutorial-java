@@ -34,13 +34,15 @@ export default {
     methods: {
         submit(){
             Services.login({userId: this.userId, password: this.password})
-                .done(() => {
+                .done((user) => {
                     this.$store.commit('updateLogonUser', this.userId)
                     if(this.$route.params.to){
                         this.$router.push('/' + this.$route.params.to);
                     }else{
                         this.$router.push('/friends');
                     }
+                    window.__context__ = window.__context__ || {};
+                    window.__context__.user = user;
                     Services.newWebSocket(() => {
                         Services.register(this.userId);
                     });

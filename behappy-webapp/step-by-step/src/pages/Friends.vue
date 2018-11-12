@@ -46,7 +46,10 @@ const m = Object.assign({
                         $('#name').val(this.$root.logonUser);
                         // $('#audioOnly').val(this.audioOnly + '');
                         // $('#peer').val(userId);
-                        $('#roomName').val(this.$root.logonUser);
+
+                        //use UUID instead of userId
+                        // $('#roomName').val(this.$root.logonUser);
+                        $('#roomName').val('' + Math.floor(Math.random()*1e12));
                         $('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom(userId)}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
                     });
                 }else{

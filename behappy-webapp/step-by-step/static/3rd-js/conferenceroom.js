@@ -19,6 +19,7 @@ var ws = null;
 var participants = {};
 var name;
 var recognizerStarted = false;
+var timerFlag = -1;
 
 function newWebSocket(callback){
 	if(ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)){
@@ -81,6 +82,15 @@ function newWebSocket(callback){
 			recognizerStarted = false;
 			RecognizerStop();
 			break;
+		case 'recordStarted':
+			onRecordStarted();
+			break;
+		case 'recordStopped':
+			onRecordStopped();
+			break;
+		case 'error':
+			onErrorMessage(parsedMessage);
+			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
 		}
@@ -101,6 +111,11 @@ function onInviteToRoom(msg){
 			cssClass: 'btn-warning',
 			action: function(dialog) {
 				MessageBox && MessageBox.warn('You reject ' + msg.fromUserId + '\'s invitation');
+				sendMessage({
+					id: 'rejectCall',
+					caller: msg.fromUserId,
+					callee: msg.toUserId
+				});
 				dialog.close();
 			}
 		}, {
@@ -264,6 +279,47 @@ function stopRecord(){
 	sendMessage({
 		id: 'stopRecord'
 	});
+}
+
+function normalize(num){
+	return ('00' + Math.floor(num)).slice(-2);
+}
+function onRecordStarted(){
+	clearInterval(timerFlag);
+	let timer = $('#recordingTimer');
+	let startTime = window.performance.now();
+	timerFlag = setInterval(() => {
+		let time = (window.performance.now() - startTime)/1000;
+		console.log(time);
+		let timeStamp = [0, 0, 0]; // [hour, minute, second]
+		timeStamp[2] = time%60;
+		let minutes = Math.floor(time/60);
+		timeStamp[1] = minutes;
+		if(minutes >= 60){
+			timeStamp[1] = minutes%60;
+			timeStamp[0] = Math.floor(minutes/60);
+		}
+		console.log(timeStamp);
+		let timeElpased = timeStamp.map(n => normalize(n)).join(':');
+		timer.text(timeElpased);
+	}, 1000);
+
+	$('#button-stop-record').show();
+    $('#button-start-record').hide();
+	MessageBox.info('Recording started');
+}
+
+function onRecordStopped(){
+	clearInterval(timerFlag);
+
+	$('#recordingTimer').text('00:00:00');
+	$('#button-stop-record').hide();
+    $('#button-start-record').show();
+	MessageBox.info('Recording ended');
+}
+
+function onErrorMessage(message){
+	MessageBox.warn(message.errorMsg);
 }
 
 function sendMessage(message) {
