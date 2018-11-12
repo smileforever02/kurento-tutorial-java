@@ -252,6 +252,7 @@ function leaveRoom() {
 	recognizerStarted = false;
 	RecognizerStop();
 	window.globalStream = null;
+	onRecordStopped();
 }
 
 function receiveVideo(sender) {
