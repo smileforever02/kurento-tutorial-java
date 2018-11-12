@@ -105,7 +105,7 @@ const initApp = function(){
           this.$store.commit('clearLogonUser')
           MessageBox.info('You log out')
           typeof leaveRoom === 'function' && leaveRoom()
-          // Services.closeWebSocket();
+          Services.closeWebSocket();
           this.$router.push('/login')
         })
       }

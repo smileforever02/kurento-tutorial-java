@@ -86,7 +86,7 @@ function newWebSocket(callback){
 			onRecordStarted();
 			break;
 		case 'recordStopped':
-			onRecordStopped();
+			onRecordStopped(true);
 			break;
 		case 'error':
 			onErrorMessage(parsedMessage);
@@ -321,13 +321,15 @@ function onRecordStarted(){
 	MessageBox.info('Recording started');
 }
 
-function onRecordStopped(){
+function onRecordStopped(showMsg){
 	clearInterval(timerFlag);
 
 	$('#recordingTimer').text('00:00:00');
 	$('#button-stop-record').hide();
     $('#button-start-record').show();
-	MessageBox.info('Recording ended');
+	if(showMsg === true){
+		MessageBox.info('Recording ended');
+	}
 }
 
 function onErrorMessage(message){
