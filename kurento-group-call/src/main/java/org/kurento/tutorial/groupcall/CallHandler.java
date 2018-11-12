@@ -253,28 +253,29 @@ public class CallHandler extends TextWebSocketHandler {
       JsonObject jsonMessage) throws IOException {
     String userId = jsonMessage.getAsJsonPrimitive("userId").getAsString();
 
-    UserSession caller = new UserSession(session, userId);
+    UserSession userSession = new UserSession(session, userId);
     String responseMsg = "accepted";
     if (userId.isEmpty()) {
       responseMsg = "rejected: empty userId";
     } else if (registry.exists(userId)) {
       // comment it temporarily for local testing. if we comment it, we can test
       // it through two tabs in same browser, otherwise, we can't.
-      UserSession userSession = registry.getByUserId(userId);
-      WebSocketSession wsSession = userSession.getSession();
-      userSession.close();
-      registry.removeBySession(wsSession);
+      UserSession oldUserSession = registry.getByUserId(userId);
+      WebSocketSession oldWsSession = oldUserSession.getSession();
+      oldUserSession.close();
+      registry.removeBySession(oldWsSession);
+      oldWsSession.close();
       log.warn(userId
           + " already has a connection. unregister old one and register a new one");
-      registry.registerUserSession(caller);
+      registry.registerUserSession(userSession);
     } else {
-      registry.registerUserSession(caller);
+      registry.registerUserSession(userSession);
     }
 
     JsonObject response = new JsonObject();
     response.addProperty("id", "registerResponse");
     response.addProperty("response", responseMsg);
-    caller.sendMessage(response);
+    userSession.sendMessage(response);
   }
 
   private void startRecord(String roomName) throws IOException {
