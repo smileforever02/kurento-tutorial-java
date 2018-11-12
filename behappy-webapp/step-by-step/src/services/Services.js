@@ -35,10 +35,10 @@ export default {
             r();
             // workaround for the can't get video in safari connect to peer the first time
             setTimeout(() => {
-                joinRoom(null, '__fake_room__');
-                setTimeout(leaveRoom, 50);
+                joinRoom(null, '__fake_room__' + Math.floor(Math.random()*1e12));
+                setTimeout(leaveRoom, 500);
             }, 50);
-        }, 0);
+        }, 50);
     },
     getUserStatus(userId){
         return this.get('/user/status?userId=' + userId)

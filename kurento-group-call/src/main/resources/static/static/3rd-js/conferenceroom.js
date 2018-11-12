@@ -97,6 +97,14 @@ function newWebSocket(callback){
 	}
 }
 
+function closeWebSocket(){
+	try{
+		ws.close(1000);
+	}catch(e){
+		console.error(e)
+	}
+}
+
 window.onbeforeunload = function() {
 	ws.close();
 };
@@ -201,6 +209,9 @@ function onExistingParticipants(msg) {
 			}
 		}
 	};
+	if(window.__context__.user.roleId === 1){
+		constraints.video = false;
+	}
 	console.log(name + " registered in room " + room);
 	var participant = new Participant(name);
 	participants[name] = participant;
