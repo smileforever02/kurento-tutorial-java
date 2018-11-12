@@ -29,7 +29,16 @@ export default {
     },
     register(userId){
         $('#name').val(userId);
-        setTimeout((typeof register === 'function'? register : function(){console.log('no register function')}), 0);
+        // setTimeout((typeof register === 'function'? register : function(){console.log('no register function')}), 0);
+        setTimeout(() => {
+            let r = (typeof register === 'function'? register : function(){console.log('no register function')});
+            r();
+            // workaround for the can't get video in safari connect to peer the first time
+            setTimeout(() => {
+                joinRoom(null, '__fake_room__');
+                setTimeout(leaveRoom, 50);
+            }, 50);
+        }, 0);
     },
     getUserStatus(userId){
         return this.get('/user/status?userId=' + userId)

@@ -1,6 +1,10 @@
 <template>
     <div class="full-width center-content">
-        <ul class="page-content item-list">
+        <!-- <div style="position: absolute;top: 2.1em;left: 1em;">
+            <input type="checkbox" id="audioOnly" name="audioOnly" v-model="audioOnly"> <label for="audioOnly">Audio Only</label>
+        </div> -->
+        <!-- <ul class="page-content item-list" style="padding: 4em 1em 0em 1em;"> -->
+        <ul class="page-content item-list" style="padding: 4em 1em 0em 1em;">
             <li v-for="item in items" v-bind:key="item.userId" v-bind:data-userid="item.userId">
                 <img :src="item.photo">
                 <span v-on:click="checkUser(item.userId, item.displayName)">{{item.displayName}}</span>
@@ -21,6 +25,7 @@ console.log(routerGuard)
 const m = Object.assign({
     data(){
         return {
+            audioOnly: false,
             items: []
         }
     },
@@ -39,6 +44,7 @@ const m = Object.assign({
                 if(msg.code === 0){
                     $('#app').stop().fadeOut(250, () => {
                         $('#name').val(this.$root.logonUser);
+                        // $('#audioOnly').val(this.audioOnly + '');
                         // $('#peer').val(userId);
                         $('#roomName').val(this.$root.logonUser);
                         $('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom(userId)}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
