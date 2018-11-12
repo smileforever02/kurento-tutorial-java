@@ -20,6 +20,7 @@ package org.kurento.tutorial.groupcall;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.kurento.client.KurentoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,12 +60,18 @@ public class RoomManager {
       room = context.getBean(Room.class);
       room.init(roomName, kurento.createMediaPipeline());
       rooms.put(roomName, room);
+    } else {
+      log.info("Room {} found!", roomName);
     }
-    log.info("Room {} found!", roomName);
+
     return room;
   }
 
   public Room getRoom(String roomName) {
+    if(StringUtils.isEmpty(roomName)) {
+      return null;
+    }
+    
     log.info("Searching for room {}", roomName);
     Room room = rooms.get(roomName);
 
@@ -87,5 +94,4 @@ public class RoomManager {
     room.close();
     log.info("Room {} removed and closed", room.getName());
   }
-
 }

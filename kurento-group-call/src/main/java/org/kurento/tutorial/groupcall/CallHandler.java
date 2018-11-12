@@ -82,7 +82,7 @@ public class CallHandler extends TextWebSocketHandler {
       joinRoom(jsonMessage, user);
       break;
     case "inviteUser":
-      inviteUser(jsonMessage);
+      inviteUser(jsonMessage, user);
       break;
     case "receiveVideoFrom":
       final String senderName = jsonMessage.get("sender").getAsString();
@@ -102,6 +102,9 @@ public class CallHandler extends TextWebSocketHandler {
       if (user != null) {
         stopRecord(user.getRoomName());
       }
+      break;
+    case "rejectCall":
+      rejectCall(jsonMessage);
       break;
     case "startTranslate":
       if (user != null) {
@@ -196,34 +199,40 @@ public class CallHandler extends TextWebSocketHandler {
     JsonElement toUserIdElement = params.get("toUserId");
     if (toUserIdElement != null) {
       String toUserId = toUserIdElement.getAsString();
-      if (!StringUtil.isEmpty(toUserId)) {
-        UserSession toUserSession = registry.getByUserId(toUserId);
-        if (toUserSession != null) {
-          final JsonObject inviteToRoomMsg = new JsonObject();
-          inviteToRoomMsg.addProperty("id", "inviteToRoom");
-          inviteToRoomMsg.addProperty("fromUserId", userSession.getUserId());
-          inviteToRoomMsg.addProperty("toUserId", toUserId);
-          inviteToRoomMsg.addProperty("room", roomName);
-          toUserSession.sendMessage(inviteToRoomMsg);
-        }
-      }
+
+      inviteUser(roomName, userSession.getUserId(), toUserId, userSession);
     }
   }
 
-  private void inviteUser(JsonObject params) throws IOException {
+  private void inviteUser(JsonObject params, UserSession fromUserSession)
+      throws IOException {
     String roomName = params.get("room").getAsString();
     final String fromUserId = params.get("fromUserId").getAsString();
     final String toUserId = params.get("toUserId").getAsString();
 
+    inviteUser(roomName, fromUserId, toUserId, fromUserSession);
+  }
+
+  private void inviteUser(String roomName, final String fromUserId,
+      final String toUserId, UserSession fromUserSession) throws IOException {
     if (!StringUtil.isEmpty(toUserId)) {
       UserSession toUserSession = registry.getByUserId(toUserId);
       if (toUserSession != null) {
-        final JsonObject inviteToRoomMsg = new JsonObject();
-        inviteToRoomMsg.addProperty("id", "inviteToRoom");
-        inviteToRoomMsg.addProperty("fromUserId", fromUserId);
-        inviteToRoomMsg.addProperty("toUserId", toUserId);
-        inviteToRoomMsg.addProperty("room", roomName);
-        toUserSession.sendMessage(inviteToRoomMsg);
+        if (toUserSession.getRoomName() != null) { // user to be invited is
+                                                   // already in a room, return
+                                                   // error
+          final JsonObject msg = new JsonObject();
+          msg.addProperty("id", "error");
+          msg.addProperty("errorMsg", toUserId + " is busy");
+          fromUserSession.sendMessage(msg);
+        } else {
+          final JsonObject inviteToRoomMsg = new JsonObject();
+          inviteToRoomMsg.addProperty("id", "inviteToRoom");
+          inviteToRoomMsg.addProperty("fromUserId", fromUserId);
+          inviteToRoomMsg.addProperty("toUserId", toUserId);
+          inviteToRoomMsg.addProperty("room", roomName);
+          toUserSession.sendMessage(inviteToRoomMsg);
+        }
       }
     }
   }
@@ -253,13 +262,11 @@ public class CallHandler extends TextWebSocketHandler {
       // it through two tabs in same browser, otherwise, we can't.
       UserSession userSession = registry.getByUserId(userId);
       WebSocketSession wsSession = userSession.getSession();
-      // releasePipeline(userSession);
-      // stop(wsSession);
+      userSession.close();
       registry.removeBySession(wsSession);
       log.warn(userId
-          + " already has a connection. unresigter old one and register a new one");
+          + " already has a connection. unregister old one and register a new one");
       registry.registerUserSession(caller);
-
     } else {
       registry.registerUserSession(caller);
     }
@@ -282,6 +289,17 @@ public class CallHandler extends TextWebSocketHandler {
     if (room != null) {
       room.stopRecord();
     }
+  }
+
+  private void rejectCall(JsonObject params) throws IOException {
+    final String caller = params.get("caller").getAsString();
+    final String callee = params.get("callee").getAsString();
+    UserSession callerSession = registry.getByUserId(caller);
+
+    final JsonObject errorMsg = new JsonObject();
+    errorMsg.addProperty("id", "error");
+    errorMsg.addProperty("errorMsg", callee + " rejected your request");
+    callerSession.sendMessage(errorMsg);
   }
 
   @Override

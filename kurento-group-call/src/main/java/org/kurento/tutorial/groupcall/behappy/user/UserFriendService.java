@@ -18,8 +18,8 @@ public class UserFriendService {
   @Autowired
   private UserService userService;
 
-  public Message addFriend(String userId, String friedUserId) {
-    log.info(userId + " requests to add friend " + friedUserId);
+  public Message addFriend(String userId, String friendUserId) {
+    log.info(userId + " requests to add friend " + friendUserId);
     String message = null;
     User requester = userService.getUser(userId);
     if (requester == null) {
@@ -28,10 +28,15 @@ public class UserFriendService {
       return new Message(1, message);
     }
 
-    User friend = userService.getUser(friedUserId);
+    User friend = userService.getUser(friendUserId);
     if (friend == null) {
-      message = friedUserId + " doesn't exist";
+      message = friendUserId + " doesn't exist";
       log.error(message);
+      return new Message(1, message);
+    }
+
+    if (alreayFriend(userId, friendUserId)) {
+      message = userId + " and " + friendUserId + " are already friends";
       return new Message(1, message);
     }
 
@@ -43,14 +48,27 @@ public class UserFriendService {
 
     // insert one record for friend, add current user as friend of the
     // friend
-    UserFriend friendEntry = new UserFriend(friend, requester,
-        requester.getNickName(), false, 1);
-    friendEntry.setCreatedDate(date);
-    userFriendRepository.save(friendEntry);
+    if (!alreayFriend(friendUserId, userId)) {
+      UserFriend friendEntry = new UserFriend(friend, requester,
+          requester.getNickName(), false, 1);
+      friendEntry.setCreatedDate(date);
+      userFriendRepository.save(friendEntry);
+    }
+
     return new Message(0, "add friend successfully");
   }
 
   public List<UserFriend> getAllFriends(String userId) {
     return userFriendRepository.findByUserUserIdAndStatus(userId, 1);
+  }
+
+  public boolean alreayFriend(String userId, String friendUserId) {
+    List<UserFriend> userFriends = userFriendRepository
+        .findByUserUserIdAndFriendUserId(userId, friendUserId);
+    if (userFriends != null && !userFriends.isEmpty()) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

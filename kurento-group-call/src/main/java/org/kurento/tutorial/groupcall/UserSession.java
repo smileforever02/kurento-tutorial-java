@@ -232,15 +232,31 @@ public class UserSession implements Closeable {
   @Override
   public void close() throws IOException {
     log.info("PARTICIPANT {}: Releasing resources", this.userId);
-    for (final String remoteParticipantName : incomingMedia.keySet()) {
 
+    if (recorderOutgoingMedia != null) {
+      recorderOutgoingMedia.stop();
+      recorderOutgoingMedia.release(new Continuation<Void>() {
+        @Override
+        public void onSuccess(Void result) throws Exception {
+          log.trace("PARTICIPANT {}: Released recording EP",
+              UserSession.this.userId);
+        }
+
+        @Override
+        public void onError(Throwable cause) throws Exception {
+          log.warn("USER {}: Could not release recording EP",
+              UserSession.this.userId);
+        }
+      });
+    }
+
+    for (final String remoteParticipantName : incomingMedia.keySet()) {
       log.trace("PARTICIPANT {}: Released incoming EP for {}", this.userId,
           remoteParticipantName);
 
       final WebRtcEndpoint ep = this.incomingMedia.get(remoteParticipantName);
 
       ep.release(new Continuation<Void>() {
-
         @Override
         public void onSuccess(Void result) throws Exception {
           log.trace("PARTICIPANT {}: Released successfully incoming EP for {}",
@@ -256,7 +272,6 @@ public class UserSession implements Closeable {
     }
 
     outgoingMedia.release(new Continuation<Void>() {
-
       @Override
       public void onSuccess(Void result) throws Exception {
         log.trace("PARTICIPANT {}: Released outgoingMedia EP",
@@ -270,28 +285,11 @@ public class UserSession implements Closeable {
       }
     });
 
-    if (recorderOutgoingMedia != null) {
-      recorderOutgoingMedia.stop();
-      recorderOutgoingMedia.release(new Continuation<Void>() {
-
-        @Override
-        public void onSuccess(Void result) throws Exception {
-          log.trace("PARTICIPANT {}: Released recording EP",
-              UserSession.this.userId);
-        }
-
-        @Override
-        public void onError(Throwable cause) throws Exception {
-          log.warn("USER {}: Could not release recording EP",
-              UserSession.this.userId);
-        }
-      });
-    }
-
     incomingMedia.clear();
     outgoingMedia = null;
     recorderOutgoingMedia = null;
     pipeline = null;
+    roomName = null;
   }
 
   public void sendMessage(JsonObject message) throws IOException {

@@ -29,13 +29,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PreDestroy;
 
-import org.kurento.client.Composite;
 import org.kurento.client.Continuation;
-import org.kurento.client.HubPort;
 import org.kurento.client.MediaPipeline;
-import org.kurento.client.MediaProfileSpecType;
-import org.kurento.client.MediaType;
-import org.kurento.client.RecorderEndpoint;
 import org.kurento.tutorial.groupcall.behappy.user.User;
 import org.kurento.tutorial.groupcall.behappy.user.UserService;
 import org.kurento.tutorial.groupcall.behappy.utils.BehappyUtils;
@@ -66,7 +61,7 @@ public class Room implements Closeable {
   private final ConcurrentMap<String, UserSession> participants = new ConcurrentHashMap<>();
   private MediaPipeline pipeline;
 
-//  private RecorderEndpoint audioRecordEp;
+  // private RecorderEndpoint audioRecordEp;
 
   private String name;
 
@@ -82,10 +77,8 @@ public class Room implements Closeable {
       "yyyy-MM-dd-HH-mm-ss");
   private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
       "yyyyMMdd");
-  // public static final String RECORDING_PATH = "file:///tmp/"
-  // + df.format(new Date()) + "-";
-//  public static final String RECORDING_EXT = ".webm";
-   public static final String RECORDING_EXT = ".mp4";
+  // public static final String RECORDING_EXT = ".webm";
+  public static final String RECORDING_EXT = ".mp4";
 
   public String getName() {
     return name;
@@ -220,7 +213,12 @@ public class Room implements Closeable {
     String userIds = "";
     List<String> userIdList = new ArrayList<>();
     for (UserSession participant : getParticipants()) {
-      userIdList.add(participant.getUserId());
+      String participantId = participant.getUserId();
+      User user = userService.getUser(participantId);
+      // exclude therapist
+      if (user.getRoleId() == 0) {
+        userIdList.add(participantId);
+      }
     }
     userIdList.sort(null);
     for (String s : userIdList) {
@@ -229,41 +227,43 @@ public class Room implements Closeable {
 
     String groupSessionId = df.format(date).replaceAll("-", "") + userIds;
 
-    String relativeFolderPath = "/" + dateFormat.format(date) + "/" + groupSessionId;
+    String relativeFolderPath = "/" + dateFormat.format(date) + "/"
+        + groupSessionId;
 
     String folderPath = RECORDING_BASE_PATH + relativeFolderPath;
     BehappyUtils.createFolder(folderPath);
 
     String audioFileName = groupSessionId + "_au" + RECORDING_EXT;
 
-//    audioRecordEp = new RecorderEndpoint.Builder(pipeline,
-//        "file://" + folderPath + "/" + audioFileName)
-//            .withMediaProfile(MediaProfileSpecType.WEBM_AUDIO_ONLY).build();
+    // audioRecordEp = new RecorderEndpoint.Builder(pipeline,
+    // "file://" + folderPath + "/" + audioFileName)
+    // .withMediaProfile(MediaProfileSpecType.WEBM_AUDIO_ONLY).build();
 
-//    Composite composite = new Composite.Builder(pipeline).build();
+    // Composite composite = new Composite.Builder(pipeline).build();
 
     for (UserSession participant : getParticipants()) {
       Date currentDate = new Date();
       String videoFileName = participant.getUserId() + "__"
           + df.format(currentDate) + RECORDING_EXT;
 
-//      HubPort hubport = new HubPort.Builder(composite).build();
-//      participant.getOutgoingWebRtcPeer().connect(hubport, MediaType.AUDIO);
+      // HubPort hubport = new HubPort.Builder(composite).build();
+      // participant.getOutgoingWebRtcPeer().connect(hubport, MediaType.AUDIO);
 
       participant.record(folderPath, videoFileName);
 
       createVideoRecord(participant, folderPath + "/" + videoFileName,
           "." + relativeFolderPath + "/" + videoFileName,
-          "." + relativeFolderPath + "/" + audioFileName, groupSessionId, currentDate);
+          "." + relativeFolderPath + "/" + audioFileName, groupSessionId,
+          currentDate);
 
       final JsonObject recordStartedMsg = new JsonObject();
       recordStartedMsg.addProperty("id", "recordStarted");
       recordStartedMsg.addProperty("userId", participant.getUserId());
       participant.sendMessage(recordStartedMsg);
     }
-//    HubPort hubport = new HubPort.Builder(composite).build();
-//    hubport.connect(audioRecordEp);
-//    audioRecordEp.record();
+    // HubPort hubport = new HubPort.Builder(composite).build();
+    // hubport.connect(audioRecordEp);
+    // audioRecordEp.record();
   }
 
   public void stopRecord() throws IOException {
@@ -275,15 +275,15 @@ public class Room implements Closeable {
       recordStoppedMsg.addProperty("userId", participant.getUserId());
       participant.sendMessage(recordStoppedMsg);
     }
-//    audioRecordEp.stop();
+    // audioRecordEp.stop();
   }
 
   private void createVideoRecord(UserSession userSession, String wholePath,
       String videoUri, String audioUri, String groupSessionId, Date date) {
     if (userSession != null) {
       User user = userService.getUser(userSession.getUserId());
-      VideoRecord videoRecord = new VideoRecord(groupSessionId, user, wholePath, videoUri,
-          audioUri);
+      VideoRecord videoRecord = new VideoRecord(groupSessionId, user, wholePath,
+          videoUri, audioUri);
       videoRecord.setCreatedDate(date);
       videoRecord = videoRecordService.createVideoRecord(videoRecord);
     }
@@ -291,6 +291,19 @@ public class Room implements Closeable {
 
   @Override
   public void close() {
+
+    /*
+     * if (audioRecordEp != null) { audioRecordEp.release(new
+     * Continuation<Void>() {
+     * 
+     * @Override public void onSuccess(Void result) throws Exception {
+     * log.info("ROOM {}: Released audioRecordEp", Room.this.name); }
+     * 
+     * @Override public void onError(Throwable cause) throws Exception {
+     * log.error("PARTICIPANT {}: Could not release audioRecordEp",
+     * Room.this.name); } }); }
+     */
+
     for (final UserSession user : participants.values()) {
       try {
         user.close();
@@ -301,21 +314,6 @@ public class Room implements Closeable {
     }
 
     participants.clear();
-    
-/*    if(audioRecordEp != null) {
-      audioRecordEp.release(new Continuation<Void>() {
-
-        @Override
-        public void onSuccess(Void result) throws Exception {
-          log.info("ROOM {}: Released audioRecordEp", Room.this.name);
-        }
-
-        @Override
-        public void onError(Throwable cause) throws Exception {
-          log.error("PARTICIPANT {}: Could not release audioRecordEp", Room.this.name);
-        }
-      });
-    }*/
 
     pipeline.release(new Continuation<Void>() {
 
@@ -329,7 +327,7 @@ public class Room implements Closeable {
         log.error("PARTICIPANT {}: Could not release Pipeline", Room.this.name);
       }
     });
-    
+
     log.info("Room {} closed", this.name);
   }
 }
