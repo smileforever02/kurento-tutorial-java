@@ -51,6 +51,9 @@ const m = Object.assign({
                         // $('#roomName').val(this.$root.logonUser);
                         $('#roomName').val('' + Math.floor(Math.random()*1e12));
                         $('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom(userId)}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
+                        // Services.buildRTCConnection(() => {
+                        //     $('#video').stop().fadeIn(250, (typeof joinRoom === 'function'? function(){try{joinRoom(userId)}catch(e){console.error(e)}} : function(){console.log('no joinRoom function')}));
+                        // });
                     });
                 }else{
                     MessageBox.error('Soory, your friend is not online.')

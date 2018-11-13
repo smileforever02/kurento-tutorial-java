@@ -31,16 +31,16 @@ export default {
     },
     register(userId){
         $('#name').val(userId);
-        setTimeout((typeof register === 'function'? register : function(){console.log('no register function')}), 0);
-        // setTimeout(() => {
-        //     let r = (typeof register === 'function'? register : function(){console.log('no register function')});
-        //     r();
-        //     // workaround for the can't get video in safari connect to peer the first time
-        //     setTimeout(() => {
-        //         joinRoom(null, '__fake_room__' + Math.floor(Math.random()*1e12));
-        //         setTimeout(leaveRoom, 500);
-        //     }, 50);
-        // }, 50);
+        // setTimeout((typeof register === 'function'? register : function(){console.log('no register function')}), 0);
+        setTimeout(() => {
+            let r = (typeof register === 'function'? register : function(){console.log('no register function')});
+            r();
+            // workaround for the can't get video in safari connect to peer the first time
+            setTimeout(() => {
+                joinRoom(null, '__fake_room__' + Math.floor(Math.random()*1e12));
+                setTimeout(leaveRoom, 500);
+            }, 50);
+        }, 50);
     },
     buildRTCConnection(cb){// workaround for the can't get video in safari connect to peer the first time
         if(isBuildRTCConnection){
