@@ -14,6 +14,10 @@ public class VideoRecordService {
     return videoRecordRepository.save(videoRecord);
   }
   
+  public VideoRecord saveVideoRecord(VideoRecord videoRecord) {
+    return videoRecordRepository.save(videoRecord);
+  }
+  
   public List<VideoRecord> getVideoRecords(String userId) {
     return videoRecordRepository.findByUserUserIdOrderByCreatedDateDesc(userId);
   }

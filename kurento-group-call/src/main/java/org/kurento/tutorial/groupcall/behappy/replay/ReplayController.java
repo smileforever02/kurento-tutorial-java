@@ -43,6 +43,7 @@ public class ReplayController {
               replayVideo
                   .setCreatedDate(sdf.format(groupRecord.getCreatedDate()));
               replayVideo.setAudioUri(groupRecord.getAudioUri());
+              replayVideo.setStatus(groupRecord.getStatus());
             } else {
               replayVideo.setPeerUserId(groupRecord.getUser().getUserId());
               replayVideo.setGroupSessionId(groupSessionId);
@@ -51,6 +52,7 @@ public class ReplayController {
               replayVideo
                   .setPeerCreatedDate(sdf.format(groupRecord.getCreatedDate()));
               replayVideo.setAudioUri(groupRecord.getAudioUri());
+              replayVideo.setStatus(groupRecord.getStatus());
             }
           }
         }
