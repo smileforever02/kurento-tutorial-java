@@ -54,7 +54,7 @@ export default {
                     setTimeout(() => {
                         leaveRoom();
                         cb && setTimeout(cb, 50);
-                    }, 500);
+                    }, 2000);
                 }, 50);
             }, 50);
         }
