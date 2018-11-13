@@ -183,19 +183,24 @@ const m = Object.assign({
             progress.style.cssText = 'width: 0';
             clearInterval(intervalFlag);
             let scores = [];
+            let aligning = false;
             intervalFlag = setInterval(() => {
-                if(video.readyState === 0 || this.recording === false){
+                if(video.readyState === 0 || this.audioPlayer.readyState === 0 || this.recording === false || aligning === true){
                     return;
                 }
                 let duration = video.duration;
                 // console.log('recording: ' + this.player.currentTime + ', ' + this.audioPlayer.currentTime);
-                // let gap = this.player.currentTime - this.audioPlayer.currentTime;
-                // if(Math.abs(gap) > 0.1){
-                //     let v = gap > 0? this.player : this.audioPlayer;
-                //     console.log('aligment');
-                //     v.pause();
-                //     setTimeout(() => v.play(), Math.abs(gap) * 1000);
-                // }
+                let gap = this.player.currentTime - this.audioPlayer.currentTime;
+                if(Math.abs(gap) > 0.01){
+                    let v = gap > 0? this.player : this.audioPlayer;
+                    console.log('aligment');
+                    v.pause();
+                    aligning = true;
+                    setTimeout(() => {
+                        v.play();
+                        aligning = false;
+                    }, Math.abs(gap) * 1000);
+                }
 
                 progress.style.cssText = 'width: ' + (100 * video.currentTime/duration) + '%;';
                 if(video.ended !== true){
