@@ -20,7 +20,7 @@
         <div v-if="playing === true" id="slider">
             <span>negative</span>
             <span style="float: right">positive</span>
-            <div id="custom-handle" class="ui-slider-handle"></div>
+            <div id="custom-handle" class="ui-slider-handle"><span></span></div>
         </div>
         <div v-if="playing === true" id="replay-progress" class="progress">
             <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
@@ -125,7 +125,7 @@ const m = Object.assign({
             //     console.log('player canplay');
             // });
 
-            var handle = $( "#custom-handle" );
+            var handle = $( "#custom-handle>span" );
             $( "#slider" ).slider({
                 min: 1,
                 max: 10,
@@ -143,7 +143,7 @@ const m = Object.assign({
                 stop: function( event, ui ) {
                     console.log('stop, score is: ' + ui.value );
                     $(this).slider("value", 5.5);
-                    handle.text(5.5);
+                    // handle.text(5.5);
                 }
             });
             this.__startRecording(_replay, this.player, $( "#slider" ));
@@ -186,21 +186,24 @@ const m = Object.assign({
             let aligning = false;
             var handle = $( "#custom-handle" );
             intervalFlag = setInterval(() => {
-                if(video.readyState === 0 || this.audioPlayer.readyState === 0 || this.recording === false || aligning === true){
+                // console.log('recording');
+                if(video.readyState === 0 || (this.audioPlayer && this.audioPlayer.readyState === 0) || this.recording === false || aligning === true){
                     return;
                 }
                 let duration = video.duration;
-                // console.log('recording: ' + this.player.currentTime + ', ' + this.audioPlayer.currentTime);
-                let gap = this.player.currentTime - this.audioPlayer.currentTime;
-                if(Math.abs(gap) > 0.01){
-                    let v = gap > 0? this.player : this.audioPlayer;
-                    console.log('aligment');
-                    v.pause();
-                    aligning = true;
-                    setTimeout(() => {
-                        v.play();
-                        aligning = false;
-                    }, Math.abs(gap) * 1000);
+                if(this.audioPlayer){
+                    console.log('recording: ' + this.player.currentTime + ', ' + this.audioPlayer.currentTime);
+                    let gap = this.player.currentTime - this.audioPlayer.currentTime;
+                    if(Math.abs(gap) > 0.05){
+                        let v = gap > 0? this.player : this.audioPlayer;
+                        console.log('aligment');
+                        v.pause();
+                        aligning = true;
+                        setTimeout(() => {
+                            this.playing && v.play();
+                            aligning = false;
+                        }, Math.abs(gap) * 1000);
+                    }
                 }
 
                 progress.style.cssText = 'width: ' + (100 * video.currentTime/duration) + '%;';
@@ -214,7 +217,7 @@ const m = Object.assign({
                     clearInterval(intervalFlag);
                     BootstrapDialog.show({
                         title: 'Upload mood mark',
-                        closable: true,
+                        closable: false,
                         message: 'Upload your mood mark?',
                         buttons: [{
                             label: 'Cancel',
@@ -253,6 +256,7 @@ const m = Object.assign({
             this.audioPlayer&&this.audioPlayer.pause();
             this.audioPlayer = null;
             this.playing = false;
+            
         }
     }
 }, routerGuard)
