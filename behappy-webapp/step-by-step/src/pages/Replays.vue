@@ -162,10 +162,10 @@ const m = Object.assign({
                 step: 0.0001,
                 value: 5.5,
                 create: function() {
-                    handle.text( $(this).slider( "value" ) );
+                    //handle.text( $(this).slider( "value" ) );
                 },
                 slide: function( event, ui ) {
-                    handle.text(ui.value);
+                    // handle.text(ui.value);
                 },
                 start: function(event, ui) {
                     console.log('start: ' + ui.value );
@@ -173,7 +173,7 @@ const m = Object.assign({
                 stop: function( event, ui ) {
                     console.log('stop, score is: ' + ui.value );
                     $(this).slider("value", 5.5);
-                    handle.text(5.5);
+                    //handle.text(5.5);
                 }
             });
             this.__startRecording(_replay, video, $( "#slider" ));
@@ -184,6 +184,7 @@ const m = Object.assign({
             clearInterval(intervalFlag);
             let scores = [];
             let aligning = false;
+            var handle = $( "#custom-handle" );
             intervalFlag = setInterval(() => {
                 if(video.readyState === 0 || this.audioPlayer.readyState === 0 || this.recording === false || aligning === true){
                     return;
@@ -203,6 +204,7 @@ const m = Object.assign({
                 }
 
                 progress.style.cssText = 'width: ' + (100 * video.currentTime/duration) + '%;';
+                handle.text(slider.slider( "value" ));
                 if(video.ended !== true){
                     scores.push({
                         time: Math.round(video.currentTime),
