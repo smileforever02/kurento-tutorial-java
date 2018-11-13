@@ -132,10 +132,10 @@ const m = Object.assign({
                 step: 0.0001,
                 value: 5.5,
                 create: function() {
-                    handle.text( $(this).slider( "value" ) );
+                    // handle.text( $(this).slider( "value" ) );
                 },
                 slide: function( event, ui ) {
-                    handle.text(ui.value);
+                    // handle.text(ui.value);
                 },
                 start: function(event, ui) {
                     console.log('start: ' + ui.value );
