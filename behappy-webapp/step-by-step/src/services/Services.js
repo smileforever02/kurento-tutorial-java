@@ -6,6 +6,8 @@ const photoWrapper = $('#photo-wrapper');
 photoWrapper.click(e => {
     photoWrapper.removeClass('show').children('img').attr('src', '');
 });
+// workaround for the can't get video in safari connect to peer the first time
+let isBuildRTCConnection = false;
 export default {
     showPhoto(src){
         photoWrapper.children('img').attr('src', src).end().addClass('show');
@@ -29,16 +31,33 @@ export default {
     },
     register(userId){
         $('#name').val(userId);
-        // setTimeout((typeof register === 'function'? register : function(){console.log('no register function')}), 0);
-        setTimeout(() => {
-            let r = (typeof register === 'function'? register : function(){console.log('no register function')});
-            r();
-            // workaround for the can't get video in safari connect to peer the first time
+        setTimeout((typeof register === 'function'? register : function(){console.log('no register function')}), 0);
+        // setTimeout(() => {
+        //     let r = (typeof register === 'function'? register : function(){console.log('no register function')});
+        //     r();
+        //     // workaround for the can't get video in safari connect to peer the first time
+        //     setTimeout(() => {
+        //         joinRoom(null, '__fake_room__' + Math.floor(Math.random()*1e12));
+        //         setTimeout(leaveRoom, 500);
+        //     }, 50);
+        // }, 50);
+    },
+    buildRTCConnection(cb){// workaround for the can't get video in safari connect to peer the first time
+        if(isBuildRTCConnection){
+            cb && cb();
+        }else{
+            isBuildRTCConnection = true;
+            console.log('try to build RTC connection');
             setTimeout(() => {
-                joinRoom(null, '__fake_room__' + Math.floor(Math.random()*1e12));
-                setTimeout(leaveRoom, 500);
+                setTimeout(() => {
+                    joinRoom(null, '__fake_room__' + Math.floor(Math.random()*1e12));
+                    setTimeout(() => {
+                        leaveRoom();
+                        cb && setTimeout(cb, 50);
+                    }, 500);
+                }, 50);
             }, 50);
-        }, 50);
+        }
     },
     getUserStatus(userId){
         return this.get('/user/status?userId=' + userId)
