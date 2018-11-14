@@ -120,6 +120,9 @@ export default {
     updateUser(user){
         return this.put('/updateuser', user);
     },
+    getReplayScore(videoId){
+        return this.get('/replays/mood/' + videoId);
+    },
     post(url, data){
         return this.send(url, 'POST', data);
     },

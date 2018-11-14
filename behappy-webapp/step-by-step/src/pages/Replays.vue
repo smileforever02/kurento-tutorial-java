@@ -19,7 +19,7 @@
             <span id="video-mask"></span>
         </div>
         <div v-if="playing === true" class="chart-container" style="position: absolute; bottom: 0; width:100%">
-            <canvas id="moodScore"></canvas>
+            <canvas id="moodScore" height="200px"></canvas>
         </div>
         <div v-if="playing === true" id="slider">
             <span>negative</span>
@@ -180,8 +180,9 @@ const m = Object.assign({
                 }
             });
 
-            let chart = this.initChart();
-            this.__startRecording(_replay, this.player, $( "#slider" ), chart);
+            this.initChart(_replay, chart => {
+                this.__startRecording(_replay, this.player, $( "#slider" ), chart);
+            });
         },
         __initReplay(_replay){
             let video = document.querySelector('#replay-video');
@@ -252,6 +253,9 @@ const m = Object.assign({
                     // update chart
                     chart.config.data.datasets[0].data.push(moodScore);
                     chart.config.data.labels.push('');
+                    if(chart.hasOld){
+                        chart.config.data.datasets[1].data.push(chart.oldData.splice(0, 1)[0] || 5.5);
+                    }
                     chart.chart.update();
                 }else{
                     clearInterval(intervalFlag);
@@ -287,17 +291,17 @@ const m = Object.assign({
                 }
             }, interval);
         },
-        initChart(){
+        initChart(_replay, cb){
             var config = {
                 type: 'line',
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'mood',
+                        label: 'new',
                         backgroundColor: window.chartColors.red,
 					    borderColor: window.chartColors.red,
                         data: [],
-                        fill: false,
+                        fill: false
                     }]
                 },
                 options: {
@@ -340,11 +344,37 @@ const m = Object.assign({
             };
     
             let ctx = document.getElementById('moodScore').getContext('2d');
-            let chart = new Chart(ctx, config);
-            return {
-                config: config,
-                chart: chart
-            };
+            if(_replay.status === 1){
+                let data = {
+                    config: config
+                };
+                Services.getReplayScore(_replay.videoId).done(d => {
+                    if(d.scores && d.scores.length > 0){
+                        data.hasOld = true;
+                        data.oldData = d.scores.map(i => i.score);
+                        data.config.data.datasets.push({
+                            label: 'old',
+                            backgroundColor: window.chartColors.green,
+                            borderColor: window.chartColors.green,
+                            data: [],
+                            fill: false
+                        });
+                    }else{
+                        data.hasOld = false;
+                    }
+                    data.chart = new Chart(ctx, config);
+                    cb(data);
+                }).fail(err => {
+                    data.hasOld = false;
+                    data.chart = new Chart(ctx, config);
+                    cb(data);
+                });
+            }else{
+                cb({
+                    config: config,
+                    chart:  new Chart(ctx, config)
+                });
+            }
         },
         cancelReplay(){
             // let video = document.querySelector('#replay-video');
