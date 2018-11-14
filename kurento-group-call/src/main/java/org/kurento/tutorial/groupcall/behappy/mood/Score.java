@@ -12,6 +12,14 @@ public class Score {
   @Expose
   private float score;
 
+  public Score() {
+  }
+
+  public Score(Long time, float score) {
+    this.time = time;
+    this.score = score;
+  }
+
   public Long getTime() {
     return time;
   }
