@@ -1,5 +1,7 @@
 package org.kurento.tutorial.groupcall.behappy.mood;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,6 +11,8 @@ import org.kurento.tutorial.groupcall.behappy.video.VideoRecord;
 import org.kurento.tutorial.groupcall.behappy.video.VideoRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class VideoMoodController {
   @Autowired
   private VideoMoodService videoMoodService;
-  
+
   @Autowired
   private VideoRecordService videoRecordService;
 
@@ -36,20 +40,39 @@ public class VideoMoodController {
               score.getScore(), peerVideoId, peerUserId));
         }
       }
-      
+
       // delete old ones if exist.
       videoMoodService.deleteVideoMoods(videoId);
-      
+
       videoMoods = videoMoodService.saveVideoMoods(videoMoods);
-      
-      VideoRecord videoRecord = videoRecordService.getVideoRecordByVideoId(videoId);
-      if(videoRecord != null) {
+
+      VideoRecord videoRecord = videoRecordService
+          .getVideoRecordByVideoId(videoId);
+      if (videoRecord != null) {
         videoRecord.setStatus(BeHappyConstants.STATUS_PROCESSED);
         videoRecordService.saveVideoRecord(videoRecord);
       }
-      
+
     }
 
     return ResponseEntity.ok(new Message(0, "successfully marked mood"));
+  }
+
+  @GetMapping(value = "/replays/mood/{videoId}")
+  public ResponseEntity<?> getVideoMoods(
+      @PathVariable("videoId") Long videoId) {
+    MoodJson moodJson = new MoodJson();
+    List<VideoMood> videoMoods = videoMoodService.getVideoMoods(videoId);
+    Collections.sort(videoMoods);
+    if (videoMoods != null && !videoMoods.isEmpty()) {
+      moodJson.setVideoId(videoId);
+      List<Score> scores = new ArrayList<>();
+      for (VideoMood videoMood : videoMoods) {
+        scores.add(new Score(videoMood.getTime(), videoMood.getScore()));
+      }
+      moodJson.setScores(scores);
+    }
+
+    return ResponseEntity.ok(moodJson);
   }
 }

@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "VIDEO_MOOD")
-public class VideoMood {
+public class VideoMood implements Comparable<VideoMood> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -91,5 +91,16 @@ public class VideoMood {
 
   public Long getMoodId() {
     return moodId;
+  }
+
+  @Override
+  public int compareTo(VideoMood another) {
+    if (this.time < another.time) {
+      return -1;
+    } else if (this.time > another.time) {
+      return 1;
+    } else {
+      return 0;
+    }
   }
 }
