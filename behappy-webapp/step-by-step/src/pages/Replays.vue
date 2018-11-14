@@ -16,6 +16,7 @@
             <span v-if="recording === false" v-on:click="resume()" class="glyphicon glyphicon-play" aria-hidden="true" style="position:absolute;top: 2.5em;color: green;font-size:2em;z-index:1000;"></span>
             <!-- <video id="replay-video" playsinline></video> -->
             <!-- <video id="peer-replay-video" playsinline></video> -->
+            <span id="video-mask"></span>
         </div>
         <div v-if="playing === true" id="slider">
             <span>negative</span>
@@ -88,16 +89,42 @@ const m = Object.assign({
                 // debug: true,
                 // debugFilter: /demuxer/
             });
+            let mask = $('#video-mask');
+            let videoCounts = 1;
+            let videoFinished = 0;
             let containerElement = document.querySelector('#replay-wrapper');
             // Now treat it just like a video or audio element
             containerElement.appendChild(this.player);
             if(this.peerReplay === true){
+                videoCounts++;
                 this.audioPlayer = new OGVPlayer({});
                 document.querySelector('#audio-wrapper').appendChild(this.audioPlayer);
                 this.audioPlayer.src = _replay.peerVideoUri;
+                this.audioPlayer.addEventListener('loadeddata', e => {
+                    videoFinished++;
+                    if(videoFinished === videoCounts){
+                        mask.hide();
+                    }
+                }, false);
             }
+            mask.show();
             this.player.src = _replay.videoUri;
             // this.player.muted = true;
+
+            // test events
+            ["abort", "DOMContentLoaded", "afterprint", "afterscriptexecute", "beforeprint", "beforescriptexecute", "beforeunload", "blur", "cancel", "change", "click", "close", "connect", "contextmenu", "error", "focus", "hashchange", "input", "invalid", "languagechange", "load", "loadend", "loadstart", "message", "offline", "online", "open", "pagehide", "pageshow", "popstate", "progress", "readystatechange", "reset", "select", "show", "sort", "storage", "submit", "toggle", "unload", "loadeddata", "loadedmetadata", "canplay", "playing", "play", "canplaythrough", "seeked", "seeking", "stalled", "suspend", "timeupdate", "volumechange", "waiting", "durationchange", "emptied", "unhandledrejection", "rejectionhandled"].forEach(name => {
+                this.player.addEventListener(name, function() {
+                    console.log('player ' + name);
+                });
+            });
+
+            this.player.addEventListener('loadeddata', e => {
+                videoFinished++;
+                if(videoFinished === videoCounts){
+                    mask.hide();
+                }
+            }, false);
+
 
 
             // this.player.addEventListener('ended', function() {
@@ -184,7 +211,7 @@ const m = Object.assign({
             clearInterval(intervalFlag);
             let scores = [];
             let aligning = false;
-            var handle = $( "#custom-handle" );
+            var handle = $( "#custom-handle span" );
             intervalFlag = setInterval(() => {
                 // console.log('recording');
                 if(video.readyState === 0 || (this.audioPlayer && this.audioPlayer.readyState === 0) || this.recording === false || aligning === true){

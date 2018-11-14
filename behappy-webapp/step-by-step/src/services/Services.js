@@ -92,6 +92,12 @@ export default {
     getUser(userId){
         return this.get('/user/' + userId);
     },
+    maskOn(){
+        mask.show();
+    },
+    maskOff(){
+        mask.hide()
+    },
     uploadPhoto(photoFile){
         let deffer = $.Deferred()
         let formData = new FormData();
