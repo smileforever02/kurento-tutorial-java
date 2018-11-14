@@ -17,9 +17,9 @@
 	"peerUserId": "Flank",
 	"createdDate": "2018-11-07 12:00:00",
 	"peerCreatedDate": "2018-11-06 12:00:00",
-	"videoUri": "static/research/wang__webm.webm",
-	"peerVideoUri": "static/research/wang__webm.webm",
-	"audioUri": "static/research/wang__webm.webm"
+	"videoUri": "static/research/junni_mp4.mp4",
+	"peerVideoUri": "static/research/junni_mp4.mp4",
+	"audioUri": "static/research/junni_mp4.mp4"
  },{
 	"videoId": "1001",
 	"peerVideoId": "1002",

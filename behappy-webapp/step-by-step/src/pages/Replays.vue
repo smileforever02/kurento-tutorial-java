@@ -14,8 +14,7 @@
             <span v-on:click="cancelReplay()" class="glyphicon glyphicon-remove-circle" aria-hidden="true" style="position:absolute;top: 1.5em;color: red;font-size:2em;z-index:1000;"></span>
             <span v-if="recording === true" v-on:click="pause()" class="glyphicon glyphicon-pause" aria-hidden="true" style="position:absolute;top: 2.5em;color: green;font-size:2em;z-index:1000;"></span>
             <span v-if="recording === false" v-on:click="resume()" class="glyphicon glyphicon-play" aria-hidden="true" style="position:absolute;top: 2.5em;color: green;font-size:2em;z-index:1000;"></span>
-            <!-- <video id="replay-video" playsinline></video> -->
-            <!-- <video id="peer-replay-video" playsinline></video> -->
+            <video id="replay-video" playsinline style="display:none;"></video>
             <span id="video-mask"></span>
         </div>
         <div v-if="playing === true" class="chart-container" style="position: absolute; bottom: 0; width:100%">
@@ -30,7 +29,9 @@
             <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
         </div>
         </div>
-        <div v-if="playing === true" id="audio-wrapper" style="display: none;"></div>
+        <div v-if="playing === true" id="audio-wrapper" style="display: none;">
+            <video id="peer-replay-video" playsinline></video>
+        </div>
     </div>
 </template>
 
@@ -89,23 +90,49 @@ const m = Object.assign({
             this.player && this.player.play();
             this.audioPlayer && this.audioPlayer.play();
         },
+        __createVideo(_replay, peer, containerSelector){
+            if(_replay.videoUri.toLowerCase().endsWith('_mp4.mp4')){
+                let v;
+                if(peer === true){
+                    v = document.querySelector('#peer-replay-video');
+                    return v;
+                }else{
+                    v = document.querySelector('#replay-video');
+                    $(v).show();
+                    return v;
+                }
+            }else{
+                let video =  new OGVPlayer({
+                        // debug: true,
+                        // debugFilter: /demuxer/
+                    });
+                document.querySelector(containerSelector).appendChild(video);
+                return video;
+            }
+        },
         __initReplay_safari(_replay){
             // Create a new player with the constructor
             // Or with options
-            this.player = new OGVPlayer({
-                // debug: true,
-                // debugFilter: /demuxer/
-            });
+            // this.player = new OGVPlayer({
+            //     // debug: true,
+            //     // debugFilter: /demuxer/
+            // });
+
+            this.player = this.__createVideo(_replay, false, '#replay-wrapper');
+
             let mask = $('#video-mask');
             let videoCounts = 1;
             let videoFinished = 0;
-            let containerElement = document.querySelector('#replay-wrapper');
+            // let containerElement = document.querySelector('#replay-wrapper');
             // Now treat it just like a video or audio element
-            containerElement.appendChild(this.player);
+            // containerElement.appendChild(this.player);
             if(this.peerReplay === true){
                 videoCounts++;
-                this.audioPlayer = new OGVPlayer({});
-                document.querySelector('#audio-wrapper').appendChild(this.audioPlayer);
+                // this.audioPlayer = new OGVPlayer({});
+
+                this.audioPlayer = this.__createVideo(_replay, true, '#audio-wrapper');
+
+                // document.querySelector('#audio-wrapper').appendChild(this.audioPlayer);
                 this.audioPlayer.src = _replay.peerVideoUri;
                 this.audioPlayer.addEventListener('loadeddata', e => {
                     videoFinished++;
