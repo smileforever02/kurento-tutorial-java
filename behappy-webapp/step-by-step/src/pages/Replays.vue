@@ -22,8 +22,8 @@
             <canvas id="moodScore" height="200px"></canvas>
         </div>
         <div v-if="playing === true" id="slider">
-            <span>negative</span>
-            <span style="float: right">positive</span>
+            <span>unhappy</span>
+            <span style="float: right">happy</span>
             <div id="custom-handle" class="ui-slider-handle"><span></span></div>
         </div>
         <div v-if="playing === true" id="replay-progress" class="progress">
@@ -42,6 +42,7 @@ import {routerGuard} from '../router/router'
 
 let intervalFlag = -1;
 const interval = 1000;
+const SCORE_COUNTS = 15;
 const m = Object.assign({
     data(){
         return {
@@ -114,6 +115,7 @@ const m = Object.assign({
                 }, false);
             }
             mask.show();
+            console.log('load video.....');
             this.player.src = _replay.videoUri;
             // this.player.muted = true;
 
@@ -165,10 +167,10 @@ const m = Object.assign({
                 step: 0.0001,
                 value: 5.5,
                 create: function() {
-                    // handle.text( $(this).slider( "value" ) );
+                    handle.text( $(this).slider( "value" ) );
                 },
                 slide: function( event, ui ) {
-                    // handle.text(ui.value);
+                    handle.text(ui.value);
                 },
                 start: function(event, ui) {
                     console.log('start: ' + ui.value );
@@ -176,7 +178,7 @@ const m = Object.assign({
                 stop: function( event, ui ) {
                     console.log('stop, score is: ' + ui.value );
                     $(this).slider("value", 5.5);
-                    // handle.text(5.5);
+                    handle.text(5.5);
                 }
             });
 
@@ -244,17 +246,28 @@ const m = Object.assign({
 
                 progress.style.cssText = 'width: ' + (100 * video.currentTime/duration) + '%;';
                 let moodScore = slider.slider( "value" );
-                handle.text(moodScore);
+                // handle.text(moodScore);
                 if(video.ended !== true){
                     scores.push({
                         time: Math.round(video.currentTime),
                         score: moodScore
                     });
                     // update chart
-                    chart.config.data.datasets[0].data.push(moodScore);
-                    chart.config.data.labels.push('');
+                    if(chart.config.data.labels.length < SCORE_COUNTS){
+                        chart.config.data.labels.push('');
+                    }
+                    let newData = chart.config.data.datasets[0].data;
+                    newData.push(moodScore);
+                    if(newData.length >= SCORE_COUNTS){
+                        chart.config.options.animation = {duration: 0};
+                        chart.config.data.datasets[0].data = newData.slice(-15);
+                    }
                     if(chart.hasOld){
-                        chart.config.data.datasets[1].data.push(chart.oldData.splice(0, 1)[0] || 5.5);
+                        let oldData = chart.config.data.datasets[1].data;
+                        oldData.push(chart.oldData.splice(0, 1)[0] || 5.5);
+                        if(oldData.length >= SCORE_COUNTS){
+                            chart.config.data.datasets[1].data = oldData.slice(-15);
+                        }
                     }
                     chart.chart.update();
                 }else{
@@ -305,6 +318,9 @@ const m = Object.assign({
                     }]
                 },
                 options: {
+                    // animation: {
+                    //     duration: 0, // 0 will disable animation
+                    // },
                     legend: {
                         display: false
                     },

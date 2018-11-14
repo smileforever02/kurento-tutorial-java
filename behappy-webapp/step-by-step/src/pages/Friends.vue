@@ -56,7 +56,7 @@ const m = Object.assign({
                         // });
                     });
                 }else{
-                    MessageBox.error('Soory, your friend is not online.')
+                    MessageBox.error('Sorry, your friend is not online.')
                 }
             })
         }
