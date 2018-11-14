@@ -52,13 +52,7 @@ const m = Object.assign({
         }
     },
     mounted(){
-        Services.getReplays().done((data) => {
-            // console.log(data);
-            this.items = data.map(d => {
-                d.photo = d.photo || Services.getDefPhoto();
-                return d;
-            });
-        }).fail(() => MessageBox.error('Sorry, can\'t find your friends'));
+        this.loadReplays();
     },
     destroyed(){
         clearInterval(intervalFlag);
@@ -66,6 +60,15 @@ const m = Object.assign({
         this.audioPlayer = null;
     },
     methods:{
+        loadReplays(){
+            Services.getReplays().done((data) => {
+                // console.log(data);
+                this.items = data.map(d => {
+                    d.photo = d.photo || Services.getDefPhoto();
+                    return d;
+                });
+            }).fail(() => MessageBox.error('Sorry, can\'t find your replays.'));
+        },
         replay(_replay){
             this.playing = true;
             this.recording = false;
@@ -347,10 +350,16 @@ const m = Object.assign({
             // video.src = '';
             // peerVideo.src = '';
             clearInterval(intervalFlag);
-            this.player&&this.player.pause();
-            this.player = null;
-            this.audioPlayer&&this.audioPlayer.pause();
-            this.audioPlayer = null;
+            if(this.player){
+                this.player.pause();
+                this.player.src = '';
+                this.player = null;
+            }
+            if(this.audioPlayer){
+                this.audioPlayer.pause();
+                this.audioPlayer.src = '';
+                this.audioPlayer = null;
+            }
             this.playing = false;
             
         }
