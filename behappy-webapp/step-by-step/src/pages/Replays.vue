@@ -255,6 +255,7 @@ const m = Object.assign({
                     chart.chart.update();
                 }else{
                     clearInterval(intervalFlag);
+                    let that = this;
                     BootstrapDialog.show({
                         title: 'Upload mood mark',
                         closable: false,
@@ -276,7 +277,10 @@ const m = Object.assign({
                                     peerVideoId: _replay.peerVideoId,
                                     peerUserId: _replay.peerUserId,
                                     scores: scores
-                                }).done(() => MessageBox.success('Mark mood successfully')).fail(() => MessageBox.error('Failed to mark mood, please try again later.'));
+                                }).done(() => {
+                                    MessageBox.success('Mark mood successfully');
+                                    that.loadReplays();
+                                }).fail(() => MessageBox.error('Failed to mark mood, please try again later.'));
                             }
                         }]
                     });
