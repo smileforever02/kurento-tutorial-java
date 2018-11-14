@@ -4,7 +4,7 @@
             <input type="checkbox" id="peerReplay" name="peerReplay" v-model="peerReplay"> <label for="peerReplay">peer video replay</label>
         </div>
         <ul v-if="playing === false" class="page-content item-list">
-            <li v-for="item in items" v-bind:key="item.id" v-bind:data-id="item.id">
+            <li v-for="item in items" v-bind:key="item.id" v-bind:data-id="item.id" v-bind:class="{'handled': item.status == 1}">
                 <span>{{item.createdDate}}</span>
                 <span>{{item.userId + '-' + item.peerUserId}}</span>
                 <span v-on:click="replay(item)" class="glyphicon glyphicon-expand right" aria-hidden="true"></span>
@@ -17,6 +17,9 @@
             <!-- <video id="replay-video" playsinline></video> -->
             <!-- <video id="peer-replay-video" playsinline></video> -->
             <span id="video-mask"></span>
+        </div>
+        <div v-if="playing === true" class="chart-container" style="position: absolute; bottom: 0; width:100%">
+            <canvas id="moodScore"></canvas>
         </div>
         <div v-if="playing === true" id="slider">
             <span>negative</span>
@@ -112,11 +115,11 @@ const m = Object.assign({
             // this.player.muted = true;
 
             // test events
-            ["abort", "DOMContentLoaded", "afterprint", "afterscriptexecute", "beforeprint", "beforescriptexecute", "beforeunload", "blur", "cancel", "change", "click", "close", "connect", "contextmenu", "error", "focus", "hashchange", "input", "invalid", "languagechange", "load", "loadend", "loadstart", "message", "offline", "online", "open", "pagehide", "pageshow", "popstate", "progress", "readystatechange", "reset", "select", "show", "sort", "storage", "submit", "toggle", "unload", "loadeddata", "loadedmetadata", "canplay", "playing", "play", "canplaythrough", "seeked", "seeking", "stalled", "suspend", "timeupdate", "volumechange", "waiting", "durationchange", "emptied", "unhandledrejection", "rejectionhandled"].forEach(name => {
-                this.player.addEventListener(name, function() {
-                    console.log('player ' + name);
-                });
-            });
+            // ["abort", "DOMContentLoaded", "afterprint", "afterscriptexecute", "beforeprint", "beforescriptexecute", "beforeunload", "blur", "cancel", "change", "click", "close", "connect", "contextmenu", "error", "focus", "hashchange", "input", "invalid", "languagechange", "load", "loadend", "loadstart", "message", "offline", "online", "open", "pagehide", "pageshow", "popstate", "progress", "readystatechange", "reset", "select", "show", "sort", "storage", "submit", "toggle", "unload", "loadeddata", "loadedmetadata", "canplay", "playing", "play", "canplaythrough", "seeked", "seeking", "stalled", "suspend", "timeupdate", "volumechange", "waiting", "durationchange", "emptied", "unhandledrejection", "rejectionhandled"].forEach(name => {
+            //     this.player.addEventListener(name, function() {
+            //         console.log('player ' + name);
+            //     });
+            // });
 
             this.player.addEventListener('loadeddata', e => {
                 videoFinished++;
@@ -173,7 +176,9 @@ const m = Object.assign({
                     // handle.text(5.5);
                 }
             });
-            this.__startRecording(_replay, this.player, $( "#slider" ));
+
+            let chart = this.initChart();
+            this.__startRecording(_replay, this.player, $( "#slider" ), chart);
         },
         __initReplay(_replay){
             let video = document.querySelector('#replay-video');
@@ -205,7 +210,7 @@ const m = Object.assign({
             });
             this.__startRecording(_replay, video, $( "#slider" ));
         },
-        __startRecording(_replay, video, slider){
+        __startRecording(_replay, video, slider, chart){
             let progress = document.querySelector('#replay-progress').querySelector('div');
             progress.style.cssText = 'width: 0';
             clearInterval(intervalFlag);
@@ -234,12 +239,17 @@ const m = Object.assign({
                 }
 
                 progress.style.cssText = 'width: ' + (100 * video.currentTime/duration) + '%;';
-                handle.text(slider.slider( "value" ));
+                let moodScore = slider.slider( "value" );
+                handle.text(moodScore);
                 if(video.ended !== true){
                     scores.push({
                         time: Math.round(video.currentTime),
-                        score: slider.slider( "value" )
+                        score: moodScore
                     });
+                    // update chart
+                    chart.config.data.datasets[0].data.push(moodScore);
+                    chart.config.data.labels.push('');
+                    chart.chart.update();
                 }else{
                     clearInterval(intervalFlag);
                     BootstrapDialog.show({
@@ -269,6 +279,65 @@ const m = Object.assign({
                     });
                 }
             }, interval);
+        },
+        initChart(){
+            var config = {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'mood',
+                        backgroundColor: window.chartColors.red,
+					    borderColor: window.chartColors.red,
+                        data: [],
+                        fill: false,
+                    }]
+                },
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    responsive: true,
+                    title: {
+                        display: false
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    },
+                    scales: {
+                        xAxes: [{
+                            gridLines: {
+                                display:false
+                            },
+                            display: true,
+                            scaleLabel: {
+                                display: true
+                            }
+                        }],
+                        yAxes: [{
+                            gridLines: {
+                                display:false
+                            },
+                            display: true,
+                            scaleLabel: {
+                                display: true
+                            }
+                        }]
+                    }
+                }
+            };
+    
+            let ctx = document.getElementById('moodScore').getContext('2d');
+            let chart = new Chart(ctx, config);
+            return {
+                config: config,
+                chart: chart
+            };
         },
         cancelReplay(){
             // let video = document.querySelector('#replay-video');
