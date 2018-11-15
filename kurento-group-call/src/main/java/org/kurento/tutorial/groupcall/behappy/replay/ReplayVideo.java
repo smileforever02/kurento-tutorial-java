@@ -19,6 +19,7 @@ public class ReplayVideo {
   private String peerCreatedDate;
   
   private int status;
+  private int peerStatus;
 
   public Long getVideoId() {
     return videoId;
@@ -106,5 +107,13 @@ public class ReplayVideo {
 
   public void setStatus(int status) {
     this.status = status;
+  }
+
+  public int getPeerStatus() {
+    return peerStatus;
+  }
+
+  public void setPeerStatus(int peerStatus) {
+    this.peerStatus = peerStatus;
   }
 }
