@@ -259,7 +259,7 @@ const m = Object.assign({
                 if(this.audioPlayer && this.audioPlayer.ended !== true && video.ended !== true){
                     console.log('recording: ' + this.player.currentTime + ', ' + this.audioPlayer.currentTime);
                     let gap = this.player.currentTime - this.audioPlayer.currentTime;
-                    if(Math.abs(gap) > 0.05){
+                    if(Math.abs(gap) > 0.1){
                         let v = gap > 0? this.player : this.audioPlayer;
                         console.log('aligment');
                         v.pause();

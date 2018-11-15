@@ -15,12 +15,39 @@
         #panel{
             height: 400px;
         }
+        #slider{
+            position: relative;
+            width: 90%;
+            margin: auto;
+            margin-top: 10em;
+        }
+        #custom-handle{
+            width: 0.5em;
+            height: 2.8em;
+            margin-top: -.8em;
+            text-align: center;
+            line-height: 1.6em;
+            border-radius: 1.5em;
+            outline: none;
+            background-color: green;
+            color: white;
+        }
+        #custom-handle span{
+            display: inline-block;
+            position: relative;
+            top: -1.5em;
+        }
     </style>
 </head>
 <body>
     <button id="addData">Add Data</button>
     <div class="chart-container" style="position: relative; height:400px; width:100%">
         <canvas id="myChart"></canvas>
+    </div>
+    <div id="slider">
+        <span>1</span>
+        <span style="float: right">900</span>
+        <div id="custom-handle" class="ui-slider-handle"><span></span></div>
     </div>
     <script>
             var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -78,15 +105,44 @@
             window.onload = function() {
                 var ctx = document.getElementById('myChart').getContext('2d');
                 let count = 900;
-                config.data.labels = [];
-                config.data.datasets[0].data = [];
+                let globalData = {
+                    labels: [],
+                    data: []
+                };
                 for(let i = 0; i < count; i++){
-                    config.data.labels.push('');
-                    config.data.datasets[0].data.push(randomScalingFactor());
+                    globalData.labels.push('');
+                    globalData.data.push(randomScalingFactor());
                 }
+                config.data.labels = globalData.labels.slice(0, 15);
+                config.data.datasets[0].data = globalData.data.slice(0, 15);
                 window.myLine = new Chart(ctx, config);
+
+                initSlider();
+                initChart();
             };
     
+            function initSlider(){
+                var handle = $( "#custom-handle>span" );
+                $( "#slider" ).slider({
+                    min: 1,
+                    max: 900,
+                    step: 1,
+                    value: 1,
+                    create: function() {
+                        handle.text( $(this).slider( "value" ) );
+                    },
+                    slide: function( event, ui ) {
+                        handle.text(ui.value);
+                    },
+                    start: function(event, ui) {
+                        console.log('start: ' + ui.value );
+                    },
+                    stop: function( event, ui ) {
+                        console.log('stop, score is: ' + ui.value );
+                    }
+                });
+            }
+
             // document.getElementById('randomizeData').addEventListener('click', function() {
             //     config.data.datasets.forEach(function(dataset) {
             //         dataset.data = dataset.data.map(function() {
