@@ -1,5 +1,6 @@
 package org.kurento.tutorial.groupcall.behappy.mood;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.Expose;
@@ -21,7 +22,12 @@ public class MoodJson {
   private String peerUserId;
   @SerializedName("scores")
   @Expose
-  private List<Score> scores = null;
+  private List<Score> scores = new ArrayList<>();
+  
+  @SerializedName("peerScores")
+  @Expose
+  private List<Score> peerScores = new ArrayList<>();
+  
   public Long getVideoId() {
     return videoId;
   }
@@ -51,5 +57,11 @@ public class MoodJson {
   }
   public void setScores(List<Score> scores) {
     this.scores = scores;
+  }
+  public List<Score> getPeerScores() {
+    return peerScores;
+  }
+  public void setPeerScores(List<Score> peerScores) {
+    this.peerScores = peerScores;
   }
 }

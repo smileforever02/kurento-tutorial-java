@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -73,6 +74,43 @@ public class VideoMoodController {
       moodJson.setScores(scores);
     }
 
+    return ResponseEntity.ok(moodJson);
+  }
+
+  @GetMapping(value = "/replays/peersmood")
+  public ResponseEntity<?> getVideoPeersMoods(
+      @RequestParam("videoId") Long videoId,
+      @RequestParam("peerVideoId") Long peerVideoId) {
+    MoodJson moodJson = new MoodJson();
+    if (videoId != null) {
+      List<VideoMood> videoMoods = videoMoodService.getVideoMoods(videoId);
+      if (videoMoods != null && !videoMoods.isEmpty()) {
+        Collections.sort(videoMoods);
+        moodJson.setVideoId(videoId);
+        List<Score> scores = new ArrayList<>();
+        for (VideoMood videoMood : videoMoods) {
+          scores.add(new Score(videoMood.getTime(), videoMood.getScore()));
+        }
+        moodJson.setScores(scores);
+      }
+
+      if (peerVideoId != null) {
+        moodJson.setPeerVideoId(peerVideoId);
+        List<VideoMood> peerVideoMoods = videoMoodService
+            .getVideoMoods(peerVideoId);
+        if (peerVideoMoods != null && !peerVideoMoods.isEmpty()) {
+          Collections.sort(peerVideoMoods);
+          if (peerVideoMoods != null && !peerVideoMoods.isEmpty()) {
+            List<Score> peerScores = new ArrayList<>();
+            for (VideoMood peerVideoMood : peerVideoMoods) {
+              peerScores.add(
+                  new Score(peerVideoMood.getTime(), peerVideoMood.getScore()));
+            }
+            moodJson.setPeerScores(peerScores);
+          }
+        }
+      }
+    }
     return ResponseEntity.ok(moodJson);
   }
 }
