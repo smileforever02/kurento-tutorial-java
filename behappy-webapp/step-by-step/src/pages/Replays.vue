@@ -10,7 +10,7 @@
                 <span v-on:click="replay(item)" class="glyphicon glyphicon-expand right" aria-hidden="true"></span>
                 <!-- <span v-on:click="replay(item)" v-bind:class="{'disable': item.status === 0}" class="glyphicon glyphicon-random right" aria-hidden="true"></span> -->
                 <!-- TODO -->
-                <!-- <span v-on:click="showHistoric(item)" v-if="item.status === 1" class="glyphicon glyphicon-random right" aria-hidden="true"></span> -->
+                <span v-on:click="showHistoric(item)" v-if="item.status === 1" class="glyphicon glyphicon-random right" aria-hidden="true"></span>
             </li>
         </ul>
         <div v-if="playing === true" id="replay-wrapper" class="replay-wrapper" style="padding: 2.2em 0 0 0;">
@@ -41,7 +41,7 @@
                 <canvas id="scoreChart"></canvas>
             </div>
             <div id="his-slider">
-                <span id="scoreStartTime"></span>
+                <span id="scoreStartTime">00:00</span>
                 <span id="scoreEndTime" style="float: right"></span>
                 <div id="his-custom-handle" class="ui-slider-handle"><span></span></div>
             </div>
@@ -92,19 +92,13 @@ const m = Object.assign({
 					    borderColor: window.chartColors.red,
                         data: [],
                         fill: false,
-                    },{
-                        label: 'peer',
-                        backgroundColor: window.chartColors.green,
-					    borderColor: window.chartColors.green,
-                        data: [],
-                        fill: false,
                     }]
                 },
                 options: {
                     responsive: true,
                     title: {
                         display: false,
-                        text: 'Chart.js Line Chart'
+                        text: 'moods'
                     },
                     tooltips: {
                         mode: 'index',
@@ -149,26 +143,62 @@ const m = Object.assign({
                 return timeStamp.slice(1, 3).map(n => normalize(n)).join(':');
             }
 
+            function padding(d){
+                if(d.length >= 15){
+                    return d;
+                }else{
+                    let p = [5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5];
+                    return d.concat(p).slice(0, 15);
+                }
+            }
+
             var ctx = document.getElementById('scoreChart').getContext('2d');
             let count = 900;
 
             Services.getScoreWithPeer(_replay.videoId, _replay.peerVideoId).done(d => {
-                if(!d.scores || d.scales.length === 0){
+                if(!d.scores || d.scores.length === 0){
                     MessageBox.info('There is not score for this replay.');
                     return;
                 }
-                 let globalData = {};
+                 let globalData = {
+                     labels: []
+                 };
                 if(d.peerScores && d.peerScores.length > 0){
+                    let me = d.scores;
+                    let peer = d.peerScores;
                     //TODO aligment here
-                    // let me = d.scales;
-                    // let peer = d.peerScores;
                     // let startTime = Math.max(me[0].score, peer[0].score);
                     // for(let i = 0; i < me.length; i++){
                         
                     // }
+                    let len = Math.min(me.length, peer.length);
+                    d.scores = me.slice(0, len);
+                    d.peerScores = peer.slice(0, len);
                     globalData.hasPeer = true;
                     globalData.peer = d.peerScores.map(s => s.score);
+                    config.data.datasets.push({
+                        label: 'peer',
+                        backgroundColor: window.chartColors.green,
+					    borderColor: window.chartColors.green,
+                        data: [],
+                        fill: false,
+                    });
+                }else{
+                    globalData.hasPeer = false;
                 }
+                globalData.me = d.scores.map(s => s.score);
+                globalData.me = padding(globalData.me);
+                globalData.peer = padding(globalData.peer);
+                for(let i = 1; i <= globalData.me.length; i++){
+                    globalData.labels.push(format(i));
+                }
+                
+                config.data.labels = globalData.labels.slice(0, 0 + 15);
+                config.data.datasets[0].data = globalData.me.slice(0, 0 + 15);
+                if(globalData.hasPeer === true){
+                    config.data.datasets[1].data = globalData.peer.slice(0, 0 + 15);
+                }
+
                 let chart = new Chart(ctx, config);
                 initSlider(globalData, chart);
             }).fail(e => {
@@ -177,9 +207,11 @@ const m = Object.assign({
 
             function initSlider(globalData, chart){
                 var handle = $( "#his-custom-handle>span" );
+                let len = globalData.me.length;
+                $('#scoreEndTime').text(format(len));
                 $( "#his-slider" ).slider({
                     min: 1,
-                    max: 900,
+                    max: len,
                     step: 1,
                     value: 1,
                     create: function() {
@@ -187,10 +219,12 @@ const m = Object.assign({
                     },
                     slide: function( event, ui ) {
                         handle.text(format(ui.value));
-                        let start = Math.min(parseInt(ui.value), 900 - 15);
+                        let start = Math.min(parseInt(ui.value), len - 15);
                         config.data.labels = globalData.labels.slice(start, start + 15);
-                        config.data.datasets[0].data = globalData.maleData.slice(start, start + 15);
-                        config.data.datasets[1].data = globalData.femaleData.slice(start, start + 15);
+                        config.data.datasets[0].data = globalData.me.slice(start, start + 15);
+                        if(globalData.hasPeer === true){
+                            config.data.datasets[1].data = globalData.peer.slice(start, start + 15);
+                        }
                         chart.update();
                     },
                     start: function(event, ui) {
