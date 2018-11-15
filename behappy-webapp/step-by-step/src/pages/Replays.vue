@@ -176,6 +176,7 @@ const m = Object.assign({
                     d.peerScores = peer.slice(0, len);
                     globalData.hasPeer = true;
                     globalData.peer = d.peerScores.map(s => s.score);
+                    globalData.peer = padding(globalData.peer);
                     config.data.datasets.push({
                         label: 'peer',
                         backgroundColor: window.chartColors.green,
@@ -188,7 +189,6 @@ const m = Object.assign({
                 }
                 globalData.me = d.scores.map(s => s.score);
                 globalData.me = padding(globalData.me);
-                globalData.peer = padding(globalData.peer);
                 for(let i = 1; i <= globalData.me.length; i++){
                     globalData.labels.push(format(i));
                 }
