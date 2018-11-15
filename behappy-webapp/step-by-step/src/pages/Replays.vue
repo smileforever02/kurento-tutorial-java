@@ -272,11 +272,16 @@ const m = Object.assign({
                 }
 
                 progress.style.cssText = 'width: ' + (100 * video.currentTime/duration) + '%;';
-                let moodScore = slider.slider( "value" );
                 // handle.text(moodScore);
                 if(video.ended !== true){
+                    let currT = Math.round(video.currentTime);
+                    // don't record if video is paused
+                    if(scores.length > 0 && scores[scores.length - 1].time >= currT){
+                        return;
+                    }
+                    let moodScore = slider.slider( "value" );
                     scores.push({
-                        time: Math.round(video.currentTime),
+                        time: currT,
                         score: moodScore
                     });
                     // update chart
