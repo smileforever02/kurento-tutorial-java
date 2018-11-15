@@ -256,7 +256,7 @@ const m = Object.assign({
                     return;
                 }
                 let duration = video.duration;
-                if(this.audioPlayer){
+                if(this.audioPlayer && this.audioPlayer.ended !== true && video.ended !== true){
                     console.log('recording: ' + this.player.currentTime + ', ' + this.audioPlayer.currentTime);
                     let gap = this.player.currentTime - this.audioPlayer.currentTime;
                     if(Math.abs(gap) > 0.05){
