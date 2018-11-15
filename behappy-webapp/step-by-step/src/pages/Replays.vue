@@ -4,10 +4,13 @@
             <input type="checkbox" id="peerReplay" name="peerReplay" v-model="peerReplay"> <label for="peerReplay">peer video replay</label>
         </div>
         <ul v-if="playing === false" class="page-content item-list">
-            <li v-for="item in items" v-bind:key="item.id" v-bind:data-id="item.id" v-bind:class="{'handled': item.status == 1}">
+            <li v-for="item in items" v-bind:key="item.id" v-bind:data-id="item.id" v-bind:class="{'handled': item.status === 1}">
                 <span>{{item.createdDate}}</span>
                 <span>{{item.userId + '-' + item.peerUserId}}</span>
                 <span v-on:click="replay(item)" class="glyphicon glyphicon-expand right" aria-hidden="true"></span>
+                <!-- <span v-on:click="replay(item)" v-bind:class="{'disable': item.status === 0}" class="glyphicon glyphicon-random right" aria-hidden="true"></span> -->
+                <!-- TODO -->
+                <!-- <span v-on:click="showHistoric(item)" v-if="item.status === 1" class="glyphicon glyphicon-random right" aria-hidden="true"></span> -->
             </li>
         </ul>
         <div v-if="playing === true" id="replay-wrapper" class="replay-wrapper" style="padding: 2.2em 0 0 0;">
@@ -32,6 +35,17 @@
         <div v-if="playing === true" id="audio-wrapper" style="display: none;">
             <video id="peer-replay-video" playsinline></video>
         </div>
+        <div v-if="showHis === true" id="historyScores">
+            <span v-on:click="cancelhis()" class="glyphicon glyphicon-remove-circle" aria-hidden="true" style="position:absolute;top: 1.5em;color: red;font-size:2em;z-index:1000;"></span>
+            <div class="chart-container" style="position: relative; width:100%">
+                <canvas id="scoreChart"></canvas>
+            </div>
+            <div id="his-slider">
+                <span id="scoreStartTime"></span>
+                <span id="scoreEndTime" style="float: right"></span>
+                <div id="his-custom-handle" class="ui-slider-handle"><span></span></div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -48,6 +62,7 @@ const m = Object.assign({
     data(){
         return {
             playing: false,
+            showHis: false,
             peerReplay: false,
             recording: false,
             items: []
@@ -62,6 +77,134 @@ const m = Object.assign({
         this.audioPlayer = null;
     },
     methods:{
+        showHistoric(_replay){
+            this.showHis = true;
+            this.$nextTick(() => this.__initHistoricChart(_replay));
+        },
+        __initHistoricChart(_replay){
+            var config = {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'me',
+                        backgroundColor: window.chartColors.red,
+					    borderColor: window.chartColors.red,
+                        data: [],
+                        fill: false,
+                    },{
+                        label: 'peer',
+                        backgroundColor: window.chartColors.green,
+					    borderColor: window.chartColors.green,
+                        data: [],
+                        fill: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: false,
+                        text: 'Chart.js Line Chart'
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true
+                            }
+                        }]
+                    }
+                }
+            };
+    
+            function normalize(num){
+                return ('00' + Math.floor(num)).slice(-2);
+            }
+            function format(time){
+                if(typeof time === 'string'){
+                    time = parseInt(time);
+                }
+                let timeStamp = [0, 0, 0]; // [hour, minute, second]
+                timeStamp[2] = time%60;
+                let minutes = Math.floor(time/60);
+                timeStamp[1] = minutes;
+                if(minutes >= 60){
+                    timeStamp[1] = minutes%60;
+                    timeStamp[0] = Math.floor(minutes/60);
+                }
+                return timeStamp.slice(1, 3).map(n => normalize(n)).join(':');
+            }
+
+            var ctx = document.getElementById('scoreChart').getContext('2d');
+            let count = 900;
+
+            Services.getScoreWithPeer(_replay.videoId, _replay.peerVideoId).done(d => {
+                if(!d.scores || d.scales.length === 0){
+                    MessageBox.info('There is not score for this replay.');
+                    return;
+                }
+                 let globalData = {};
+                if(d.peerScores && d.peerScores.length > 0){
+                    //TODO aligment here
+                    // let me = d.scales;
+                    // let peer = d.peerScores;
+                    // let startTime = Math.max(me[0].score, peer[0].score);
+                    // for(let i = 0; i < me.length; i++){
+                        
+                    // }
+                    globalData.hasPeer = true;
+                    globalData.peer = d.peerScores.map(s => s.score);
+                }
+                let chart = new Chart(ctx, config);
+                initSlider(globalData, chart);
+            }).fail(e => {
+                MessageBox.error('Sorry, can\'t get your score.')
+            });
+
+            function initSlider(globalData, chart){
+                var handle = $( "#his-custom-handle>span" );
+                $( "#his-slider" ).slider({
+                    min: 1,
+                    max: 900,
+                    step: 1,
+                    value: 1,
+                    create: function() {
+                        handle.text('00:00');
+                    },
+                    slide: function( event, ui ) {
+                        handle.text(format(ui.value));
+                        let start = Math.min(parseInt(ui.value), 900 - 15);
+                        config.data.labels = globalData.labels.slice(start, start + 15);
+                        config.data.datasets[0].data = globalData.maleData.slice(start, start + 15);
+                        config.data.datasets[1].data = globalData.femaleData.slice(start, start + 15);
+                        chart.update();
+                    },
+                    start: function(event, ui) {
+                        console.log('start: ' + ui.value );
+                    },
+                    stop: function( event, ui ) {
+                        console.log('stop, score is: ' + ui.value );
+                    }
+                });
+            }
+        },
+        cancelhis(){
+             this.showHis = false;
+        },
         loadReplays(){
             Services.getReplays().done((data) => {
                 // console.log(data);

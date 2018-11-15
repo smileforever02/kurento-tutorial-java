@@ -123,6 +123,26 @@ export default {
     getReplayScore(videoId){
         return this.get('/replays/mood/' + videoId);
     },
+    getScoreWithPeer(id, peerId){
+        return this.get('/replays/peersmood?videoId=' + id + '&peerVideoId=' + peerId);
+    },
+    normalize(num){
+        return ('00' + Math.floor(num)).slice(-2);
+    },
+    format(time){
+        if(typeof time === 'string'){
+            time = parseInt(time);
+        }
+        let timeStamp = [0, 0, 0]; // [hour, minute, second]
+        timeStamp[2] = time%60;
+        let minutes = Math.floor(time/60);
+        timeStamp[1] = minutes;
+        if(minutes >= 60){
+            timeStamp[1] = minutes%60;
+            timeStamp[0] = Math.floor(minutes/60);
+        }
+        return timeStamp.slice(1, 3).map(n => this.normalize(n)).join(':');
+    },
     post(url, data){
         return this.send(url, 'POST', data);
     },

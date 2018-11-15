@@ -30,7 +30,7 @@
             border-radius: 1.5em;
             outline: none;
             background-color: green;
-            color: white;
+            color: black;
         }
         #custom-handle span{
             display: inline-block;
@@ -45,8 +45,8 @@
         <canvas id="myChart"></canvas>
     </div>
     <div id="slider">
-        <span>1</span>
-        <span style="float: right">900</span>
+        <span>00:00</span>
+        <span style="float: right">15:00</span>
         <div id="custom-handle" class="ui-slider-handle"><span></span></div>
     </div>
     <script>
@@ -56,18 +56,16 @@
                 data: {
                     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                     datasets: [{
-                        label: 'mood',
+                        label: 'wife',
                         backgroundColor: window.chartColors.red,
 					    borderColor: window.chartColors.red,
-                        data: [
-                            randomScalingFactor(),
-                            randomScalingFactor(),
-                            randomScalingFactor(),
-                            randomScalingFactor(),
-                            randomScalingFactor(),
-                            randomScalingFactor(),
-                            randomScalingFactor()
-                        ],
+                        data: [],
+                        fill: false,
+                    },{
+                        label: 'husband',
+                        backgroundColor: window.chartColors.green,
+					    borderColor: window.chartColors.green,
+                        data: [],
                         fill: false,
                     }]
                 },
@@ -102,26 +100,46 @@
                 }
             };
     
+            function normalize(num){
+                return ('00' + Math.floor(num)).slice(-2);
+            }
+            function format(time){
+                if(typeof time === 'string'){
+                    time = parseInt(time);
+                }
+                let timeStamp = [0, 0, 0]; // [hour, minute, second]
+                timeStamp[2] = time%60;
+                let minutes = Math.floor(time/60);
+                timeStamp[1] = minutes;
+                if(minutes >= 60){
+                    timeStamp[1] = minutes%60;
+                    timeStamp[0] = Math.floor(minutes/60);
+                }
+                return timeStamp.slice(1, 3).map(n => normalize(n)).join(':');
+            }
+
             window.onload = function() {
                 var ctx = document.getElementById('myChart').getContext('2d');
                 let count = 900;
                 let globalData = {
                     labels: [],
-                    data: []
+                    maleData: [],
+                    femaleData: []
                 };
                 for(let i = 0; i < count; i++){
-                    globalData.labels.push('');
-                    globalData.data.push(randomScalingFactor());
+                    globalData.labels.push(format(i + 1));
+                    globalData.maleData.push(randomScalingFactor());
+                    globalData.femaleData.push(randomScalingFactor());
                 }
                 config.data.labels = globalData.labels.slice(0, 15);
-                config.data.datasets[0].data = globalData.data.slice(0, 15);
+                config.data.datasets[0].data = globalData.maleData.slice(0, 15);
+                config.data.datasets[1].data = globalData.femaleData.slice(0, 15);
                 window.myLine = new Chart(ctx, config);
 
-                initSlider();
-                initChart();
+                initSlider(globalData, window.myLine);
             };
-    
-            function initSlider(){
+
+            function initSlider(globalData, chart){
                 var handle = $( "#custom-handle>span" );
                 $( "#slider" ).slider({
                     min: 1,
@@ -129,10 +147,15 @@
                     step: 1,
                     value: 1,
                     create: function() {
-                        handle.text( $(this).slider( "value" ) );
+                        handle.text('00:00');
                     },
                     slide: function( event, ui ) {
-                        handle.text(ui.value);
+                        handle.text(format(ui.value));
+                        let start = Math.min(parseInt(ui.value), 900 - 15);
+                        config.data.labels = globalData.labels.slice(start, start + 15);
+                        config.data.datasets[0].data = globalData.maleData.slice(start, start + 15);
+                        config.data.datasets[1].data = globalData.femaleData.slice(start, start + 15);
+                        chart.update();
                     },
                     start: function(event, ui) {
                         console.log('start: ' + ui.value );
