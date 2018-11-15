@@ -37,7 +37,7 @@
         </div>
         <div v-if="showHis === true" id="historyScores">
             <span v-on:click="cancelhis()" class="glyphicon glyphicon-remove-circle" aria-hidden="true" style="position:absolute;top: 1.5em;color: red;font-size:2em;z-index:1000;"></span>
-            <div class="chart-container" style="position: relative; width:100%">
+            <div class="chart-container" style="position: relative; width:100%; max-width: 1000px;margin: auto;margin-top: 5em;">
                 <canvas id="scoreChart"></canvas>
             </div>
             <div id="his-slider">
