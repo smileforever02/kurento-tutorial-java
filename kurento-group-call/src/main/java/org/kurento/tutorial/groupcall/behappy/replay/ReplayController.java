@@ -52,7 +52,7 @@ public class ReplayController {
               replayVideo
                   .setPeerCreatedDate(sdf.format(groupRecord.getCreatedDate()));
               replayVideo.setAudioUri(groupRecord.getAudioUri());
-              replayVideo.setStatus(groupRecord.getStatus());
+              replayVideo.setPeerStatus(groupRecord.getStatus());
             }
           }
         }
