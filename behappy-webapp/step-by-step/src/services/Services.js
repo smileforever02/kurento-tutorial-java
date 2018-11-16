@@ -126,7 +126,7 @@ export default {
     getScoreWithPeer(id, peerId){
         return this.get('/replays/peersmood?videoId=' + id + '&peerVideoId=' + peerId);
     },
-    normalize(num){
+    fillZero(num){
         return ('00' + Math.floor(num)).slice(-2);
     },
     format(time){
@@ -141,7 +141,7 @@ export default {
             timeStamp[1] = minutes%60;
             timeStamp[0] = Math.floor(minutes/60);
         }
-        return timeStamp.slice(1, 3).map(n => this.normalize(n)).join(':');
+        return timeStamp.slice(1, 3).map(n => this.fillZero(n)).join(':');
     },
     post(url, data){
         return this.send(url, 'POST', data);

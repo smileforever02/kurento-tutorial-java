@@ -36,7 +36,8 @@
             <video id="peer-replay-video" playsinline></video>
         </div>
         <div v-if="showHis === true" id="historyScores">
-            <span v-on:click="cancelhis()" class="glyphicon glyphicon-remove-circle" aria-hidden="true" style="position:absolute;top: 1.5em;color: red;font-size:2em;z-index:1000;"></span>
+            <span v-on:click="cancelhis()" class="glyphicon glyphicon-remove-circle" aria-hidden="true" style="position:absolute;top: 0.6em;color: red;font-size:2em;z-index:90;"></span>
+            <span v-on:click="showOverAll()" class="glyphicon glyphicon-fullscreen" aria-hidden="true" style="position:absolute;top: 2.5em;left: 0.2em;color: green;font-size:1.5em;z-index:90;"></span>
             <div class="chart-container" style="position: relative; width:100%; max-width: 1000px;margin: auto;margin-top: 5em;">
                 <canvas id="scoreChart"></canvas>
             </div>
@@ -44,6 +45,11 @@
                 <span id="scoreStartTime">00:00</span>
                 <span id="scoreEndTime" style="float: right"></span>
                 <div id="his-custom-handle" class="ui-slider-handle"><span></span></div>
+            </div>
+            <div class="overall-container" style="display: none;">
+                <div class="overall-chart-container" style="">
+                    <canvas id="overAllChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -81,8 +87,11 @@ const m = Object.assign({
             this.showHis = true;
             this.$nextTick(() => this.__initHistoricChart(_replay));
         },
-        __initHistoricChart(_replay){
-            var config = {
+        showOverAll(){
+            $('#historyScores .overall-container').show();
+        },
+        __getDefaultChartConfig(){
+            return {
                 type: 'line',
                 data: {
                     labels: [],
@@ -131,25 +140,14 @@ const m = Object.assign({
                     }
                 }
             };
-    
-            function normalize(num){
-                return ('00' + Math.floor(num)).slice(-2);
-            }
-            function format(time){
-                if(typeof time === 'string'){
-                    time = parseInt(time);
-                }
-                let timeStamp = [0, 0, 0]; // [hour, minute, second]
-                timeStamp[2] = time%60;
-                let minutes = Math.floor(time/60);
-                timeStamp[1] = minutes;
-                if(minutes >= 60){
-                    timeStamp[1] = minutes%60;
-                    timeStamp[0] = Math.floor(minutes/60);
-                }
-                return timeStamp.slice(1, 3).map(n => normalize(n)).join(':');
-            }
-
+        },
+        __initHistoricChart(_replay){
+            var config = this.__getDefaultChartConfig();
+            var overAllCfg = this.__getDefaultChartConfig();
+            var overAllContainer = $('#historyScores .overall-container');
+            overAllContainer.click(e => {
+                overAllContainer.hide();
+            });
             function padding(d){
                 if(d.length >= 15){
                     return d;
@@ -160,8 +158,6 @@ const m = Object.assign({
             }
 
             var ctx = document.getElementById('scoreChart').getContext('2d');
-            let count = 900;
-
             Services.getScoreWithPeer(_replay.videoId, _replay.peerVideoId).done(d => {
                 if(!d.scores || d.scores.length === 0){
                     MessageBox.info('There is not score for this replay.');
@@ -191,13 +187,20 @@ const m = Object.assign({
                         data: [],
                         fill: false,
                     });
+                    overAllCfg.data.datasets.push({
+                        label: 'peer',
+                        backgroundColor: window.chartColors.green,
+					    borderColor: window.chartColors.green,
+                        data: [],
+                        fill: false,
+                    });
                 }else{
                     globalData.hasPeer = false;
                 }
                 globalData.me = d.scores.map(s => s.score);
                 globalData.me = padding(globalData.me);
                 for(let i = 1; i <= globalData.me.length; i++){
-                    globalData.labels.push(format(i));
+                    globalData.labels.push(Services.format(i));
                 }
                 
                 config.data.labels = globalData.labels.slice(0, 0 + 15);
@@ -207,15 +210,23 @@ const m = Object.assign({
                 }
 
                 let chart = new Chart(ctx, config);
+                createOverAllChart(globalData);
                 initSlider(globalData, chart);
             }).fail(e => {
                 MessageBox.error('Sorry, can\'t get your score.')
             });
-
+            function createOverAllChart(data){
+                overAllCfg.data.labels = data.labels;
+                overAllCfg.data.datasets[0].data = data.me;
+                if(data.hasPeer === true){
+                    overAllCfg.data.datasets[1].data = data.peer
+                }
+                new Chart(document.getElementById('overAllChart').getContext('2d'), overAllCfg);
+            }
             function initSlider(globalData, chart){
                 var handle = $( "#his-custom-handle>span" );
                 let len = globalData.me.length;
-                $('#scoreEndTime').text(format(len));
+                $('#scoreEndTime').text(Services.format(len));
                 $( "#his-slider" ).slider({
                     min: 1,
                     max: len,
@@ -225,7 +236,7 @@ const m = Object.assign({
                         handle.text('00:00');
                     },
                     slide: function( event, ui ) {
-                        handle.text(format(ui.value));
+                        handle.text(Services.format(ui.value));
                         let start = Math.min(parseInt(ui.value), len - 15);
                         config.data.labels = globalData.labels.slice(start, start + 15);
                         config.data.datasets[0].data = globalData.me.slice(start, start + 15);
