@@ -40,7 +40,7 @@
             <div class="chart-container" style="position: relative; width:100%; max-width: 1000px;margin: auto;margin-top: 5em;">
                 <canvas id="scoreChart"></canvas>
             </div>
-            <div id="his-slider">
+            <div id="his-slider" style="margin-top: 1em;color: black;">
                 <span id="scoreStartTime">00:00</span>
                 <span id="scoreEndTime" style="float: right"></span>
                 <div id="his-custom-handle" class="ui-slider-handle"><span></span></div>
@@ -96,9 +96,9 @@ const m = Object.assign({
                 },
                 options: {
                     responsive: true,
+                    animation: {duration: 0},
                     title: {
-                        display: false,
-                        text: 'moods'
+                        display: false
                     },
                     tooltips: {
                         mode: 'index',
@@ -111,12 +111,19 @@ const m = Object.assign({
                     scales: {
                         xAxes: [{
                             display: true,
+                            gridLines: {
+                                display:false
+                            },
                             scaleLabel: {
                                 display: true
                             }
                         }],
                         yAxes: [{
                             display: true,
+                            ticks: {
+                                min: 1,
+                                max: 10
+                            },
                             scaleLabel: {
                                 display: true
                             }
@@ -558,6 +565,10 @@ const m = Object.assign({
                         yAxes: [{
                             gridLines: {
                                 display:false
+                            },
+                            ticks: {
+                                min: 1,
+                                max: 10
                             },
                             display: true,
                             scaleLabel: {
