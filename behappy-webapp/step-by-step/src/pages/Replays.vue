@@ -4,13 +4,13 @@
             <input type="checkbox" id="peerReplay" name="peerReplay" v-model="peerReplay"> <label for="peerReplay">peer video replay</label>
         </div>
         <ul v-if="playing === false" class="page-content item-list">
-            <li v-for="item in items" v-bind:key="item.id" v-bind:data-id="item.id" v-bind:class="{'handled': item.status === 1}">
-                <span>{{item.createdDate}}</span>
+            <li v-for="item in items" v-bind:key="item.id" v-bind:data-id="item.id"> <!-- v-bind:class="{'handled': item.status === 1}"-->
+                <span class="sub-title">{{item.createdDate}}</span>
                 <span>{{item.userId + '-' + item.peerUserId}}</span>
-                <span v-on:click="replay(item)" class="glyphicon glyphicon-expand right" aria-hidden="true"></span>
+                <span v-on:click="replay(item)" class="glyphicon glyphicon-expand" aria-hidden="true" style="position: absolute;right: 0.5em;margin: 0;"></span>
                 <!-- <span v-on:click="replay(item)" v-bind:class="{'disable': item.status === 0}" class="glyphicon glyphicon-random right" aria-hidden="true"></span> -->
                 <!-- TODO -->
-                <span v-on:click="showHistoric(item)" v-if="item.status === 1" class="glyphicon glyphicon-random right" aria-hidden="true"></span>
+                <span v-on:click="showHistoric(item)" v-if="item.status === 1" class="glyphicon glyphicon-random" aria-hidden="true" style="position: absolute;right: 2em;margin: 0;"></span>
             </li>
         </ul>
         <div v-if="playing === true" id="replay-wrapper" class="replay-wrapper" style="padding: 2.2em 0 0 0;">
