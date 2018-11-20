@@ -241,6 +241,10 @@ $('#participants .others').delegate('.participant', 'click', e => {
     mainContainer.appendChild(e.currentTarget);
     otherContainer.appendChild(mainVideo);
 });
+
+$('#play-all-videos').click(__ => {
+    $('#participants video').each((__, e) => e.play());
+});
 // function RecognizerStop(){
 //     recognierWindow.postMessage(JSON.stringify({id: 'stopTranslate'}), origin);
 // }
